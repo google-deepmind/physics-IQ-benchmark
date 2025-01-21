@@ -72,7 +72,6 @@ def download_physics_iq_data(fps: str):
     for directory, subdirs in directories.items():
         if subdirs:
             for fps_option in subdirs:
-                #print(directory, subdirs, fps_option)
                 remote_path = f"{base_url}/{directory}/{fps_option}FPS"
                 local_path = os.path.join(local_base_dir, directory, f"{fps_option}FPS")
                 download_directory(remote_path=remote_path, local_path=local_path)
@@ -80,7 +79,6 @@ def download_physics_iq_data(fps: str):
         else:
             remote_path = f"{base_url}/{directory}"
             local_path = os.path.join(local_base_dir, directory)
-            #print(directory)
             download_directory(remote_path=remote_path, local_path=local_path)
 
     print("Download process complete.")
