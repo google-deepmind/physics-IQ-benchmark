@@ -85,5 +85,5 @@ def download_physics_iq_data(fps: str):
 
 
 if __name__ == '__main__':
-    user_fps = input("Enter the desired FPS (e.g., 8, 16, 24, 30, other): ").strip()
+    user_fps = input("Enter your model's frames per second FPS (e.g., 8, 16, 24, 30): ").strip()
     download_physics_iq_data(user_fps)
