@@ -1,3 +1,4 @@
+gsutil
 argparse
 opencv-python
 matplotlib
