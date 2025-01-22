@@ -28,7 +28,6 @@ def download_directory(remote_path: str, local_path: str):
     Args:
       remote_path: Cloud path
       local_path: Local path
-      dry_run: If True, only prints the commands without executing them.
     """
     os.makedirs(local_path, exist_ok=True)
     print(f"Preparing to download: {remote_path} to {local_path}")
@@ -53,11 +52,13 @@ def download_physics_iq_data(fps: str):
     valid_fps = ['8', '16', '24', '30', 'other']
     assert fps in valid_fps, 'FPS needs to be in [8, 16, 24, 30, other]'
 
-    download_fps = [fps]
+    
     if fps == 'other':
         download_fps = ['30']
-    elif fps != '30':
-        download_fps.append('30')  # Always download 30FPS data
+    else:
+        download_fps = [fps]
+        if fps != '30':
+            download_fps.append('30')  # Always download 30FPS data
 
     base_url = "gs://physics-iq-benchmark"  # Base GCS URL
     local_base_dir = "./physics-IQ-benchmark"  # Local base directory
@@ -87,5 +88,5 @@ def download_physics_iq_data(fps: str):
 
 
 if __name__ == '__main__':
-    user_fps = input("Enter your model's frames per second FPS (e.g., 8, 16, 24, 30): ").strip()
+    user_fps = input("Enter your model's frames per second FPS (e.g., 8, 16, 24, 30, other): ").strip()
     download_physics_iq_data(user_fps)
