@@ -93,7 +93,7 @@ def process_videos(
   scenario_data = []
   processed_scenarios = set()
   gen_video_duration_frames = get_video_frame_count(
-      os.path.join(generated_folders, sorted(os.listdir(generated_folders)[0]))
+      os.path.join(generated_folders, sorted(os.listdir(generated_folders))[0])
   )
 
   def mse_per_frame(video1, video2):
@@ -163,7 +163,7 @@ def process_videos(
   scenario_data = []
   processed_scenarios = set()
   gen_video_duration_frames = get_video_frame_count(
-      os.path.join(generated_folders, sorted(os.listdir(generated_folders)[0]))
+      os.path.join(generated_folders, sorted(os.listdir(generated_folders))[0])
   )
 
   consider_frames = fps * 5
