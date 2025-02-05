@@ -20,6 +20,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
+from plot_settings import model_to_plotting_name, model_to_color
 
 def parse_list_of_floats(
     value: str | list[float] | list[int]
@@ -156,10 +157,7 @@ def process_directory(directory_path: str) -> None:
     model_name = os.path.splitext(csv_file)[0]
     final_score, physical_variance = calculate_iq_score(file_path)
 
-    print(
-      "Adjusted physical_variance_all_metrics:", physical_variance
-    )
-    print("Adjusted final_score:", final_score)
+    print(f"Physics-IQ score for {csv_file.replace('.csv', '')}: {final_score}")
     print("-" * 50)
 
     model_scores[model_name] = final_score
@@ -171,7 +169,11 @@ def process_directory(directory_path: str) -> None:
   values = [item[1] for item in sorted_items]
 
   plt.figure(figsize=(10, 6))
-  bars = plt.bar(model_names, values, color="#333333")
+
+  plot_colors = [model_to_color(m) for m in model_names]
+  plot_names = [model_to_plotting_name(m) for m in model_names]
+
+  bars = plt.bar(plot_names, values, color=plot_colors)
 
   for bar in bars:
     height = bar.get_height()
@@ -199,7 +201,8 @@ def process_directory(directory_path: str) -> None:
   ax.spines["top"].set_visible(False)
 
   plt.xlabel("")
-  plt.ylabel("")
+  plt.ylabel("Physics-IQ score\n(higher=better)")
   ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f}%"))
   plt.tight_layout()
-  plt.show()
+  plt.savefig(os.path.join(directory_path, 'physics_IQ_score_barplot.pdf'))
+
