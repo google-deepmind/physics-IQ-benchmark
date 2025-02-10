@@ -17,6 +17,7 @@ import os
 import sys
 import pandas as pd
 import cv2
+import argparse
 from fps_changer import change_video_fps
 from calculate_and_write_metrics_to_csv import process_videos
 from calculate_iq_score import process_directory
@@ -267,7 +268,6 @@ def ensure_binary_mask_structure(
   return binary_mask_folder
 
 if __name__ == "__main__":
-  import argparse
 
   parser = argparse.ArgumentParser(description="Video Processing Script.")
   parser.add_argument(
@@ -292,7 +292,7 @@ if __name__ == "__main__":
 
   args = parser.parse_args()
 
-  csv_files_folder = os.path.join(args.output_folder, "csv_files")
+  csv_files_folder = os.path.join(args.output_folder, "results")
   os.makedirs(csv_files_folder, exist_ok=True)
 
   for input_folder in args.input_folders:
@@ -349,5 +349,6 @@ if __name__ == "__main__":
       )
 
   process_directory(csv_files_folder)
-  print(f"\nMetrics and plots generated in: {csv_files_folder}")
+  print(f"\nCheck out {csv_files_folder} for saved plots and metrics.")
+  print("Thank you for using the Physics-IQ benchmark!")
 
