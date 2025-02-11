@@ -42,7 +42,7 @@ python3 ./code/download_physics_iq_data.py
 ```
 
 - If your desired FPS already exists in the dataset, it will be downloaded.
-- If it does not exist, the script will download 30 FPS files and generate your desired FPS videos based on the 30 FPS version.
+- If it does not exist, the script will download 30 FPS files and generate your desired FPS videos by downsampling the 30 FPS version.
 
 ---
 
@@ -58,9 +58,9 @@ This section explains how to generate videos using the provided benchmark and sa
 
 2. **Steps to Run**:
    - Generate videos using the initial frame (and text condition, if applicable).
-   - Save generated videos in the following structure:
+   - Save generated videos in the following structure, using any filename as long as the unique ID prefix from the test videos is kept (`0001_`, ..., `0198_`):
      ```
-     .model_name/{ID}_{perspective}_{scenario_name}.mp4
+     .model_name/{ID}_{anything-you-like}.mp4
      ```
    - Refer to the `generated_video_name` column in `descriptions.csv` for file naming conventions.
 

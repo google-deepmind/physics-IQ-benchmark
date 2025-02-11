@@ -26,6 +26,7 @@ import numpy as np
 import pandas as pd
 import tqdm
 
+
 def get_video_frame_count(filepath):
   """Get the total number of frames in a video."""
   if not os.path.exists(filepath):
@@ -71,6 +72,7 @@ def process_videos(
       None: This function does not return any value but saves the results to a
       CSV file.
   """
+
   def spatial_binary_masks(mask_frames):
     """Collapse the time dimension of binary masks into a single frame."""
     if not mask_frames:
@@ -127,9 +129,8 @@ def process_videos(
     Returns:
         A list of frames from the video.
     """
-    if not os.path.exists(filepath):
-      print(f'File not found: {filepath}')
-      return []
+    assert os.path.exists(filepath), f'File not found: {filepath}'
+
     cap = cv2.VideoCapture(filepath)
     frames = []
     frame_idx = 0
@@ -199,7 +200,7 @@ def process_videos(
     Returns:
       A dictionary of calculated metrics.
     """
-    print('## Processing scenario ##: ', scenario_name)
+    print('## Processing scenario ', scenario_name)
     real_path_v1 = os.path.join(real_folders, f'{scenario_ID_take_1}_testing-videos_{fps}FPS_{view}_take-1_{scenario_name}')
     generated_path = os.path.join(
         generated_folders, f'{scenario_ID_take_1}_{view}_{scenario_name}'
@@ -281,8 +282,7 @@ def process_videos(
         or not binary_v1_frames
         or not binary_v2_frames
     ):
-      print(f'Skipping scenario {scenario_name}_{view} due to missing frames')
-      return None
+      raise ValueError(f"Scenario {scenario_name}_{view} has missing frames.")
 
     # Create subdirectories for each model in spatial and spatiotemporal maps
     # folders
@@ -393,7 +393,6 @@ def process_videos(
     }
   # Iterate over all scenarios
   # Dictionary to track processed scenarios and their IDs
-  # Dictionary to track processed scenarios and their IDs
   scenario_info = {}
   processed_scenarios = set()
   scenario_data = []
@@ -433,7 +432,7 @@ def process_videos(
       for view in ['perspective-left', 'perspective-center', 'perspective-right']:
           if view not in take_1_views or view not in take_2_views:
               raise ValueError(f"Missing IDs for scenario {scenario_name}, view {view}: "
-                              f"take-1={take_1_views.get(view)}, take-2={take_2_views.get(view)}")
+                               f"take-1={take_1_views.get(view)}, take-2={take_2_views.get(view)}")
 
       processed_scenarios.add(scenario_name)
       progress_bar.update(1)
@@ -578,5 +577,4 @@ if __name__ == '__main__':
 
   # Plot MSE values
   plot_metrics(args.csv_files, './plots', args.fps)
-
 

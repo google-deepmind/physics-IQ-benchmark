@@ -18,6 +18,9 @@ import sys
 import pandas as pd
 import cv2
 import argparse
+import subprocess
+import math
+
 from fps_changer import change_video_fps
 from calculate_and_write_metrics_to_csv import process_videos
 from calculate_iq_score import process_directory
@@ -43,7 +46,6 @@ def is_csv_complete(csv_file_path: str, expected_scenarios: set[str]) -> bool:
 
     # Extract base scenario names from descriptions (strip `perspective-center_take-1`, `perspective-left_take-1`)
     base_expected_scenarios = {scenario.split("_")[-1] for scenario in expected_scenarios}
-    # Extract scenario names from the calculated CSV file
     csv_scenarios = set(df["scenario"])
 
     # Check for missing scenarios
@@ -55,6 +57,35 @@ def is_csv_complete(csv_file_path: str, expected_scenarios: set[str]) -> bool:
     print(f"CSV file {csv_file_path} is complete with all scenarios.")
     return True
 
+
+def rename_generated_videos(generated_video_directory: str, real_video_directory: str) -> None:
+  """Renames .mp4 files in the given directory for consistency.
+
+  Args:
+    generated_video_directory: The directory containing the generated .mp4 files.
+    real_video_directory: The directory containing the corresponding real .mp4 files.
+  """
+
+  validate_generations(generated_video_directory)
+
+  name_mapping = {}
+  prefix_length = 4
+  for realfile in sorted(os.listdir(real_video_directory)):
+    parts = realfile.split("_")
+    name_mapping[realfile[:prefix_length]] = "_".join([
+          parts[0],  # Keep the first part (e.g., 0092)
+          parts[3],  # Keep the perspective (e.g., perspective-center)
+          parts[5]   # Keep the scenario name (e.g., trimmed-lit-candle.mp4)
+      ])
+
+  for genfile in sorted(os.listdir(generated_video_directory)):
+    if genfile.endswith(".mp4"):
+      new_filename = name_mapping[genfile[:prefix_length]]
+      old_path = os.path.join(generated_video_directory, genfile)
+      new_path = os.path.join(generated_video_directory, new_filename)
+      os.rename(old_path, new_path)
+    else:
+      raise ValueError("Only .mp4 files are supported.")
 
 
 def validate_directory_exists(directory: str, description: str) -> None:
@@ -70,6 +101,7 @@ def validate_directory_exists(directory: str, description: str) -> None:
   """
   if not os.path.exists(directory):
     raise FileNotFoundError(f"{description} not found: {directory}")
+
 
 def validate_folder_files_exist(
     folder: str, expected_files: set[str], description: str
@@ -98,6 +130,45 @@ def validate_folder_files_exist(
     )
 
   print(f"{description} folder is valid with all required files.")
+
+
+def get_video_duration(video_path):
+    """Return the duration of a video in seconds using ffprobe."""
+    result = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", video_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+    return float(result.stdout)
+
+
+def validate_generations(input_folder: str):
+  """Check that 198 videos exist, each 5 seconds with an ID prefix from 0001_ to 0198_."""
+
+  assert os.path.exists(input_folder)
+  assert os.path.isdir(input_folder)
+
+  files_in_folder = sorted(os.listdir(input_folder))
+
+  EXPECTED_NUM_VIDEOS = 198 # number of generated videos that need to be evaluated
+  EXPECTED_VIDEO_DURATION = 5 # required duration in seconds for generated videos
+
+  length_error_msg = f"found {len(files_in_folder)} videos but expected {EXPECTED_NUM_VIDEOS}"
+  assert len(files_in_folder) == EXPECTED_NUM_VIDEOS, length_error_msg
+
+  counter = 1
+  for f in files_in_folder:
+    expected_prefix = "{:04d}_".format(counter)
+    assert f.startswith(expected_prefix), "Video {f} does not start with expected video ID {expected_prefix}"
+
+    video_path = os.path.join(input_folder, f)
+    video_duration = get_video_duration(video_path)
+
+    duration_error_msg = f"Video {video_path} is {video_duration} seconds long but needs to be 5s. " + \
+            "Please ensure that all generated videos are exactly 5 seconds long."
+    assert math.isclose(video_duration, EXPECTED_VIDEO_DURATION, abs_tol=0.001), duration_error_msg
+    counter += 1
+
 
 def validate_video_files(
     input_folder: str, descriptions_file: str, video_type: str, fps: int, include_take_2: bool = False
@@ -161,6 +232,7 @@ def validate_video_files(
   print(f"Validation successful for {input_folder}.")
   return expected_files
 
+
 def get_video_fps(input_folder: str) -> float:
   """
   Gets the FPS of videos in the input folder and ensures they are
@@ -194,6 +266,7 @@ def get_video_fps(input_folder: str) -> float:
   fps = fps_values.pop()
   print(f"All videos in {input_folder} have FPS: {fps}")
   return fps
+
 
 def ensure_real_videos_at_fps(
     output_folder: str, target_fps: float, descriptions_file: str
@@ -237,6 +310,7 @@ def ensure_real_videos_at_fps(
   print(f"Real videos at FPS {int(target_fps)} are ready at {target_fps_folder}.")
   return target_fps_folder
 
+
 def ensure_binary_mask_structure(
     output_folder: str, input_folder: str, target_fps: float, expected_files: set[str], is_real: bool
 ) -> str:
@@ -266,6 +340,7 @@ def ensure_binary_mask_structure(
   )
   print(f"Binary masks for {'real' if is_real else 'generated'} videos are ready at {binary_mask_folder}.")
   return binary_mask_folder
+
 
 if __name__ == "__main__":
 
@@ -318,8 +393,10 @@ if __name__ == "__main__":
     )
 
     # Generate binary masks for generated videos
+    validate_generations(input_folder=input_folder)
+    rename_generated_videos(generated_video_directory=input_folder, real_video_directory=real_video_folder)
     expected_generated_files = validate_video_files(input_folder, args.descriptions_file, '', int(fps), include_take_2=False)
-    #expected_generated_files = [f.replace("", "video-masks") for f in expected_real_files]
+
     binary_mask_generated_folder = ensure_binary_mask_structure(
       output_folder=args.output_folder,
       input_folder=input_folder,
@@ -337,7 +414,6 @@ if __name__ == "__main__":
     if is_csv_complete(csv_file_path, expected_real_scenarios):
       print(f"Skipping calculations for {csv_file_path} as it is already complete.")
     else:
-
       process_videos(
         real_folders=real_video_folder,
         generated_folders=input_folder,
