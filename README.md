@@ -47,6 +47,7 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 | 8 | [Stable Video Diffusion](https://arxiv.org/abs/2311.15127)             | i2v        | 14.8 % |
 | 9 | [Pika](https://pika.art/)                                              | i2v        |  13.0 % |
 |10 | [Sora](https://openai.com/sora/)                                       | i2v        |  10.0 % |
+
 *Note to early adopters of the benchmark: results from the paper were finalized on February 19, 2025; if you used the toolbox before please re-run since we changed and improved a few aspects. Likewise, if you downloaded the dataset before that date, it is recommended to re-download it, ensuring the ground truth video masks have a duration of five seconds.*
 
 ---
