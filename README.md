@@ -35,18 +35,18 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
-| **#** | **Model** | **input type** | **Physics-IQ score** |
-| -- | --- | --- | --- |
-| 1 | [Magi-1](https://github.com/SandAI-org/MAGI-1)                         | multiframe (v2v) | **56.0 %** :1st_place_medal: |
-| 2 | [Magi-1](https://github.com/SandAI-org/MAGI-1)                         | i2v              | 30.2 % :2nd_place_medal: |
-| 3 | [VideoPoet](https://arxiv.org/abs/2312.14125)                          | multiframe (v2v) | 29.5 % :3rd_place_medal: |
-| 4 | [Lumiere](https://arxiv.org/abs/2401.12945)                            | multiframe (v2v) | 23.0 % |
-| 5 | [Runway Gen 3](https://runwayml.com/research/introducing-gen-3-alpha)  | i2v        | 22.8 %  |
-| 6 | [VideoPoet](https://arxiv.org/abs/2312.14125)                          | i2v        | 20.3 % |
-| 7 | [Lumiere](https://arxiv.org/abs/2401.12945)                            | i2v        | 19.0 % |
-| 8 | [Stable Video Diffusion](https://arxiv.org/abs/2311.15127)             | i2v        | 14.8 % |
-| 9 | [Pika](https://pika.art/)                                              | i2v        |  13.0 % |
-|10 | [Sora](https://openai.com/sora/)                                       | i2v        |  10.0 % |
+| **#** | **Model** | **input type** | **Physics-IQ score** | **date added (YYYY-MM-DD)** |
+| -- | --- | --- | --- | --- |
+| 1 | [Magi-1](https://github.com/SandAI-org/MAGI-1)                         | multiframe (v2v) | **56.0 %** :1st_place_medal: | 2025-04-21 |
+| 2 | [Magi-1](https://github.com/SandAI-org/MAGI-1)                         | i2v              | 30.2 % :2nd_place_medal: | 2025-04-21 |
+| 3 | [VideoPoet](https://arxiv.org/abs/2312.14125)                          | multiframe (v2v) | 29.5 % :3rd_place_medal: | 2025-02-19 |
+| 4 | [Lumiere](https://arxiv.org/abs/2401.12945)                            | multiframe (v2v) | 23.0 % | 2025-02-19 |
+| 5 | [Runway Gen 3](https://runwayml.com/research/introducing-gen-3-alpha)  | i2v        | 22.8 %  | 2025-02-19 |
+| 6 | [VideoPoet](https://arxiv.org/abs/2312.14125)                          | i2v        | 20.3 % | 2025-02-19 |
+| 7 | [Lumiere](https://arxiv.org/abs/2401.12945)                            | i2v        | 19.0 % | 2025-02-19 |
+| 8 | [Stable Video Diffusion](https://arxiv.org/abs/2311.15127)             | i2v        | 14.8 % | 2025-02-19 |
+| 9 | [Pika](https://pika.art/)                                              | i2v        |  13.0 % | 2025-02-19 |
+|10 | [Sora](https://openai.com/sora/)                                       | i2v        |  10.0 % | 2025-02-19 |
 
 *Note to early adopters of the benchmark: results from the paper were finalized on February 19, 2025; if you used the toolbox before please re-run since we changed and improved a few aspects. Likewise, if you downloaded the dataset before that date, it is recommended to re-download it, ensuring the ground truth video masks have a duration of five seconds.*
 
