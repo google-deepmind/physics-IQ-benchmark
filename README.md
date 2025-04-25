@@ -168,6 +168,7 @@ python3 code/run_physics_iq.py --input_folders <generated_videos_dirs> --output_
 
 
 ## Citation
+If you think this project is helpful, please feel free to leave a star ⭐️
 
 ```latex
 @article{motamed2025physics,
