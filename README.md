@@ -37,8 +37,8 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 
 | **#** | **Model** | **input type** | **Physics-IQ score** | **date added (YYYY-MM-DD)** |
 | -- | --- | --- | --- | --- |
-| 1 | [Magi-1](https://github.com/SandAI-org/MAGI-1)                         | multiframe (v2v) | **56.0 %** :1st_place_medal: | 2025-04-21 |
-| 2 | [Magi-1](https://github.com/SandAI-org/MAGI-1)                         | i2v              | 30.2 % :2nd_place_medal: | 2025-04-21 |
+| 1 | [Magi-1](https://arxiv.org/abs/2505.13211)                             | multiframe (v2v) | **56.0 %** :1st_place_medal: | 2025-04-21 |
+| 2 | [Magi-1](https://arxiv.org/abs/2505.13211)                             | i2v              | 30.2 % :2nd_place_medal: | 2025-04-21 |
 | 3 | [VideoPoet](https://arxiv.org/abs/2312.14125)                          | multiframe (v2v) | 29.5 % :3rd_place_medal: | 2025-02-19 |
 | 4 | [Lumiere](https://arxiv.org/abs/2401.12945)                            | multiframe (v2v) | 23.0 % | 2025-02-19 |
 | 5 | [Runway Gen 3](https://runwayml.com/research/introducing-gen-3-alpha)  | i2v        | 22.8 %  | 2025-02-19 |
