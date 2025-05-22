@@ -38,9 +38,9 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 | **#** | **Model** | **input type** | **Physics-IQ score** | **date added (YYYY-MM-DD)** |
 | -- | --- | --- | --- | --- |
 | 1 | [Magi-1](https://arxiv.org/abs/2505.13211)                             | multiframe (v2v) | **56.0 %** :1st_place_medal: | 2025-04-21 |
-| 2 | [Video-GPT](https://arxiv.org/abs/2505.12489)                             | multiframe (v2v) | 35.0 % :2st_place_medal: | 2025-05-21 |
-| 3 | [Magi-1](https://arxiv.org/abs/2505.13211)                             | i2v              | 30.2 % :3nd_place_medal: | 2025-04-21 |
-| 4 | [VideoPoet](https://arxiv.org/abs/2312.14125)                          | multiframe (v2v) | 29.5 % :4rd_place_medal: | 2025-02-19 |
+| 2 | [Video-GPT](https://arxiv.org/abs/2505.12489)                             | multiframe (v2v) | 35.0 % :2nd_place_medal: | 2025-05-21 |
+| 3 | [Magi-1](https://arxiv.org/abs/2505.13211)                             | i2v              | 30.2 % :3rd_place_medal: | 2025-04-21 |
+| 4 | [VideoPoet](https://arxiv.org/abs/2312.14125)                          | multiframe (v2v) | 29.5 % | 2025-02-19 |
 | 5 | [Lumiere](https://arxiv.org/abs/2401.12945)                            | multiframe (v2v) | 23.0 % | 2025-02-19 |
 | 6 | [Runway Gen 3](https://runwayml.com/research/introducing-gen-3-alpha)  | i2v        | 22.8 %  | 2025-02-19 |
 | 7 | [VideoPoet](https://arxiv.org/abs/2312.14125)                          | i2v        | 20.3 % | 2025-02-19 |
