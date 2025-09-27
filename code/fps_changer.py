@@ -88,7 +88,7 @@ def change_video_fps(input_folder: str, output_folder: str, fps_new: float) -> N
                 frames_new.append(frame_interp)
 
             # Save the new video
-            new_file_name = video_file
+            new_file_name = video_file.replace(f"{int(fps_original)}FPS", f"{int(fps_new)}FPS")
             new_file_path = os.path.join(output_folder, new_file_name)
 
             print(f"Saving video with dimensions: {width}x{height}, Codec: H.264")
