@@ -37,19 +37,19 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 
 | **#** | **Model** | **input type** | **Physics-IQ score** | **date added (YYYY-MM-DD)** |
 | -- | --- | --- | --- | --- |
-| 1 | [Magi-1 + VJEPA-2 BoN sampling]([https://arxiv.org/abs/2505.13211](https://arxiv.org/pdf/2510.21840))  | multiframe (v2v) | **62.6 %** :1st_place_medal:  | 2025-10-28 |
-| 1 | [Magi-1](https://arxiv.org/abs/2505.13211)                                                             | multiframe (v2v) | **56.0 %** :2nd_place_medal:  | 2025-04-21 |
-| 1 | [Magi-1 + VJEPA-2 BoN sampling]([https://arxiv.org/abs/2505.13211](https://arxiv.org/pdf/2510.21840))  | i2v              | **36.9 %** :3rd_place_medal:  | 2025-10-28 |
-| 2 | [Video-GPT](https://arxiv.org/abs/2505.12489)                                                          | multiframe (v2v) | 35.0 %  | 2025-05-22 |
-| 3 | [Magi-1](https://arxiv.org/abs/2505.13211)                                                             | i2v              | 30.2 %  | 2025-04-21 |
-| 4 | [VideoPoet](https://arxiv.org/abs/2312.14125)                                                          | multiframe (v2v) | 29.5 %  | 2025-02-19 |
-| 5 | [Lumiere](https://arxiv.org/abs/2401.12945)                                                            | multiframe (v2v) | 23.0 %  | 2025-02-19 |
-| 6 | [Runway Gen 3](https://runwayml.com/research/introducing-gen-3-alpha)                                  | i2v              | 22.8 %  | 2025-02-19 |
-| 7 | [VideoPoet](https://arxiv.org/abs/2312.14125)                                                          | i2v              | 20.3 %  | 2025-02-19 |
-| 8 | [Lumiere](https://arxiv.org/abs/2401.12945)                                                            | i2v              | 19.0 %  | 2025-02-19 |
-| 9 | [Stable Video Diffusion](https://arxiv.org/abs/2311.15127)                                             | i2v              | 14.8 %  | 2025-02-19 |
-| 10 | [Pika](https://pika.art/)                                                                             | i2v              |  13.0 % | 2025-02-19 |
-| 11 | [Sora](https://openai.com/sora/)                                                                      | i2v              |  10.0 % | 2025-02-19 |
+| 1 | [Magi-1 + VJEPA-2 BoN sampling]([https://arxiv.org/abs/2505.13211](https://arxiv.org/pdf/2510.21840)  | multiframe (v2v) | **62.6 %** :1st_place_medal:  | 2025-10-28 |
+| 1 | [Magi-1](https://arxiv.org/abs/2505.13211)                                                            | multiframe (v2v) | **56.0 %** :2nd_place_medal:  | 2025-04-21 |
+| 1 | [Magi-1 + VJEPA-2 BoN sampling]([https://arxiv.org/abs/2505.13211](https://arxiv.org/pdf/2510.21840)  | i2v              | **36.9 %** :3rd_place_medal:  | 2025-10-28 |
+| 2 | [Video-GPT](https://arxiv.org/abs/2505.12489)                                                         | multiframe (v2v) | 35.0 %  | 2025-05-22 |
+| 3 | [Magi-1](https://arxiv.org/abs/2505.13211)                                                            | i2v              | 30.2 %  | 2025-04-21 |
+| 4 | [VideoPoet](https://arxiv.org/abs/2312.14125)                                                         | multiframe (v2v) | 29.5 %  | 2025-02-19 |
+| 5 | [Lumiere](https://arxiv.org/abs/2401.12945)                                                           | multiframe (v2v) | 23.0 %  | 2025-02-19 |
+| 6 | [Runway Gen 3](https://runwayml.com/research/introducing-gen-3-alpha)                                 | i2v              | 22.8 %  | 2025-02-19 |
+| 7 | [VideoPoet](https://arxiv.org/abs/2312.14125)                                                         | i2v              | 20.3 %  | 2025-02-19 |
+| 8 | [Lumiere](https://arxiv.org/abs/2401.12945)                                                           | i2v              | 19.0 %  | 2025-02-19 |
+| 9 | [Stable Video Diffusion](https://arxiv.org/abs/2311.15127)                                            | i2v              | 14.8 %  | 2025-02-19 |
+| 10 | [Pika](https://pika.art/)                                                                            | i2v              |  13.0 % | 2025-02-19 |
+| 11 | [Sora](https://openai.com/sora/)                                                                     | i2v              |  10.0 % | 2025-02-19 |
 
 *Note to early adopters of the benchmark: results from the paper were finalized on February 19, 2025; if you used the toolbox before please re-run since we changed and improved a few aspects. Likewise, if you downloaded the dataset before that date, it is recommended to re-download it, ensuring the ground truth video masks have a duration of five seconds.*
 
