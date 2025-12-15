@@ -79,7 +79,7 @@ This section explains how to generate videos using the provided benchmark and sa
 
 1. **Input Requirements**:
    - **Initial Frame**: Use frames from `physics-iq-benchmark/switch-frames`.
-   - **Text Input (Optional)**: If required, use descriptions from `descriptions.csv`.
+   - **Text Input (Optional)**: If required, use descriptions from `descriptions.csv`. Only the first 198 entries (marked as`take-1`) need to be used, feel free to ignore the `take-2` entries since they're not used for sampling from models. 
 
 2. **Steps to Run**:
    - Generate videos using the initial frame (and text condition, if applicable).
