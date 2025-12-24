@@ -189,8 +189,6 @@ physics-IQ-benchmark/
 
 ⚠️ **IMPORTANT:** Note that this script evaluates the **first 5 seconds** of your generated videos. Hence, make sure these are the 5 seconds generated right after the switch frame.
 
----
-
 ### 3. Generate benchmark scores and plots
 
 ```bash
