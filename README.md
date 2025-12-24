@@ -110,6 +110,38 @@ This section explains how to generate videos using the provided benchmark and sa
 
 ---
 
+#### 2.3 Trim Generated Videos to 5 Seconds
+
+⚠️ **IMPORTANT**: Before running the evaluation, you must trim all generated videos to **exactly 5 seconds**. Videos of any other duration will cause runtime errors.
+
+**Trim your videos using ffmpeg:**
+```bash
+# Create output directory for trimmed videos
+mkdir -p generated_videos_5s
+
+# Trim all videos to 5 seconds at 8 FPS
+# Adjust the `-r 8` parameter to match your desired FPS (8, 16, 24, or 30)
+
+for v in generated_video_path/*.mp4; do
+  ffmpeg -y -i "$v" \
+    -t 5 \
+    -r 8 \
+    -c:v libx264 \
+    -pix_fmt yuv420p \
+    "generated_videos_5s/$(basename "$v")"
+done
+```
+
+**Verify video duration, FPS, and frame count using ffprobe:**
+```bash
+ffprobe -v error -select_streams v:0 \
+  -show_entries stream=duration,avg_frame_rate,nb_frames \
+  -of default=nw=1 \
+  generated_videos_5s/0001_*.mp4
+```
+
+---
+
 ## Step B: Evaluating Generated Videos on Physics-IQ to Generate Benchmark Scores
 
 ### 1. Installation
@@ -156,6 +188,8 @@ physics-IQ-benchmark/
 - Place your generated videos under `.model_name` directory.
 
 ⚠️ **IMPORTANT:** Note that this script evaluates the **first 5 seconds** of your generated videos. Hence, make sure these are the 5 seconds generated right after the switch frame.
+
+---
 
 ### 3. Generate benchmark scores and plots
 
