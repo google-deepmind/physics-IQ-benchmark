@@ -20,11 +20,22 @@ import cv2
 import argparse
 import subprocess
 import math
+import shutil
 
 from fps_changer import change_video_fps
 from calculate_and_write_metrics_to_csv import process_videos
 from calculate_iq_score import process_directory
 from binary_mask_generator import generate_binary_masks
+
+
+def require_executable(name: str, install_hint: str):
+    path = shutil.which(name)
+    if path is None:
+        raise RuntimeError(
+            f"Required executable '{name}' not found in PATH.\n"
+            f"Install hint: {install_hint}"
+        )
+    return path
 
 
 def is_csv_complete(csv_file_path: str, expected_scenarios: set[str]) -> bool:
@@ -134,8 +145,12 @@ def validate_folder_files_exist(
 
 def get_video_duration(video_path):
     """Return the duration of a video in seconds using ffprobe."""
+    ffprobe_path = require_executable(
+        "ffprobe",
+        "Install via `conda install -c conda-forge ffmpeg` or system ffmpeg"
+    )
     result = subprocess.run(
-            ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", video_path],
+            ["ffprobe_path", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", video_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
