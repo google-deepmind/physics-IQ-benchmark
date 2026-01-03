@@ -16,8 +16,18 @@
 import os
 import subprocess
 import multiprocessing
+import shutil
 
 multiprocessing.set_start_method("spawn", force=True)
+
+def require_executable(name: str, install_hint: str):
+    path = shutil.which(name)
+    if path is None:
+        raise RuntimeError(
+            f"Required executable '{name}' not found in PATH.\n"
+            f"Install hint: {install_hint}"
+        )
+    return path
 
 
 def download_directory(remote_path: str, local_path: str):
@@ -29,8 +39,13 @@ def download_directory(remote_path: str, local_path: str):
     """
     print(f"Syncing {remote_path} → {local_path} using gsutil rsync...")
     os.makedirs(local_path, exist_ok=True) 
+    gsutil_path = require_executable(
+    "gsutil",
+    "Install via `pip install gsutil` or use system gsutil"
+    )
     try:
-        subprocess.run(["gsutil", "-m", "rsync", "-r", remote_path, local_path], check=True)
+        #
+        subprocess.run(["gsutil_path", "-m", "rsync", "-r", remote_path, local_path], check=True)
         print(f"Sync complete for {remote_path}.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to sync: {remote_path}. Error: {e}")
