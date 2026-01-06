@@ -41,7 +41,7 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 | 2 | [Magi-1](https://arxiv.org/abs/2505.13211)                                     | multiframe (v2v) | **56.0 %** :2nd_place_medal:  | 2025-04-21 |
 | 3 | [Magi-1 + VJEPA-2 BoN sampling](https://arxiv.org/abs/2510.21840)              | i2v              | **36.9 %** :3rd_place_medal:  | 2025-10-28 |
 | 4 | [Video-GPT](https://arxiv.org/abs/2505.12489)                                  | multiframe (v2v) | 35.0 %  | 2025-05-22 |
-| 5 | [CogVideoX-5b](https://github.com/ved015/CogVideoX-5b-Physics_iq_benchmarking) | i2v  | 32.3 %  | 2025-12-23 |
+| 5 | [CogVideoX-5b](https://github.com/ved015/CogVideoX-5b-Physics_iq_benchmarking) | i2v              | 32.3 %  | 2026-01-06 |
 | 6 | [Magi-1](https://arxiv.org/abs/2505.13211)                                     | i2v              | 30.2 %  | 2025-04-21 |
 | 7 | [VideoPoet](https://arxiv.org/abs/2312.14125)                                  | multiframe (v2v) | 29.5 %  | 2025-02-19 |
 | 8 | [Lumiere](https://arxiv.org/abs/2401.12945)                                    | multiframe (v2v) | 23.0 %  | 2025-02-19 |
