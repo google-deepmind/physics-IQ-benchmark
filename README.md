@@ -75,7 +75,10 @@ python3 ./code/download_physics_iq_data.py
 
 This section explains how to generate videos using the provided benchmark and save them in the required format. Follow the instructions below based on your model type:
 
-#### 2.1 Image-to-Video (i2v) Models
+#### 2.1 Image-to-Video Models (I2V)
+
+<details>
+  <summary>I2V steps</summary>
 
 1. **Input Requirements**:
    - **Initial Frame**: Use frames from `physics-iq-benchmark/switch-frames`.
@@ -89,9 +92,12 @@ This section explains how to generate videos using the provided benchmark and sa
      ```
    - Refer to the `generated_video_name` column in `descriptions.csv` for file naming conventions.
 
----
+</details>
 
-#### 2.2 Multiframe-to-Video Models
+#### 2.2 Multiframe-to-Video Models (V2V)
+
+<details>
+  <summary>V2V steps</summary>
 
 1. **Input Requirements**:
    - **Conditioning Frames**:
@@ -107,6 +113,29 @@ This section explains how to generate videos using the provided benchmark and sa
      example: model_name/{0001}_{perspective-left}_{trimmed-ball-and-block-fall}.mp4
      ```
    - Refer to the `generated_video_name` column in `descriptions.csv` for file naming conventions.
+
+</details>
+
+#### 2.3 Trim Generated Videos to 5 Seconds
+
+⚠️ **IMPORTANT**: Before running the evaluation, you must trim all generated videos to **exactly 5 seconds**. Videos of any other duration are incompatible with the benchmark. If you're running V2V (=multiframe-to-video), please make sure you're not including the 3s conditioning video, only the model-generated 5 seconds.
+
+**Example command to trip your videos using ffmpeg:**
+
+This example is based on cropping to the first 5 seconds which is useful for I2V; for V2V please adapt this command if the generated videos include the 3s conditioning part.
+```bash
+# Create output directory for trimmed videos
+mkdir -p generated_videos_5s
+
+# Trim all videos to 5 seconds at desired frame rate
+# Adjust the `-r 24` parameter to match your desired FPS (e.g. 8, 16, 24, or 30)
+for v in generated_video_path/*.mp4; do
+  ffmpeg -y -i "$v" \
+    -t 5 \
+    -r 24 \
+    "generated_videos_5s/$(basename "$v")"
+done
+```
 
 ---
 
