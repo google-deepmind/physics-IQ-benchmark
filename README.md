@@ -120,7 +120,7 @@ This section explains how to generate videos using the provided benchmark and sa
 
 ⚠️ **IMPORTANT**: Before running the evaluation, you must trim all generated videos to **exactly 5 seconds**. Videos of any other duration are incompatible with the benchmark. If you're running V2V (=multiframe-to-video), please make sure you're not including the 3s conditioning video, only the model-generated 5 seconds.
 
-**Example command to trip your videos using ffmpeg:**
+**Example command to trim your videos using ffmpeg:**
 
 This example is based on cropping to the first 5 seconds which is useful for I2V; for V2V please adapt this command if the generated videos include the 3s conditioning part.
 ```bash
