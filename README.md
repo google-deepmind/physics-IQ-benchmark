@@ -37,7 +37,7 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 
 | **#** | **Model** | **input type** | **Physics-IQ score** | **date added (YYYY-MM-DD)** |
 | -- | --- | --- | --- | --- |
-| 1 | [Magi-1 + VJEPA-2 BoN sampling](https://arxiv.org/abs/2510.21840)              | multiframe (v2v) | **62.6 %** :1st_place_medal:  | 2025-10-28 |
+| 1 | [Magi-1 + VJEPA-2 BoN sampling](https://arxiv.org/abs/2601.10553)              | multiframe (v2v) | **62.6 %** :1st_place_medal:  | 2025-10-28 |
 | 2 | [Magi-1](https://arxiv.org/abs/2505.13211)                                     | multiframe (v2v) | **56.0 %** :2nd_place_medal:  | 2025-04-21 |
 | 3 | [Magi-1 + VJEPA-2 BoN sampling](https://arxiv.org/abs/2510.21840)              | i2v              | **36.9 %** :3rd_place_medal:  | 2025-10-28 |
 | 4 | [Video-GPT](https://arxiv.org/abs/2505.12489)                                  | multiframe (v2v) | 35.0 %  | 2025-05-22 |
