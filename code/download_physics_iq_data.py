@@ -21,16 +21,16 @@ multiprocessing.set_start_method("spawn", force=True)
 
 
 def download_directory(remote_path: str, local_path: str):
-    """Sync a remote directory with a local directory using gsutil rsync.
+    """Sync a remote directory with a local directory using gcloud storage rsync.
 
     Args:
       remote_path: Cloud path.
       local_path: Local path.
     """
-    print(f"Syncing {remote_path} → {local_path} using gsutil rsync...")
+    print(f"Syncing {remote_path} → {local_path} using gcloud storage rsync...")
     os.makedirs(local_path, exist_ok=True) 
     try:
-        subprocess.run(["gsutil", "-m", "rsync", "-r", remote_path, local_path], check=True)
+        subprocess.run(["gcloud", "storage", "rsync", "--recursive", remote_path, local_path], check=True)
         print(f"Sync complete for {remote_path}.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to sync: {remote_path}. Error: {e}")
