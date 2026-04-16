@@ -64,10 +64,9 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 
 ### 1. Download Benchmark Dataset
 
-Visit the [Google Cloud Storage link](https://console.cloud.google.com/storage/browser/physics-iq-benchmark) to download the dataset, or run the following script:
+Visit the [Google Cloud Storage link](https://console.cloud.google.com/storage/browser/physics-iq-benchmark) to download the dataset, or install gcloud SDK from [here](https://docs.cloud.google.com/sdk/docs/install-sdk) and run the following:
 
 ```bash
-pip install gsutil
 python3 ./code/download_physics_iq_data.py
 ```
 
