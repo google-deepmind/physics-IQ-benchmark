@@ -153,7 +153,7 @@ Ensure you have Python 3 installed. Then, run the following command to install t
 pip install -r requirements.txt
 ```
 
-System requirements: tested on Linux; requires command `ffprobe' to be available (install if necessary, e.g. `sudo apt-get install ffmpeg').
+System requirements: tested on Linux; requires command `ffprobe` to be available (install if necessary, e.g. `sudo apt-get install ffmpeg`).
 
 ### 2. Dataset Placement
 
