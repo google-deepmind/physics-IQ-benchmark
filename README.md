@@ -153,6 +153,8 @@ Ensure you have Python 3 installed. Then, run the following command to install t
 pip install -r requirements.txt
 ```
 
+System requirements: tested on Linux; requires command `ffprobe' to be available (install if necessary, e.g. `sudo apt-get install ffmpeg').
+
 ### 2. Dataset Placement
 
 - Ensure you have downloaded and placed the `physics-iq-benchmark` dataset in your working directory. This dataset must include 30FPS videos and optionally your desired FPS. If your desired FPS does not exist in our dataset already, it will be automatically generated. You should have the following structure:
