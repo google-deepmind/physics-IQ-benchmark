@@ -1,9 +1,7 @@
-gsutil
 argparse
-opencv-python
+opencv_python
 matplotlib
 numpy
 pandas
-moviepy
 Pillow
 tqdm
