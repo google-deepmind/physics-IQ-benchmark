@@ -17,6 +17,8 @@ import os
 import subprocess
 import multiprocessing
 
+from fps_changer import change_video_fps
+
 multiprocessing.set_start_method("spawn", force=True)
 
 
@@ -41,17 +43,22 @@ def download_physics_iq_data(fps: str):
     """Download the Physics-IQ dataset based on the specified FPS.
 
     Args:
-      fps: Desired FPS (in ['8', '16', '24', '30', 'other']).
+      fps: Desired FPS as an integer in [1, 30]. 8, 16, 24, and 30 FPS are
+        available pre-computed; any other value in range is downsampled
+        locally from the 30 FPS data.
     """
-    valid_fps = ['8', '16', '24', '30', 'other']
-    assert fps in valid_fps, 'FPS needs to be in [8, 16, 24, 30, other]'
+    try:
+        fps_int = int(fps)
+    except (TypeError, ValueError):
+        raise ValueError(f'FPS must be an integer in [1, 30], got {fps!r}')
+    assert 1 <= fps_int <= 30, f'FPS must be in [1, 30], got {fps_int}'
 
     # Always download 30FPS data
     download_fps = ['30']
 
-    # Additionally download available non-30 FPS data if necessary
-    if fps in ['8', '16', '24']:
-        download_fps.append(fps)
+    # Additionally download pre-computed non-30 FPS data if available
+    if fps_int in (8, 16, 24):
+        download_fps.append(str(fps_int))
         
     base_url = "gs://physics-iq-benchmark" 
     local_base_dir = "./physics-IQ-benchmark"  
@@ -76,9 +83,22 @@ def download_physics_iq_data(fps: str):
             local_path = os.path.join(local_base_dir, directory)
             download_directory(remote_path=remote_path, local_path=local_path)
 
+    # For FPS values without a pre-computed version, downsample locally from 30 FPS.
+    # Skip video-masks/real: linear frame interpolation would produce non-binary
+    # pixels; run_physics_iq.py::ensure_binary_mask_structure will regenerate
+    # proper binary masks from the downsampled real videos at benchmark time.
+    if fps_int not in (8, 16, 24, 30):
+        print(f"Downsampling 30 FPS videos to {fps_int} FPS locally...")
+        for directory, subdirs in directories.items():
+            if subdirs is None or directory == "video-masks/real":
+                continue
+            input_folder = os.path.join(local_base_dir, directory, "30FPS")
+            output_folder = os.path.join(local_base_dir, directory, f"{fps_int}FPS")
+            change_video_fps(input_folder=input_folder, output_folder=output_folder, fps_new=fps_int)
+
     print("Download process complete.")
 
 
 if __name__ == '__main__':
-    user_fps = input("Enter your model's frames per second FPS (e.g., 8, 16, 24, 30, other): ").strip()
+    user_fps = input("Enter your model's frames per second FPS as an integer in [1, 30]: ").strip()
     download_physics_iq_data(user_fps)
