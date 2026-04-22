@@ -1,0 +1,24 @@
+[project]
+name = "physics-iq-benchmark"
+version = "0.1.0"
+description = "Physics IQ Benchmark evaluation suite"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "argparse",
+    "matplotlib",
+    "moviepy",
+    "numpy",
+    "opencv-python",
+    "pandas",
+    "Pillow",
+    "tqdm",
+    # data visualization
+    "seaborn",
+    "plotly",
+    "kaleido",
+    "scipy",
+    "scikit-learn",
+    "ipywidgets",
+    "jupyter",
+]
