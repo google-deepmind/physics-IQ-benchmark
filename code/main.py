@@ -43,6 +43,42 @@ RUN_NUM = "Run Number"
 SAMPLES_KEY = "Eval Samples"
 PROMPT_KEY = "Prompt"
 
+get_prompt_from_run = lambda x: "op" if "op" in x else ("bpp" if "bpp" in x else "--")
+get_eval_type_from_run = lambda x: x.split("__")[1] if "__" in x else (x.split("in_")[1] if "in_" in x else "?")
+get_model_name = lambda x: max((model for model in MODEL_NAMES if model in str(x)), key=len)
+def get_fps(file_path)-> str | int:
+    try:
+        with open(file_path.parent.parent/"summary.json") as f:
+            json_dict = json.load(f)
+                # import pdb; pdb.set_trace()
+            return json_dict[json_dict.keys().__iter__().__next__()][FPS_KEY] 
+    except Exception as e:
+        print(f"Could not extract FPS for {file_path.parent.parent}: {e}")
+        return "?"
+
+def get_experiment_tables(base_path: Path):
+    exp_tables = []
+    filepaths = list(base_path.glob("**/results/**/results/*.csv"))
+    filepaths.sort()
+    for fp in filepaths:
+        if not any(model in str(fp.parent.parent.stem) for model in MODEL_NAMES):
+            print(f"Skipping {fp} as it does not match any known model name.")
+            continue
+
+
+
+        meta_info = {
+            MODEL_KEY: get_model_name(fp.stem),
+            EVAL_KEY: get_eval_type_from_run(fp.stem),
+            PROMPT_KEY: get_prompt_from_run(fp.stem),
+            FPS_KEY : get_fps(fp)
+        }
+
+
+        tab = IQTable.from_csv(fp, metadata=meta_info)
+        exp_tables.append(tab)
+
+    return exp_tables
 
 
 if __name__ == "__main__":
@@ -70,16 +106,10 @@ if __name__ == "__main__":
         out_dict[RUNKEY] = file_path.stem
         out_dict[EXPKEY] = file_path.parent.parent.stem
         out_dict[MODEL_KEY] = model_name
-        try:
-            with open(file_path.parent.parent/"summary.json") as f:
-                json_dict = json.load(f)
-                # import pdb; pdb.set_trace()
-                out_dict[FPS_KEY] = json_dict[json_dict.keys().__iter__().__next__()][FPS_KEY] 
-        except Exception as e:
-            print(f"Could not extract FPS for {file_path.parent.parent}: {e}")
-            out_dict[FPS_KEY] = "?"
+        out_dict[FPS_KEY] = get_fps(file_path)
                 
         iq_score_info.append(out_dict.copy())
+        iq_tables.append(iq_table)
     ana_df = pd.DataFrame(iq_score_info)
 
     pprint("Computation of physics-iq scores over the entire dataset:")
@@ -186,7 +216,7 @@ if __name__ == "__main__":
     pprint(ana_df.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY]).mean(numeric_only=True))
 
 
-    pivot_df_describe = ana_df.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[[ORIG_SCORE_KEY, VERIFIED_SCORE_KEY]+SCORES_LIST].describe()
+    # pivot_df_describe = ana_df.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[[ORIG_SCORE_KEY, VERIFIED_SCORE_KEY]+SCORES_LIST].describe()
 
     # Assess for each model and evaluation type whether the STD significantly changes between the original and verified evaluation
 

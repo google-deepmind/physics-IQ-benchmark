@@ -17,6 +17,7 @@ SCORES_LIST = [f"score_{metric}" for metric in METRIC_KEYS]
 VARIANCE_KEYS = [f"physical_variance_{metric}" for metric in METRIC_KEYS]
 
 
+
 class IQTable():
     spatial_iou_key = "spatial_iou_v1"
     weighted_spatial_iou_key = "weighted_spatial_iou_v1"
@@ -29,8 +30,9 @@ class IQTable():
     views = VIEWS
 
 
-    def __init__(self, df: pd.DataFrame):
+    def __init__(self, df: pd.DataFrame, metadata: dict = None):
         self.df = df
+        self.metadata = metadata or {}
         for col in self.get_list_keys():
             self.df[col] = self._get_list_column_mean(col)
 
@@ -78,6 +80,12 @@ class IQTable():
           lambda row: np.mean(np.concatenate([row[f"{metric_key}_{view}"] for view in VIEWS])),
             axis=1
         )
+    
+    def get_full_df(self):
+        out = self.df.copy()
+        for m, k in self.metadata.items():
+            out[m] = k
+        return out
     
     def _get_scalar_column_mean(self, metric_key):
         assert metric_key not in self.get_list_keys(), f"Invalid metric key: {metric_key}"
@@ -131,6 +139,8 @@ class IQTable():
             "physical_variance_spatial": self.get_metric_mean(self.variance_spatial_key),
             "physical_variance_weighted_spatial": self.get_metric_mean(self.variance_weighted_spatial_key),
         }
+        out_dict.update(self.metadata)
+
         return out_dict
     
     
@@ -147,12 +157,12 @@ class IQTable():
         return [f"{metric}_{view}" for metric in cls.get_list_keys() for view in cls.views]
     
     @classmethod
-    def from_csv(cls, file_path: str):
+    def from_csv(cls, file_path: str, *args, **kwargs):
         df = pd.read_csv(file_path)
         list_columns = cls.get_list_columns()
         for col in list_columns:
             df[col] = df[col].apply(parse_list_of_floats)
-        return cls(df)
+        return cls(df, *args, **kwargs)
 
 
 def calculate_iq_score_update(file_path: str) -> dict:
