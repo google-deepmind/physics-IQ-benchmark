@@ -21,4 +21,5 @@ dependencies = [
     "scikit-learn",
     "ipywidgets",
     "jupyter",
+    "black>=26.3.1",
 ]

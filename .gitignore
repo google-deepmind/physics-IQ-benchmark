@@ -2,7 +2,7 @@
 physics-IQ-benchmark/
 csv_files/
 results/
-code/output/
+code/output*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
