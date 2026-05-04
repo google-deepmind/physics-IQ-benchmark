@@ -54,14 +54,14 @@ def download_physics_iq_data(fps: str):
     assert 1 <= fps_int <= 30, f'FPS must be in [1, 30], got {fps_int}'
 
     # Always download 30FPS data
-    download_fps = ['30']
+    download_fps = ["30"]
 
     # Additionally download pre-computed non-30 FPS data if available
     if fps_int in (8, 16, 24):
         download_fps.append(fps)
-        
-    base_url = "gs://physics-iq-benchmark" 
-    local_base_dir = "./physics-IQ-benchmark"  
+
+    base_url = "gs://physics-iq-benchmark"
+    local_base_dir = "./physics-IQ-benchmark"
 
     directories = {
         "full-videos/take-1": download_fps,
@@ -69,7 +69,7 @@ def download_physics_iq_data(fps: str):
         "split-videos/conditioning": download_fps,
         "split-videos/testing": download_fps,
         "switch-frames": None,
-        "video-masks/real": download_fps
+        "video-masks/real": download_fps,
     }
 
     for directory, subdirs in directories.items():

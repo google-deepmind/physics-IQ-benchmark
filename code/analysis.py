@@ -30,40 +30,47 @@ from itertools import product
 from pprint import pprint
 from scipy import stats
 
-from calculate_iq_score_stable import ORIG_SCORE_KEY, SCORES_LIST, VERIFIED_SCORE_KEY, IQTable
+from calculate_iq_score_stable import (
+    ORIG_SCORE_KEY,
+    SCORES_LIST,
+    VERIFIED_SCORE_KEY,
+    IQTable,
+)
 from plot_settings import model_to_color, model_to_plotting_name
 
 # Publication-quality rcParams (NeurIPS style)
-plt.rcParams.update({
-    'font.family': 'sans-serif',
-    'font.size': 10,
-    'axes.titlesize': 11,
-    'axes.labelsize': 10,
-    'xtick.labelsize': 9,
-    'ytick.labelsize': 9,
-    'legend.fontsize': 9,
-    'legend.framealpha': 0.85,
-    'legend.edgecolor': '#cccccc',
-    'figure.dpi': 300,
-    'savefig.dpi': 300,
-    'savefig.bbox': 'tight',
-    'axes.spines.top': False,
-    'axes.spines.right': False,
-    'axes.linewidth': 0.8,
-    'lines.linewidth': 1.2,
-    'patch.linewidth': 0.6,
-    'xtick.major.width': 0.8,
-    'ytick.major.width': 0.8,
-    'xtick.direction': 'out',
-    'ytick.direction': 'out',
-})
+plt.rcParams.update(
+    {
+        "font.family": "sans-serif",
+        "font.size": 10,
+        "axes.titlesize": 11,
+        "axes.labelsize": 10,
+        "xtick.labelsize": 9,
+        "ytick.labelsize": 9,
+        "legend.fontsize": 9,
+        "legend.framealpha": 0.85,
+        "legend.edgecolor": "#cccccc",
+        "figure.dpi": 300,
+        "savefig.dpi": 300,
+        "savefig.bbox": "tight",
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "axes.linewidth": 0.8,
+        "lines.linewidth": 1.2,
+        "patch.linewidth": 0.6,
+        "xtick.major.width": 0.8,
+        "ytick.major.width": 0.8,
+        "xtick.direction": "out",
+        "ytick.direction": "out",
+    }
+)
 
 # Semantic colors used consistently across figures
-_C_RHO = '#2166AC'   # Spearman ρ (blue)
-_C_TAU = '#D6604D'   # Kendall τ  (orange-red)
-_C_ORIG = '#1B7837'  # original evaluation (green)
-_C_VER = '#762A83'   # verified evaluation (purple)
-_C_CROSS = '#636363' # cross-evaluation comparisons (neutral grey)
+_C_RHO = "#2166AC"  # Spearman ρ (blue)
+_C_TAU = "#D6604D"  # Kendall τ  (orange-red)
+_C_ORIG = "#1B7837"  # original evaluation (green)
+_C_VER = "#762A83"  # verified evaluation (purple)
+_C_CROSS = "#636363"  # cross-evaluation comparisons (neutral grey)
 
 
 BASEPATH = Path("/Users/carsten/projects/anates/physics-iq/results_share_neurips")
@@ -80,8 +87,10 @@ MODEL_NAMES = [
     "hunyuan-video-v1",
     "sora-2",
     "sora2new",
-    "grok-imagine-video"
+    "sora2october",
+    "grok-imagine-video",
 ]
+SORA2_MODELS = ["sora-2", "sora2new", "sora2october"]
 FPS_KEY = "fps"
 MODEL_KEY = "Model"
 EVAL_KEY = "Evaluation"
@@ -97,7 +106,10 @@ RANKING_EVAL_SETTINGS = [
     {MODEL_KEY: "p-video", FPS_KEY: 24},
     {MODEL_KEY: "grok-imagine-video", FPS_KEY: 24},
 ]
-COMPARISON_KEYS = [{EVAL_KEY: "verified_full", PROMPT_KEY: "bpp"}, {EVAL_KEY: "original", PROMPT_KEY: "op"}]
+COMPARISON_KEYS = [
+    {EVAL_KEY: "verified_full", PROMPT_KEY: "bpp"},
+    {EVAL_KEY: "original", PROMPT_KEY: "op"},
+]
 
 
 def get_prompt_from_run(x):
@@ -163,34 +175,347 @@ def filter_by_settings(df: pd.DataFrame, settings: list[dict]) -> pd.DataFrame:
     for setting in settings:
         setting_mask = pd.Series(True, index=df.index)
         for key, value in setting.items():
-            setting_mask &= (df[key] == value)
+            setting_mask &= df[key] == value
         mask |= setting_mask
     return df[mask]
 
 
-def generate_latex_table(output_path: Path, pivot_df_meanstd, table_name: str, score_cols: list):
+def generate_latex_table(
+    output_path: Path, pivot_df_meanstd, table_name: str, score_cols: list
+):
     """Write a LaTeX table of mean ± std score cells to *output_path/table_name*.
 
     Known models (from ``MODEL_NAMES``) are placed before any unknown ones so the
     row order is deterministic regardless of how pandas groups the data.
     """
     latex_table = pd.DataFrame(
-        {col: pivot_df_meanstd[col].apply(
-            lambda row: f"${row['mean']:.1f} \\pm {row['std']:.1f}$", axis=1
-        ) for col in score_cols}
+        {
+            col: pivot_df_meanstd[col].apply(
+                lambda row: f"${row['mean']:.1f} \\pm {row['std']:.1f}$", axis=1
+            )
+            for col in score_cols
+        }
     )
-    latex_table.columns = [col.replace('_', ' ') for col in latex_table.columns]
+    latex_table.columns = [col.replace("_", " ") for col in latex_table.columns]
     latex_table.index = pd.MultiIndex.from_tuples(
-        [tuple(str(v).replace('_', ' ') for v in idx) for idx in latex_table.index],
-        names=latex_table.index.names
+        [tuple(str(v).replace("_", " ") for v in idx) for idx in latex_table.index],
+        names=latex_table.index.names,
     )
-    mask_valid = latex_table.index.get_level_values(EVAL_KEY).isin(["verified", "verified full", "original"])
+    mask_valid = latex_table.index.get_level_values(EVAL_KEY).isin(
+        ["verified", "verified full", "original"]
+    )
     latex_table = latex_table[mask_valid]
     mask_models = latex_table.index.get_level_values(MODEL_KEY).isin(MODEL_NAMES)
     latex_table = pd.concat([latex_table[mask_models], latex_table[~mask_models]])
     latex_str = latex_table.to_latex(escape=False)
-    with open(output_path / table_name, "w") as f:
+    with open(_subdir(output_path, "tables") / table_name, "w") as f:
         f.write(latex_str)
+
+
+def generate_latex_table_sora2(
+    scores_df: pd.DataFrame,
+    output_path: Path,
+    table_name: str,
+    score_cols: list,
+):
+    """LaTeX table for Sora 2 model variants with adaptive cell formatting.
+
+    Cells show ``$mean \\pm std$`` when multiple runs are available, or just
+    ``$value$`` for single-run entries (std = NaN).  Only rows for
+    ``SORA2_MODELS`` are included; FPS is kept in the index because the
+    variants may have been run at different frame rates.
+    """
+    df = scores_df[scores_df[MODEL_KEY].isin(SORA2_MODELS)]
+    pivot = (
+        df.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[score_cols].agg(
+            ["mean", "std"]
+        )
+        * 100
+    )
+
+    def _fmt(row):
+        return (
+            f"${row['mean']:.1f}$"
+            if pd.isna(row["std"])
+            else f"${row['mean']:.1f} \\pm {row['std']:.1f}$"
+        )
+
+    latex_table = pd.DataFrame(
+        {col: pivot[col].apply(_fmt, axis=1) for col in score_cols}
+    )
+    latex_table.columns = [col.replace("_", " ") for col in latex_table.columns]
+    latex_table.index = pd.MultiIndex.from_tuples(
+        [tuple(str(v).replace("_", " ") for v in idx) for idx in latex_table.index],
+        names=latex_table.index.names,
+    )
+    mask_valid = latex_table.index.get_level_values(EVAL_KEY).isin(
+        ["verified full", "original"]
+    )
+    latex_table = latex_table[mask_valid]
+    latex_str = latex_table.to_latex(escape=False)
+    with open(_subdir(output_path, "tables") / table_name, "w") as f:
+        f.write(latex_str)
+
+
+# Variance metric keys and human-readable labels used across the variance analysis
+_VAR_KEYS = [
+    IQTable.variance_spatial_key,
+    IQTable.variance_weighted_spatial_key,
+    IQTable.variance_spatiotemporal_iou_key,
+    IQTable.variance_mse_key,
+]
+_VAR_DISPLAY = {
+    IQTable.variance_spatial_key: "Spatial",
+    IQTable.variance_weighted_spatial_key: "Weighted Spatial",
+    IQTable.variance_spatiotemporal_iou_key: "Spatiotemporal",
+    IQTable.variance_mse_key: "MSE",
+}
+
+
+def build_scenario_variance_df(exp_tables: list[IQTable]) -> pd.DataFrame:
+    """Extract per-scenario physical variance values from all IQTables.
+
+    Returns a long-format DataFrame with one row per scenario per IQTable, with
+    columns for each variance metric plus the run metadata.  The ``scenario_id``
+    column is taken from a ``"scenario"`` column in the raw CSV if present,
+    otherwise from the integer row index.
+    """
+    chunks = []
+    for tab in exp_tables:
+        full_df = tab.get_full_df()
+        var_keys = [k for k in _VAR_KEYS if k in full_df.columns]
+        sub = full_df[var_keys].copy()
+        sub["scenario_id"] = (
+            full_df["scenario"].values
+            if "scenario" in full_df.columns
+            else full_df.index.astype(str).values
+        )
+        sub[MODEL_KEY] = tab.metadata.get(MODEL_KEY)
+        sub[EVAL_KEY] = tab.metadata.get(EVAL_KEY)
+        sub[PROMPT_KEY] = tab.metadata.get(PROMPT_KEY)
+        sub[FPS_KEY] = tab.metadata.get(FPS_KEY)
+        sub[RUN_KEY] = tab.metadata.get(RUN_KEY)
+        chunks.append(sub)
+    return pd.concat(chunks, ignore_index=True)
+
+
+def analyze_variance_shifts(scenario_var_df: pd.DataFrame, output_path: Path):
+    """Compute per-scenario variance deltas (verified_full − original) and save statistics.
+
+    Because physical variance is a property of the scenario itself (not of the
+    model), values are first deduplicated across models/runs before matching.
+    Outputs ``variance_shift_by_scenario.csv`` and ``variance_shift_summary.csv``
+    to *output_path/data/*.
+    """
+    var_keys = [k for k in _VAR_KEYS if k in scenario_var_df.columns]
+
+    # Variance is scenario-level, not model-level — average across models/runs first
+    dedup = (
+        scenario_var_df.groupby([EVAL_KEY, "scenario_id"])[var_keys]
+        .mean()
+        .reset_index()
+    )
+    orig = dedup[dedup[EVAL_KEY] == "original"].set_index("scenario_id")[var_keys]
+    ver = dedup[dedup[EVAL_KEY] == "verified_full"].set_index("scenario_id")[var_keys]
+
+    common_ids = orig.index.intersection(ver.index)
+    if len(common_ids) == 0:
+        print(
+            "No matched scenarios between original and verified evaluation — skipping variance shift analysis."
+        )
+        return pd.DataFrame()
+
+    delta_df = (ver.loc[common_ids] - orig.loc[common_ids]).reset_index()
+    delta_df["eval_comparison"] = "verified_full - original"
+    delta_df.to_csv(
+        _subdir(output_path, "data") / "variance_shift_by_scenario.csv", index=False
+    )
+
+    summary_rows = []
+    for key in var_keys:
+        deltas = delta_df[key].dropna().values
+        if len(deltas) < 2:
+            summary_rows.append({"metric": key, "n_matched": len(deltas)})
+            continue
+        try:
+            stat_w, p_w = stats.wilcoxon(deltas, alternative="two-sided")
+        except ValueError:
+            stat_w, p_w = np.nan, np.nan
+        std_d = np.std(deltas, ddof=1)
+        summary_rows.append(
+            {
+                "metric": key,
+                "n_matched": len(deltas),
+                "mean_delta": float(np.mean(deltas)),
+                "std_delta": float(std_d),
+                "frac_positive": float(np.mean(deltas > 0)),
+                "wilcoxon_stat": float(stat_w) if not np.isnan(stat_w) else np.nan,
+                "wilcoxon_p": float(p_w) if not np.isnan(p_w) else np.nan,
+                "cohens_d": float(np.mean(deltas) / std_d) if std_d > 0 else np.nan,
+            }
+        )
+
+    summary_df = pd.DataFrame(summary_rows)
+    pprint(summary_df)
+    summary_df.to_csv(
+        _subdir(output_path, "data") / "variance_shift_summary.csv", index=False
+    )
+    return delta_df
+
+
+def plot_variance_distributions(scenario_var_df: pd.DataFrame, output_path: Path):
+    """2×2 violin plots of per-scenario physical variance: original vs. verified evaluation."""
+    var_keys = [k for k in _VAR_KEYS if k in scenario_var_df.columns]
+
+    dedup = (
+        scenario_var_df.groupby([EVAL_KEY, "scenario_id"])[var_keys]
+        .mean()
+        .reset_index()
+    )
+    orig_rows = dedup[dedup[EVAL_KEY] == "original"]
+    ver_rows = dedup[dedup[EVAL_KEY] == "verified_full"]
+
+    fig, axes = plt.subplots(2, 2, figsize=(6.5, 5.0))
+    axes = axes.flatten()
+    rng = np.random.default_rng(seed=0)
+
+    for ax, key in zip(axes, var_keys):
+        groups = [orig_rows[key].dropna().values, ver_rows[key].dropna().values]
+        labels = ["Original", "Verified"]
+        colors = [_C_ORIG, _C_VER]
+        positions = [1, 2]
+
+        valid = [
+            (pos, g, c) for pos, g, c in zip(positions, groups, colors) if len(g) > 1
+        ]
+        if valid:
+            vp = ax.violinplot(
+                [g for _, g, _ in valid],
+                positions=[p for p, _, _ in valid],
+                showmedians=False,
+                showextrema=False,
+                widths=0.5,
+            )
+            for body, (_, _, color) in zip(vp["bodies"], valid):
+                body.set_facecolor(color)
+                body.set_alpha(0.5)
+                body.set_edgecolor(color)
+                body.set_linewidth(0.5)
+
+        for pos, data, color in zip(positions, groups, colors):
+            if len(data) == 0:
+                continue
+            jitter = rng.uniform(-0.08, 0.08, size=len(data))
+            ax.scatter(
+                pos + jitter, data, color=color, s=8, alpha=0.3, linewidths=0, zorder=2
+            )
+            mean = np.mean(data)
+            ci = np.percentile(data, [2.5, 97.5])
+            ax.errorbar(
+                pos,
+                mean,
+                yerr=[[max(0.0, mean - ci[0])], [max(0.0, ci[1] - mean)]],
+                fmt="o",
+                color=color,
+                markerfacecolor=color,
+                markeredgecolor="white",
+                markeredgewidth=0.7,
+                capsize=3,
+                capthick=1.1,
+                elinewidth=1.1,
+                markersize=6,
+                zorder=5,
+            )
+
+        ax.set_xticks(positions)
+        ax.set_xticklabels(labels, fontsize=8.5)
+        ax.set_title(_VAR_DISPLAY[key])
+        ax.set_ylabel("Physical variance")
+        ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
+        ax.set_axisbelow(True)
+
+    fig.suptitle(
+        "Per-scenario Physical Variance: Original vs. Verified Evaluation", fontsize=11
+    )
+    fig.tight_layout()
+    _save_fig(fig, output_path, "variance_distributions")
+
+
+def plot_variance_scenario_scatter(scenario_var_df: pd.DataFrame, output_path: Path):
+    """Scatter of per-scenario original vs verified variance, coloured by |Δ|.
+
+    Directly shows which scenarios have the largest shift in physical variance
+    between the two evaluation pipelines.  Top-5 outliers per panel are
+    annotated with their scenario identifier.
+    """
+    var_keys = [k for k in _VAR_KEYS if k in scenario_var_df.columns]
+
+    dedup = (
+        scenario_var_df.groupby([EVAL_KEY, "scenario_id"])[var_keys]
+        .mean()
+        .reset_index()
+    )
+    orig = dedup[dedup[EVAL_KEY] == "original"].set_index("scenario_id")[var_keys]
+    ver = dedup[dedup[EVAL_KEY] == "verified_full"].set_index("scenario_id")[var_keys]
+    common_ids = orig.index.intersection(ver.index)
+
+    if len(common_ids) == 0:
+        print("No matched scenarios — skipping variance scenario scatter plot.")
+        return
+
+    # constrained_layout handles the per-panel colorbars without tight_layout conflicts
+    fig, axes = plt.subplots(2, 2, figsize=(6.5, 6.0), constrained_layout=True)
+    axes = axes.flatten()
+
+    for ax, key in zip(axes, var_keys):
+        x = orig.loc[common_ids, key].values
+        y = ver.loc[common_ids, key].values
+        delta_abs = np.abs(y - x)
+
+        lo = min(x.min(), y.min()) * 0.95
+        hi = max(x.max(), y.max()) * 1.05
+        ax.plot(
+            [lo, hi], [lo, hi], color="#888888", linewidth=0.9, linestyle=":", zorder=1
+        )
+
+        sc = ax.scatter(
+            x, y, c=delta_abs, cmap="viridis", s=20, alpha=0.75, linewidths=0, zorder=2
+        )
+        fig.colorbar(sc, ax=ax, shrink=0.8, pad=0.02, label="|Δ variance|")
+
+        # Annotate top-5 outliers
+        top5 = np.argsort(delta_abs)[-5:][::-1]
+        for i in top5:
+            ax.annotate(
+                str(common_ids[i]),
+                (x[i], y[i]),
+                fontsize=6.5,
+                ha="left",
+                va="bottom",
+                xytext=(3, 3),
+                textcoords="offset points",
+                color="#333333",
+            )
+
+        if len(x) > 1:
+            r = np.corrcoef(x, y)[0, 1]
+            ax.text(
+                0.04,
+                0.96,
+                f"r = {r:.3f}",
+                transform=ax.transAxes,
+                fontsize=8.5,
+                va="top",
+                bbox=dict(
+                    boxstyle="round,pad=0.3", fc="white", ec="#cccccc", alpha=0.9
+                ),
+            )
+
+        ax.set_xlabel("Original evaluation")
+        ax.set_ylabel("Verified evaluation")
+        ax.set_title(_VAR_DISPLAY[key])
+
+    _save_fig(fig, output_path, "variance_scenario_scatter")
 
 
 def mean_score_evaluation(scores_df: pd.DataFrame) -> dict:
@@ -205,21 +530,39 @@ def mean_score_evaluation(scores_df: pd.DataFrame) -> dict:
     ``kendall_tau``, ``kendall_p``.
     """
     print("\nModel rankings based on original evaluation:")
-    original_df = scores_df[(scores_df[PROMPT_KEY] == "op") & (scores_df[EVAL_KEY] == "original")]
-    original_scores = original_df[[MODEL_KEY, ORIG_SCORE_KEY]].groupby(MODEL_KEY).mean(numeric_only=True)
+    original_df = scores_df[
+        (scores_df[PROMPT_KEY] == "op") & (scores_df[EVAL_KEY] == "original")
+    ]
+    original_scores = (
+        original_df[[MODEL_KEY, ORIG_SCORE_KEY]]
+        .groupby(MODEL_KEY)
+        .mean(numeric_only=True)
+    )
     original_scores["rank"] = original_scores[ORIG_SCORE_KEY].rank(ascending=False)
 
-    verified_df = scores_df[(scores_df[PROMPT_KEY] == "bpp") & (scores_df[EVAL_KEY] == "verified_full")]
-    verified_scores = verified_df[[MODEL_KEY, VERIFIED_SCORE_KEY]].groupby(MODEL_KEY).mean(numeric_only=True)
+    verified_df = scores_df[
+        (scores_df[PROMPT_KEY] == "bpp") & (scores_df[EVAL_KEY] == "verified_full")
+    ]
+    verified_scores = (
+        verified_df[[MODEL_KEY, VERIFIED_SCORE_KEY]]
+        .groupby(MODEL_KEY)
+        .mean(numeric_only=True)
+    )
     verified_scores["rank"] = verified_scores[VERIFIED_SCORE_KEY].rank(ascending=False)
 
-    ranking_df = original_scores.join(verified_scores, lsuffix="_original", rsuffix="_verified", how="inner")
-    ranking_df['rank_delta'] = ranking_df['rank_verified'] - ranking_df['rank_original']
+    ranking_df = original_scores.join(
+        verified_scores, lsuffix="_original", rsuffix="_verified", how="inner"
+    )
+    ranking_df["rank_delta"] = ranking_df["rank_verified"] - ranking_df["rank_original"]
     pprint(ranking_df)
 
-    rho, p_rho = stats.spearmanr(ranking_df['rank_original'], ranking_df['rank_verified'])
+    rho, p_rho = stats.spearmanr(
+        ranking_df["rank_original"], ranking_df["rank_verified"]
+    )
     print(f"Spearman ρ = {rho:.3f}  (p = {p_rho:.3f})")
-    tau, p_tau = stats.kendalltau(ranking_df['rank_original'], ranking_df['rank_verified'])
+    tau, p_tau = stats.kendalltau(
+        ranking_df["rank_original"], ranking_df["rank_verified"]
+    )
     print(f"Kendall  τ = {tau:.3f}  (p = {p_tau:.3f})")
 
     return {
@@ -231,10 +574,17 @@ def mean_score_evaluation(scores_df: pd.DataFrame) -> dict:
     }
 
 
+def _subdir(output_path: Path, name: str) -> Path:
+    """Return *output_path/name*, creating it if it does not exist."""
+    d = output_path / name
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
 def _save_fig(fig: plt.Figure, output_path: Path, stem: str):
-    """Save figure as PDF (for LaTeX inclusion) and PNG (for preview)."""
-    fig.savefig(output_path / f"{stem}.pdf")
-    fig.savefig(output_path / f"{stem}.png")
+    """Save figure as PDF under figures/ and PNG under preview/."""
+    fig.savefig(_subdir(output_path, "figures") / f"{stem}.pdf")
+    fig.savefig(_subdir(output_path, "preview") / f"{stem}.png")
     plt.close(fig)
 
 
@@ -242,18 +592,24 @@ def _hist_panel(ax, values, color, xlabel, title):
     """Draw a styled histogram with mean line, 95% CI shading, and annotation."""
     mean = np.mean(values)
     ci = np.percentile(values, [2.5, 97.5])
-    ax.hist(values, bins=20, color=color, edgecolor='white', linewidth=0.4, alpha=0.85)
-    ax.axvline(mean, color=color, linewidth=1.8, linestyle='--', zorder=3)
+    ax.hist(values, bins=20, color=color, edgecolor="white", linewidth=0.4, alpha=0.85)
+    ax.axvline(mean, color=color, linewidth=1.8, linestyle="--", zorder=3)
     ax.axvspan(ci[0], ci[1], alpha=0.15, color=color, zorder=1)
     ax.set_xlabel(xlabel)
     ax.set_ylabel("Count")
     ax.set_title(title)
     ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
     ax.text(
-        0.03, 0.97,
+        0.03,
+        0.97,
         f"mean = {mean:.3f}\n95% CI [{ci[0]:.3f}, {ci[1]:.3f}]",
-        transform=ax.transAxes, fontsize=8.5, va='top', ha='left',
-        bbox=dict(boxstyle='round,pad=0.35', facecolor='white', edgecolor='#cccccc', alpha=0.9),
+        transform=ax.transAxes,
+        fontsize=8.5,
+        va="top",
+        ha="left",
+        bbox=dict(
+            boxstyle="round,pad=0.35", facecolor="white", edgecolor="#cccccc", alpha=0.9
+        ),
     )
 
 
@@ -268,12 +624,20 @@ def plot_correlation_distributions(
 ):
     """Bootstrap distributions of ranking correlations (original vs. verified evaluation)."""
     fig, (ax_rho, ax_tau) = plt.subplots(1, 2, figsize=(6.5, 2.8))
-    _hist_panel(ax_rho, spearman_rhos, _C_RHO,
-                xlabel="Spearman's ρ (original vs. verified)",
-                title="Ranking Correlation: Spearman's ρ")
-    _hist_panel(ax_tau, kendall_taus, _C_TAU,
-                xlabel="Kendall's τ (original vs. verified)",
-                title="Ranking Correlation: Kendall's τ")
+    _hist_panel(
+        ax_rho,
+        spearman_rhos,
+        _C_RHO,
+        xlabel="Spearman's ρ (original vs. verified)",
+        title="Ranking Correlation: Spearman's ρ",
+    )
+    _hist_panel(
+        ax_tau,
+        kendall_taus,
+        _C_TAU,
+        xlabel="Kendall's τ (original vs. verified)",
+        title="Ranking Correlation: Kendall's τ",
+    )
     fig.tight_layout()
     _save_fig(fig, output_path, "bootstrap_correlation_distributions")
 
@@ -296,8 +660,14 @@ def plot_ranking_scatter(
     fig, ax = plt.subplots(figsize=(3.8, 3.8))
 
     # Diagonal reference line (perfect agreement)
-    ax.plot([0.5, n_models + 0.5], [0.5, n_models + 0.5],
-            color='#888888', linewidth=0.9, linestyle=':', zorder=1)
+    ax.plot(
+        [0.5, n_models + 0.5],
+        [0.5, n_models + 0.5],
+        color="#888888",
+        linewidth=0.9,
+        linestyle=":",
+        zorder=1,
+    )
 
     for model, pairs in model_ranks.items():
         x = [p[0] for p in pairs]
@@ -307,8 +677,17 @@ def plot_ranking_scatter(
         # Individual bootstrap samples (translucent)
         ax.scatter(x, y, color=color, s=18, alpha=0.18, zorder=2, linewidths=0)
         # Mean position per model (opaque, prominent)
-        ax.scatter(np.mean(x), np.mean(y), color=color, s=70, alpha=1.0,
-                   zorder=3, label=display, edgecolors='white', linewidths=0.6)
+        ax.scatter(
+            np.mean(x),
+            np.mean(y),
+            color=color,
+            s=70,
+            alpha=1.0,
+            zorder=3,
+            label=display,
+            edgecolors="white",
+            linewidths=0.6,
+        )
 
     ticks = list(range(1, n_models + 1))
     ax.set_xticks(ticks)
@@ -319,13 +698,19 @@ def plot_ranking_scatter(
     ax.set_ylabel("Rank (verified evaluation)")
     ax.set_title("Bootstrap Model Rankings:\nOriginal vs. Verified Evaluation")
     ax.text(
-        0.97, 0.03,
+        0.97,
+        0.03,
         f"$\\bar{{\\rho}}$ = {rho_mean:.3f},  $\\bar{{\\tau}}$ = {tau_mean:.3f}",
-        transform=ax.transAxes, fontsize=8.5, va='bottom', ha='right',
-        bbox=dict(boxstyle='round,pad=0.35', facecolor='white', edgecolor='#cccccc', alpha=0.9),
+        transform=ax.transAxes,
+        fontsize=8.5,
+        va="bottom",
+        ha="right",
+        bbox=dict(
+            boxstyle="round,pad=0.35", facecolor="white", edgecolor="#cccccc", alpha=0.9
+        ),
     )
-    ax.legend(loc='upper left', markerscale=1.2, handletextpad=0.4, borderpad=0.6)
-    ax.set_aspect('equal')
+    ax.legend(loc="upper left", markerscale=1.2, handletextpad=0.4, borderpad=0.6)
+    ax.set_aspect("equal")
     fig.tight_layout()
     _save_fig(fig, output_path, "bootstrap_ranking_scatter")
 
@@ -347,18 +732,34 @@ def plot_within_evaluation_correlations(
     tau_min = min(taus_orig + taus_ver) - 0.02
     tau_max = min(max(taus_orig + taus_ver) + 0.02, 1.0)
 
-    _hist_panel(ax_rho_orig, rhos_orig, _C_ORIG,
-                xlabel="Spearman's ρ (consecutive samples)",
-                title="Original — Spearman's ρ")
-    _hist_panel(ax_tau_orig, taus_orig, _C_ORIG,
-                xlabel="Kendall's τ (consecutive samples)",
-                title="Original — Kendall's τ")
-    _hist_panel(ax_rho_ver, rhos_ver, _C_VER,
-                xlabel="Spearman's ρ (consecutive samples)",
-                title="Verified — Spearman's ρ")
-    _hist_panel(ax_tau_ver, taus_ver, _C_VER,
-                xlabel="Kendall's τ (consecutive samples)",
-                title="Verified — Kendall's τ")
+    _hist_panel(
+        ax_rho_orig,
+        rhos_orig,
+        _C_ORIG,
+        xlabel="Spearman's ρ (consecutive samples)",
+        title="Original — Spearman's ρ",
+    )
+    _hist_panel(
+        ax_tau_orig,
+        taus_orig,
+        _C_ORIG,
+        xlabel="Kendall's τ (consecutive samples)",
+        title="Original — Kendall's τ",
+    )
+    _hist_panel(
+        ax_rho_ver,
+        rhos_ver,
+        _C_VER,
+        xlabel="Spearman's ρ (consecutive samples)",
+        title="Verified — Spearman's ρ",
+    )
+    _hist_panel(
+        ax_tau_ver,
+        taus_ver,
+        _C_VER,
+        xlabel="Kendall's τ (consecutive samples)",
+        title="Verified — Kendall's τ",
+    )
 
     for ax in (ax_rho_orig, ax_rho_ver):
         ax.set_xlim(rho_min, rho_max)
@@ -369,7 +770,9 @@ def plot_within_evaluation_correlations(
     _save_fig(fig, output_path, "bootstrap_within_evaluation_correlation_distributions")
 
 
-def plot_ranking_distributions(ranks_original: list, ranks_verified: list, output_path: Path):
+def plot_ranking_distributions(
+    ranks_original: list, ranks_verified: list, output_path: Path
+):
     """Box plots of bootstrap rank distributions per model, for each evaluation type."""
     ranking_values_original = pd.concat(ranks_original, axis=1)
     ranking_values_verified = pd.concat(ranks_verified, axis=1)
@@ -385,22 +788,24 @@ def plot_ranking_distributions(ranks_original: list, ranks_verified: list, outpu
             positions=range(1, len(models) + 1),
             widths=0.55,
             patch_artist=True,
-            medianprops=dict(color='black', linewidth=1.8),
-            whiskerprops=dict(linewidth=0.8, linestyle='--'),
+            medianprops=dict(color="black", linewidth=1.8),
+            whiskerprops=dict(linewidth=0.8, linestyle="--"),
             capprops=dict(linewidth=0.8),
-            flierprops=dict(marker='o', markersize=3, alpha=0.5, markeredgewidth=0),
+            flierprops=dict(marker="o", markersize=3, alpha=0.5, markeredgewidth=0),
             boxprops=dict(linewidth=0.7),
         )
-        for patch, model in zip(bxp['boxes'], models):
+        for patch, model in zip(bxp["boxes"], models):
             patch.set_facecolor(model_to_color(model))
             patch.set_alpha(0.75)
         ax.set_xticks(range(1, len(models) + 1))
         ax.set_xticklabels(
             [model_to_plotting_name(m) for m in models],
-            rotation=35, ha='right', fontsize=8.5,
+            rotation=35,
+            ha="right",
+            fontsize=8.5,
         )
         ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
-        ax.yaxis.grid(True, linewidth=0.5, alpha=0.6, color='#dddddd')
+        ax.yaxis.grid(True, linewidth=0.5, alpha=0.6, color="#dddddd")
         ax.set_axisbelow(True)
         ax.invert_yaxis()  # rank 1 (best) at top
         ax.set_ylabel("Rank  (1 = best)")
@@ -421,6 +826,7 @@ def plot_combined_correlation_comparison(
     rhos_within_ver: list,
     taus_within_ver: list,
     output_path: Path,
+    show_stats: bool = False,
 ):
     """Violin plot comparing cross- and within-evaluation bootstrap ranking correlations.
 
@@ -432,11 +838,18 @@ def plot_combined_correlation_comparison(
     Layout: 2 panels (Spearman ρ | Kendall τ), shared y-axis.
     Each group shows: jittered individual bootstrap values, violin density, and
     a mean ± 95% CI errorbar.
+
+    Parameters
+    ----------
+    show_stats:
+        When True the mean and 95% CI are printed below each x-tick label so
+        the exact values are readable without a separate table.  The function is
+        called twice from ``run_bootstrap_analysis`` — once per value — and the
+        output filename includes ``_annotated`` for the annotated version.
     """
     groups_rho = [spearman_rhos, rhos_within_orig, rhos_within_ver]
     groups_tau = [kendall_taus, taus_within_orig, taus_within_ver]
     group_colors = [_C_CROSS, _C_ORIG, _C_VER]
-    # Short single-line labels avoid overlap at the violin spacing used here
     x_labels = ["Cross-eval.", "Within orig.", "Within ver."]
     positions = [1, 2, 3]
 
@@ -445,15 +858,22 @@ def plot_combined_correlation_comparison(
     y_min = min(all_vals) - 0.04
     y_max = min(max(all_vals) + 0.04, 1.02)
 
-    fig, (ax_rho, ax_tau) = plt.subplots(1, 2, figsize=(6.5, 3.4), sharey=True)
+    # Extra figure height when stats are shown below x-labels
+    fig_height = 4.4 if show_stats else 3.4
+    fig, (ax_rho, ax_tau) = plt.subplots(1, 2, figsize=(6.5, fig_height), sharey=True)
 
     for ax, groups, title in [
         (ax_rho, groups_rho, "Spearman's ρ"),
         (ax_tau, groups_tau, "Kendall's τ"),
     ]:
-        vp = ax.violinplot(groups, positions=positions, showmedians=False,
-                           showextrema=False, widths=0.6)
-        for body, color in zip(vp['bodies'], group_colors):
+        vp = ax.violinplot(
+            groups,
+            positions=positions,
+            showmedians=False,
+            showextrema=False,
+            widths=0.6,
+        )
+        for body, color in zip(vp["bodies"], group_colors):
             body.set_facecolor(color)
             body.set_alpha(0.45)
             body.set_edgecolor(color)
@@ -463,8 +883,15 @@ def plot_combined_correlation_comparison(
         rng = np.random.default_rng(seed=0)
         for pos, data, color in zip(positions, groups, group_colors):
             jitter = rng.uniform(-0.12, 0.12, size=len(data))
-            ax.scatter(pos + jitter, data, color=color, s=10, alpha=0.25,
-                       linewidths=0, zorder=2)
+            ax.scatter(
+                pos + jitter,
+                data,
+                color=color,
+                s=10,
+                alpha=0.25,
+                linewidths=0,
+                zorder=2,
+            )
 
         for pos, data, color in zip(positions, groups, group_colors):
             mean = np.mean(data)
@@ -476,24 +903,41 @@ def plot_combined_correlation_comparison(
             yerr_hi = max(0.0, ci[1] - mean)
             # markerfacecolor must be set explicitly; `color` only controls the line
             ax.errorbar(
-                pos, mean,
+                pos,
+                mean,
                 yerr=[[yerr_lo], [yerr_hi]],
-                fmt='o', color=color,
-                markerfacecolor=color, markeredgecolor='white', markeredgewidth=0.8,
-                capsize=4, capthick=1.3, elinewidth=1.3, markersize=7,
+                fmt="o",
+                color=color,
+                markerfacecolor=color,
+                markeredgecolor="white",
+                markeredgewidth=0.8,
+                capsize=4,
+                capthick=1.3,
+                elinewidth=1.3,
+                markersize=7,
                 zorder=5,
             )
 
+        # Build x-tick labels — optionally extend with per-group stats below the name
+        if show_stats:
+            tick_labels = [
+                f"{label}\nμ={np.mean(data):.3f}\n[{np.percentile(data, 2.5):.3f}, {np.percentile(data, 97.5):.3f}]"
+                for label, data in zip(x_labels, groups)
+            ]
+        else:
+            tick_labels = x_labels
+
         ax.set_xticks(positions)
-        ax.set_xticklabels(x_labels, fontsize=8.5)
+        ax.set_xticklabels(tick_labels, fontsize=8.5)
         ax.set_ylim(y_min, y_max)
         ax.set_title(title)
-        ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color='#dddddd')
+        ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
         ax.set_axisbelow(True)
 
     ax_rho.set_ylabel("Correlation coefficient")
     fig.tight_layout()
-    _save_fig(fig, output_path, "bootstrap_combined_correlation_comparison")
+    stem = "bootstrap_combined_correlation_comparison"
+    _save_fig(fig, output_path, stem + ("_annotated" if show_stats else ""))
 
 
 def run_bootstrap_analysis(
@@ -544,36 +988,47 @@ def run_bootstrap_analysis(
                     mask = bootstrap_sample == tab.metadata[RUN_KEY]
                     series.append(tab.get_full_df()[mask])
             boot_df = pd.concat(series)
-            assert len(boot_df) == len(bootstrap_sample), (
-                f"Bootstrap sample length {len(bootstrap_sample)} does not match boot_df length {len(boot_df)}"
-            )
-            assert boot_df.index.is_unique, (
-                "Bootstrap sample has duplicate indices and therefore is not a valid permutation based bootstrap sample."
-            )
+            assert len(boot_df) == len(
+                bootstrap_sample
+            ), f"Bootstrap sample length {len(bootstrap_sample)} does not match boot_df length {len(boot_df)}"
+            assert (
+                boot_df.index.is_unique
+            ), "Bootstrap sample has duplicate indices and therefore is not a valid permutation based bootstrap sample."
             bootstrap_setting = {**setting, "bootstrap_sample": i}
             boot_iq_tables.append(IQTable(boot_df, metadata=bootstrap_setting))
 
-        bootstrap_scores_df = pd.DataFrame([tab.get_output_dict() for tab in boot_iq_tables])
+        bootstrap_scores_df = pd.DataFrame(
+            [tab.get_output_dict() for tab in boot_iq_tables]
+        )
         bootstrap_dfs.append(bootstrap_scores_df)
 
     ranks_original, ranks_verified = [], []
     for bootstrap_scores_df in bootstrap_dfs:
         ranking_df = (
-            bootstrap_scores_df[[MODEL_KEY, EVAL_KEY, ORIG_SCORE_KEY, VERIFIED_SCORE_KEY]]
-            .groupby([MODEL_KEY, EVAL_KEY]).mean(numeric_only=True)
+            bootstrap_scores_df[
+                [MODEL_KEY, EVAL_KEY, ORIG_SCORE_KEY, VERIFIED_SCORE_KEY]
+            ]
+            .groupby([MODEL_KEY, EVAL_KEY])
+            .mean(numeric_only=True)
         )
         r_orig = ranking_df.xs("original", level=EVAL_KEY)
         r_ver = ranking_df.xs("verified_full", level=EVAL_KEY)
-        r_orig = r_orig.assign(rank=r_orig[ORIG_SCORE_KEY].rank(ascending=False))["rank"]
-        r_ver = r_ver.assign(rank=r_ver[VERIFIED_SCORE_KEY].rank(ascending=False))["rank"]
+        r_orig = r_orig.assign(rank=r_orig[ORIG_SCORE_KEY].rank(ascending=False))[
+            "rank"
+        ]
+        r_ver = r_ver.assign(rank=r_ver[VERIFIED_SCORE_KEY].rank(ascending=False))[
+            "rank"
+        ]
         ranks_original.append(r_orig)
         ranks_verified.append(r_ver)
 
     spearman_rhos, kendall_taus = [], []
     for r_orig, r_ver in zip(ranks_original, ranks_verified):
-        merged = r_orig.to_frame().join(r_ver.to_frame(), lsuffix="_original", rsuffix="_verified", how="inner")
-        rho, _ = stats.spearmanr(merged['rank_original'], merged['rank_verified'])
-        tau, _ = stats.kendalltau(merged['rank_original'], merged['rank_verified'])
+        merged = r_orig.to_frame().join(
+            r_ver.to_frame(), lsuffix="_original", rsuffix="_verified", how="inner"
+        )
+        rho, _ = stats.spearmanr(merged["rank_original"], merged["rank_verified"])
+        tau, _ = stats.kendalltau(merged["rank_original"], merged["rank_verified"])
         spearman_rhos.append(rho)
         kendall_taus.append(tau)
 
@@ -581,8 +1036,12 @@ def run_bootstrap_analysis(
     ci_tau = np.percentile(kendall_taus, [2.5, 97.5])
     rho_mean = np.mean(spearman_rhos)
     tau_mean = np.mean(kendall_taus)
-    print(f"Mean Spearman's ρ: {rho_mean:.3f}, 95% CI: [{ci_rho[0]:.3f}, {ci_rho[1]:.3f}]")
-    print(f"Mean Kendall's τ: {tau_mean:.3f}, 95% CI: [{ci_tau[0]:.3f}, {ci_tau[1]:.3f}]")
+    print(
+        f"Mean Spearman's ρ: {rho_mean:.3f}, 95% CI: [{ci_rho[0]:.3f}, {ci_rho[1]:.3f}]"
+    )
+    print(
+        f"Mean Kendall's τ: {tau_mean:.3f}, 95% CI: [{ci_tau[0]:.3f}, {ci_tau[1]:.3f}]"
+    )
 
     # Within-evaluation ρ and τ between consecutive bootstrap samples
     pairs_orig = list(zip(ranks_original[:-1], ranks_original[1:]))
@@ -592,19 +1051,30 @@ def run_bootstrap_analysis(
     rhos_within_ver = [stats.spearmanr(r1, r2)[0] for r1, r2 in pairs_ver]
     taus_within_ver = [stats.kendalltau(r1, r2)[0] for r1, r2 in pairs_ver]
 
-    plot_correlation_distributions(spearman_rhos, kendall_taus, rho_mean, ci_rho, tau_mean, ci_tau, output_path)
-    plot_ranking_scatter(ranks_original, ranks_verified, rho_mean, tau_mean, output_path)
+    plot_correlation_distributions(
+        spearman_rhos, kendall_taus, rho_mean, ci_rho, tau_mean, ci_tau, output_path
+    )
+    plot_ranking_scatter(
+        ranks_original, ranks_verified, rho_mean, tau_mean, output_path
+    )
     plot_within_evaluation_correlations(
-        rhos_within_orig, taus_within_orig,
-        rhos_within_ver, taus_within_ver,
+        rhos_within_orig,
+        taus_within_orig,
+        rhos_within_ver,
+        taus_within_ver,
         output_path,
     )
-    plot_combined_correlation_comparison(
-        spearman_rhos, kendall_taus,
-        rhos_within_orig, taus_within_orig,
-        rhos_within_ver, taus_within_ver,
-        output_path,
-    )
+    for show_stats in (False, True):
+        plot_combined_correlation_comparison(
+            spearman_rhos,
+            kendall_taus,
+            rhos_within_orig,
+            taus_within_orig,
+            rhos_within_ver,
+            taus_within_ver,
+            output_path,
+            show_stats=show_stats,
+        )
     plot_ranking_distributions(ranks_original, ranks_verified, output_path)
 
     return {
@@ -623,7 +1093,9 @@ def run_bootstrap_analysis(
     }
 
 
-def plot_model_performance_bars(scores_df: pd.DataFrame, score_key: str,output_path: Path, mode="verified"):
+def plot_model_performance_bars(
+    scores_df: pd.DataFrame, score_key: str, output_path: Path, mode="verified"
+):
     """Bar chart of mean Physics-IQ score per model, sorted best-to-worst (left to right).
 
     Uses the verified evaluation (``bpp`` prompt, ``verified_full`` scoring) at each
@@ -641,11 +1113,12 @@ def plot_model_performance_bars(scores_df: pd.DataFrame, score_key: str,output_p
         ]
         plot_title = "Physics-IQ Original Scores"
     else:
-        raise ValueError(f"Invalid mode '{mode}' for plot_model_performance_bars. Expected 'verified' or 'original'.")
+        raise ValueError(
+            f"Invalid mode '{mode}' for plot_model_performance_bars. Expected 'verified' or 'original'."
+        )
 
     grouped = (
-        df.groupby([MODEL_KEY])[score_key]
-        .agg(["mean", "std"]) * 100
+        df.groupby([MODEL_KEY])[score_key].agg(["mean", "std"]) * 100
     ).sort_values("mean", ascending=False)
     models = grouped.index.tolist()
     means = grouped["mean"].values
@@ -659,28 +1132,322 @@ def plot_model_performance_bars(scores_df: pd.DataFrame, score_key: str,output_p
     x = np.arange(n)
 
     ax.bar(
-        x, means, width=0.6,
-        color=colors, alpha=0.85,
-        yerr=stds, capsize=4,
-        error_kw=dict(linewidth=0.9, capthick=0.9, ecolor='#444444'),
-        edgecolor='white', linewidth=0.5,
+        x,
+        means,
+        width=0.6,
+        color=colors,
+        alpha=0.85,
+        yerr=stds,
+        capsize=4,
+        error_kw=dict(linewidth=0.9, capthick=0.9, ecolor="#444444"),
+        edgecolor="white",
+        linewidth=0.5,
         zorder=3,
     )
 
     # Score label sits just above the error-bar cap
     for xi, mean, std in zip(x, means, stds):
-        ax.text(xi, mean + std + 0.8, f"{mean:.1f}",
-                ha='center', va='bottom', fontsize=8.5, fontweight='bold')
+        ax.text(
+            xi,
+            mean + std + 0.8,
+            f"{mean:.1f}",
+            ha="center",
+            va="bottom",
+            fontsize=8.5,
+            fontweight="bold",
+        )
 
     ax.set_xticks(x)
-    ax.set_xticklabels(display_names, rotation=30, ha='right', fontsize=9)
+    ax.set_xticklabels(display_names, rotation=30, ha="right", fontsize=9)
     ax.set_ylabel(plot_title)
     ax.set_ylim(0, max(means + stds) * 1.22)
-    ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color='#dddddd')
+    ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
     ax.set_axisbelow(True)
 
     fig.tight_layout()
     _save_fig(fig, output_path, plot_title.replace(" ", "_").lower() + "_bars")
+
+
+def plot_prompt_impact(scores_df: pd.DataFrame, output_path: Path):
+    """Slope + delta charts showing the per-model effect of 'bpp' vs 'op' prompts.
+
+    Restricted to the original evaluation pipeline so only the prompt variable
+    changes between the two conditions.
+
+    Layout
+    ------
+    Top panel  — slope chart for the final score: each model is a line from its
+                 mean 'op' score to its mean 'bpp' score, with individual run
+                 points shown to convey within-model variability.
+    Bottom row — four horizontal delta bar charts (one per subscore) showing
+                 Δ = bpp − op per model, so the subscore driving the overall
+                 effect is immediately visible.
+    """
+    df = scores_df[scores_df[EVAL_KEY] == "original"].copy()
+
+    sub_cols = {
+        "score_spatial": "Spatial",
+        "score_spatiotemporal": "Spatiotemporal",
+        "score_weighted_spatial": "Weighted Spatial",
+        "score_mse": "MSE",
+    }
+
+    # Model order: sorted by op mean on the final score, best first
+    op_means = (
+        df[df[PROMPT_KEY] == "op"].groupby(MODEL_KEY)[VERIFIED_SCORE_KEY].mean() * 100
+    ).sort_values(ascending=False)
+    models = op_means.index.tolist()
+
+    fig = plt.figure(figsize=(6.5, 5.5), layout="constrained")
+    gs = fig.add_gridspec(2, 4, height_ratios=[1.4, 1.0])
+    ax_main = fig.add_subplot(gs[0, :])
+    ax_subs = [fig.add_subplot(gs[1, i]) for i in range(4)]
+
+    rng = np.random.default_rng(seed=0)
+
+    # ── Top: slope chart ──────────────────────────────────────────────────────
+    for model in models:
+        color = model_to_color(model)
+        mask = df[MODEL_KEY] == model
+        op_runs = df[mask & (df[PROMPT_KEY] == "op")][VERIFIED_SCORE_KEY].values * 100
+        bpp_runs = df[mask & (df[PROMPT_KEY] == "bpp")][VERIFIED_SCORE_KEY].values * 100
+        if len(op_runs) == 0 or len(bpp_runs) == 0:
+            continue
+        op_mean, bpp_mean = np.mean(op_runs), np.mean(bpp_runs)
+
+        for x_pos, runs in [(0, op_runs), (1, bpp_runs)]:
+            jitter = rng.uniform(-0.06, 0.06, size=len(runs))
+            ax_main.scatter(
+                x_pos + jitter,
+                runs,
+                color=color,
+                s=18,
+                alpha=0.35,
+                linewidths=0,
+                zorder=2,
+            )
+        ax_main.plot(
+            [0, 1],
+            [op_mean, bpp_mean],
+            color=color,
+            linewidth=1.6,
+            marker="o",
+            markersize=6.5,
+            markeredgecolor="white",
+            markeredgewidth=0.7,
+            zorder=3,
+        )
+        ax_main.text(
+            1.04,
+            bpp_mean,
+            model_to_plotting_name(model),
+            va="center",
+            fontsize=8.5,
+            color=color,
+        )
+
+    ax_main.set_xticks([0, 1])
+    ax_main.set_xticklabels(["op", "bpp"], fontsize=9)
+    ax_main.set_xlim(-0.25, 1.6)
+    ax_main.set_ylabel("Physics-IQ Score (×100)")
+    ax_main.set_title("Prompt Impact on Final Score (Original Evaluation)")
+    ax_main.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
+    ax_main.set_axisbelow(True)
+
+    # ── Bottom: per-subscore delta bars ───────────────────────────────────────
+    # Reversed model order so highest-scoring model sits at the top of each chart
+    models_rev = list(reversed(models))
+    y_pos = np.arange(len(models_rev))
+
+    for ax, (sub_col, sub_label) in zip(ax_subs, sub_cols.items()):
+        sub_means = (df.groupby([MODEL_KEY, PROMPT_KEY])[sub_col].mean() * 100).unstack(
+            PROMPT_KEY
+        )
+
+        deltas = []
+        colors_ordered = []
+        for model in models_rev:
+            if (
+                model in sub_means.index
+                and "op" in sub_means.columns
+                and "bpp" in sub_means.columns
+            ):
+                deltas.append(sub_means.loc[model, "bpp"] - sub_means.loc[model, "op"])
+            else:
+                deltas.append(0.0)
+            colors_ordered.append(model_to_color(model))
+
+        ax.barh(
+            y_pos,
+            deltas,
+            height=0.6,
+            color=colors_ordered,
+            alpha=0.85,
+            edgecolor="white",
+            linewidth=0.4,
+            zorder=3,
+        )
+        ax.axvline(0, color="#444444", linewidth=0.8, zorder=4)
+        ax.set_yticks(y_pos)
+        # Only label the leftmost panel; others would just repeat the same names
+        ax.set_yticklabels(
+            (
+                [model_to_plotting_name(m) for m in models_rev]
+                if ax is ax_subs[0]
+                else [""] * len(models_rev)
+            ),
+            fontsize=7.5,
+        )
+        ax.set_title(sub_label, fontsize=9)
+        ax.set_xlabel("Δ (bpp − op)", fontsize=8)
+        ax.xaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
+        ax.set_axisbelow(True)
+
+    _save_fig(fig, output_path, "prompt_impact_original")
+
+
+def plot_evaluation_impact(scores_df: pd.DataFrame, output_path: Path):
+    """Slope + delta charts comparing original vs. verified evaluation pipeline for op prompts.
+
+    Holds the prompt fixed at ``op`` so the only variable is the evaluation
+    pipeline.  Directly complements the aggregate statistics in
+    ``evaluation_comparison_stats.csv``.
+
+    Layout
+    ------
+    Top panel  — slope chart for the final score: each model runs from its mean
+                 score under the original pipeline (``ORIG_SCORE_KEY``) to its
+                 mean score under the verified pipeline (``VERIFIED_SCORE_KEY``),
+                 with individual run points shown.
+    Bottom row — four horizontal delta bar charts (one per subscore) showing
+                 Δ = verified_full − original per model.
+    """
+    df = scores_df[scores_df[PROMPT_KEY] == "op"].copy()
+
+    sub_cols = {
+        "score_spatial": "Spatial",
+        "score_spatiotemporal": "Spatiotemporal",
+        "score_weighted_spatial": "Weighted Spatial",
+        "score_mse": "MSE",
+    }
+
+    # Model order: sorted by original evaluation mean (descending)
+    orig_means = (
+        df[df[EVAL_KEY] == "original"].groupby(MODEL_KEY)[ORIG_SCORE_KEY].mean() * 100
+    ).sort_values(ascending=False)
+    models = orig_means.index.tolist()
+
+    fig = plt.figure(figsize=(6.5, 5.5), layout="constrained")
+    gs = fig.add_gridspec(2, 4, height_ratios=[1.4, 1.0])
+    ax_main = fig.add_subplot(gs[0, :])
+    ax_subs = [fig.add_subplot(gs[1, i]) for i in range(4)]
+
+    rng = np.random.default_rng(seed=0)
+
+    # Each side uses the score formula appropriate for that pipeline
+    eval_specs = [
+        ("original", ORIG_SCORE_KEY, 0, "Original eval.\n(op)"),
+        ("verified_full", VERIFIED_SCORE_KEY, 1, "Verified eval.\n(op)"),
+    ]
+
+    for model in models:
+        color = model_to_color(model)
+        mask = df[MODEL_KEY] == model
+        x_means = []
+
+        for eval_type, score_key, x_pos, _ in eval_specs:
+            runs = df[mask & (df[EVAL_KEY] == eval_type)][score_key].values * 100
+            if len(runs) == 0:
+                continue
+            jitter = rng.uniform(-0.06, 0.06, size=len(runs))
+            ax_main.scatter(
+                x_pos + jitter,
+                runs,
+                color=color,
+                s=18,
+                alpha=0.35,
+                linewidths=0,
+                zorder=2,
+            )
+            x_means.append((x_pos, np.mean(runs)))
+
+        if len(x_means) == 2:
+            xs, ys = zip(*x_means)
+            ax_main.plot(
+                xs,
+                ys,
+                color=color,
+                linewidth=1.6,
+                marker="o",
+                markersize=6.5,
+                markeredgecolor="white",
+                markeredgewidth=0.7,
+                zorder=3,
+            )
+            ax_main.text(
+                1.04,
+                ys[1],
+                model_to_plotting_name(model),
+                va="center",
+                fontsize=8.5,
+                color=color,
+            )
+
+    ax_main.set_xticks([0, 1])
+    ax_main.set_xticklabels([spec[3] for spec in eval_specs], fontsize=9)
+    ax_main.set_xlim(-0.25, 1.6)
+    ax_main.set_ylabel("Physics-IQ Score (×100)")
+    ax_main.set_title("Evaluation Pipeline Impact (op prompts)")
+    ax_main.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
+    ax_main.set_axisbelow(True)
+
+    # Delta panels: verified_full − original per subscore
+    models_rev = list(reversed(models))
+    y_pos = np.arange(len(models_rev))
+
+    for ax, (sub_col, sub_label) in zip(ax_subs, sub_cols.items()):
+        orig_sub = (
+            df[df[EVAL_KEY] == "original"].groupby(MODEL_KEY)[sub_col].mean() * 100
+        )
+        ver_sub = (
+            df[df[EVAL_KEY] == "verified_full"].groupby(MODEL_KEY)[sub_col].mean() * 100
+        )
+
+        deltas = []
+        colors_ordered = []
+        for model in models_rev:
+            if model in orig_sub.index and model in ver_sub.index:
+                deltas.append(ver_sub[model] - orig_sub[model])
+            else:
+                deltas.append(0.0)
+            colors_ordered.append(model_to_color(model))
+
+        ax.barh(
+            y_pos,
+            deltas,
+            height=0.6,
+            color=colors_ordered,
+            alpha=0.85,
+            edgecolor="white",
+            linewidth=0.4,
+            zorder=3,
+        )
+        ax.axvline(0, color="#444444", linewidth=0.8, zorder=4)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(
+            (
+                [model_to_plotting_name(m) for m in models_rev]
+                if ax is ax_subs[0]
+                else [""] * len(models_rev)
+            ),
+            fontsize=7.5,
+        )
+        ax.set_title(sub_label, fontsize=9)
+        ax.set_xlabel("Δ (verified − original)", fontsize=8)
+        ax.xaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
+        ax.set_axisbelow(True)
+
+    _save_fig(fig, output_path, "evaluation_impact_op_prompts")
 
 
 def plot_model_performance_bars_combined(scores_df: pd.DataFrame, output_path: Path):
@@ -691,54 +1458,77 @@ def plot_model_performance_bars_combined(scores_df: pd.DataFrame, output_path: P
     between protocols directly readable.
     """
     specs = [
-        ("Original evaluation", ORIG_SCORE_KEY,
-         scores_df[(scores_df[EVAL_KEY] == "original") & (scores_df[PROMPT_KEY] == "op")]),
-        ("Verified evaluation", VERIFIED_SCORE_KEY,
-         scores_df[(scores_df[EVAL_KEY] == "verified_full") & (scores_df[PROMPT_KEY] == "bpp")]),
+        (
+            "Original evaluation",
+            ORIG_SCORE_KEY,
+            scores_df[
+                (scores_df[EVAL_KEY] == "original") & (scores_df[PROMPT_KEY] == "op")
+            ],
+        ),
+        (
+            "Verified evaluation",
+            VERIFIED_SCORE_KEY,
+            scores_df[
+                (scores_df[EVAL_KEY] == "verified_full")
+                & (scores_df[PROMPT_KEY] == "bpp")
+            ],
+        ),
     ]
 
     # Compute aggregates for both panels up-front so we can set a shared y range
     panel_data = []
     for title, score_key, df in specs:
         grouped = (
-            df.groupby(MODEL_KEY)[score_key]
-            .agg(["mean", "std"]) * 100
+            df.groupby(MODEL_KEY)[score_key].agg(["mean", "std"]) * 100
         ).sort_values("mean", ascending=False)
         panel_data.append((title, grouped))
 
     all_means = np.concatenate([g["mean"].values for _, g in panel_data])
-    all_stds  = np.concatenate([np.nan_to_num(g["std"].values) for _, g in panel_data])
+    all_stds = np.concatenate([np.nan_to_num(g["std"].values) for _, g in panel_data])
     y_max = max(all_means + all_stds) * 1.22
 
     n_models = max(len(g) for _, g in panel_data)
-    fig, axes = plt.subplots(1, 2, figsize=(max(5.0, n_models * 1.1) * 2, 3.5),
-                             sharey=True)
+    fig, axes = plt.subplots(
+        1, 2, figsize=(max(5.0, n_models * 1.1) * 2, 3.5), sharey=True
+    )
 
     for ax, (title, grouped) in zip(axes, panel_data):
-        models       = grouped.index.tolist()
-        means        = grouped["mean"].values
-        stds         = np.nan_to_num(grouped["std"].values)
-        colors       = [model_to_color(m) for m in models]
+        models = grouped.index.tolist()
+        means = grouped["mean"].values
+        stds = np.nan_to_num(grouped["std"].values)
+        colors = [model_to_color(m) for m in models]
         display_names = [model_to_plotting_name(m) for m in models]
         x = np.arange(len(models))
 
         ax.bar(
-            x, means, width=0.6,
-            color=colors, alpha=0.85,
-            yerr=stds, capsize=4,
-            error_kw=dict(linewidth=0.9, capthick=0.9, ecolor='#444444'),
-            edgecolor='white', linewidth=0.5,
+            x,
+            means,
+            width=0.6,
+            color=colors,
+            alpha=0.85,
+            yerr=stds,
+            capsize=4,
+            error_kw=dict(linewidth=0.9, capthick=0.9, ecolor="#444444"),
+            edgecolor="white",
+            linewidth=0.5,
             zorder=3,
         )
         for xi, mean, std in zip(x, means, stds):
-            ax.text(xi, mean + std + 0.8, f"{mean:.1f}",
-                    ha='center', va='bottom', fontsize=8.5, fontweight='bold')
+            ax.text(
+                xi,
+                mean + std + 0.8,
+                f"{mean:.1f}",
+                ha="center",
+                va="bottom",
+                fontsize=8.5,
+                fontweight="bold",
+            )
 
         ax.set_xticks(x)
-        ax.set_xticklabels(display_names, rotation=30, ha='right', fontsize=9)
+        ax.set_xticklabels(display_names, rotation=30, ha="right", fontsize=9)
         ax.set_title(title)
         ax.set_ylim(0, y_max)
-        ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color='#dddddd')
+        ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
         ax.set_axisbelow(True)
 
     axes[0].set_ylabel("Physics-IQ Score")
@@ -760,12 +1550,17 @@ def plot_score_correlation_matrix(scores_df: pd.DataFrame, output_path: Path):
     panels = [
         (
             "Original evaluation",
-            scores_df[(scores_df[EVAL_KEY] == "original") & (scores_df[PROMPT_KEY] == "op")],
+            scores_df[
+                (scores_df[EVAL_KEY] == "original") & (scores_df[PROMPT_KEY] == "op")
+            ],
             ORIG_SCORE_KEY,
         ),
         (
             "Verified evaluation",
-            scores_df[(scores_df[EVAL_KEY] == "verified_full") & (scores_df[PROMPT_KEY] == "bpp")],
+            scores_df[
+                (scores_df[EVAL_KEY] == "verified_full")
+                & (scores_df[PROMPT_KEY] == "bpp")
+            ],
             VERIFIED_SCORE_KEY,
         ),
     ]
@@ -785,8 +1580,15 @@ def plot_score_correlation_matrix(scores_df: pd.DataFrame, output_path: Path):
             for j in range(n):
                 val = corr.values[i, j]
                 text_color = "white" if abs(val) > 0.65 else "#333333"
-                ax.text(j, i, f"{val:.2f}", ha="center", va="center",
-                        fontsize=8.0, color=text_color)
+                ax.text(
+                    j,
+                    i,
+                    f"{val:.2f}",
+                    ha="center",
+                    va="center",
+                    fontsize=8.0,
+                    color=text_color,
+                )
 
         ax.set_xticks(range(n))
         ax.set_yticks(range(n))
@@ -831,22 +1633,25 @@ def save_results(
             return v.item()
         return v
 
+    data = _subdir(output_path, "data")
+
     # ── 1. Raw per-run scores ────────────────────────────────────────────────
-    scores_df.to_csv(output_path / "scores_per_run.csv", index=False)
+    scores_df.to_csv(data / "scores_per_run.csv", index=False)
 
     # ── 2. Aggregated scores (mean ± std ×100) ───────────────────────────────
     score_cols = [ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST
     agg = (
-        scores_df
-        .groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[score_cols]
-        .agg(["mean", "std"]) * 100
+        scores_df.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[score_cols].agg(
+            ["mean", "std"]
+        )
+        * 100
     )
     agg.columns = ["_".join(col) for col in agg.columns]
-    agg.reset_index().to_csv(output_path / "scores_aggregated.csv", index=False)
+    agg.reset_index().to_csv(data / "scores_aggregated.csv", index=False)
 
     # ── 3. Point-estimate rankings ────────────────────────────────────────────
     ranking_df = ranking_results["ranking_df"].copy()
-    ranking_df.to_csv(output_path / "rankings.csv")
+    ranking_df.to_csv(data / "rankings.csv")
 
     # ── 4. Bootstrap rank statistics ─────────────────────────────────────────
     rank_stat_rows = []
@@ -857,16 +1662,18 @@ def save_results(
         rv = pd.concat(rank_list, axis=1)
         for model in rv.index:
             vals = rv.loc[model].values
-            rank_stat_rows.append({
-                MODEL_KEY: model,
-                EVAL_KEY: eval_label,
-                "rank_mean": float(np.mean(vals)),
-                "rank_std": float(np.std(vals)),
-                "rank_median": float(np.median(vals)),
-                "rank_ci_2_5": float(np.percentile(vals, 2.5)),
-                "rank_ci_97_5": float(np.percentile(vals, 97.5)),
-            })
-    pd.DataFrame(rank_stat_rows).to_csv(output_path / "bootstrap_rank_stats.csv", index=False)
+            rank_stat_rows.append(
+                {
+                    MODEL_KEY: model,
+                    EVAL_KEY: eval_label,
+                    "rank_mean": float(np.mean(vals)),
+                    "rank_std": float(np.std(vals)),
+                    "rank_median": float(np.median(vals)),
+                    "rank_ci_2_5": float(np.percentile(vals, 2.5)),
+                    "rank_ci_97_5": float(np.percentile(vals, 97.5)),
+                }
+            )
+    pd.DataFrame(rank_stat_rows).to_csv(data / "bootstrap_rank_stats.csv", index=False)
 
     # ── 5. JSON summary ───────────────────────────────────────────────────────
     within_rho_orig = bootstrap_results["within_rho_original"]
@@ -908,21 +1715,34 @@ def save_results(
             "rank_delta": ranking_df["rank_delta"].astype(int).to_dict(),
         },
     }
-    with open(output_path / "results_summary.json", "w") as f:
+    with open(data / "results_summary.json", "w") as f:
         json.dump(summary, f, indent=2)
     print(f"\nResults written to {output_path}")
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Physics-IQ benchmark analysis")
-    parser.add_argument("--results-dir", type=Path, default=BASEPATH,
-                        help="Root directory containing experiment result CSVs")
-    parser.add_argument("--output-dir", type=Path, default=OUTPUT_PATH,
-                        help="Directory to write output files")
-    parser.add_argument("--n-bootstrap", type=int, default=N_BOOTSTRAP,
-                        help="Number of bootstrap iterations")
-    parser.add_argument("--seed", type=int, default=SEED,
-                        help="Random seed for reproducibility")
+    parser.add_argument(
+        "--results-dir",
+        type=Path,
+        default=BASEPATH,
+        help="Root directory containing experiment result CSVs",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=OUTPUT_PATH,
+        help="Directory to write output files",
+    )
+    parser.add_argument(
+        "--n-bootstrap",
+        type=int,
+        default=N_BOOTSTRAP,
+        help="Number of bootstrap iterations",
+    )
+    parser.add_argument(
+        "--seed", type=int, default=SEED, help="Random seed for reproducibility"
+    )
     return parser.parse_args()
 
 
@@ -934,29 +1754,50 @@ def main():
     exp_tables = get_experiment_tables(args.results_dir)
     scores_df = pd.DataFrame([tab.get_output_dict() for tab in exp_tables])
 
+    # import pdb; pdb.set_trace()
     score_cols = [VERIFIED_SCORE_KEY] + SCORES_LIST
     pivot_df_meanstd = (
-        scores_df
-        .groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[[ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST]
-        .agg(['mean', 'std']) * 100
+        scores_df.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[
+            [ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST
+        ].agg(["mean", "std"])
+        * 100
     )
     pprint(pivot_df_meanstd)
-    generate_latex_table(args.output_dir, pivot_df_meanstd, "full_model_table.tex", score_cols)
+    generate_latex_table(
+        args.output_dir, pivot_df_meanstd, "full_model_table.tex", score_cols
+    )
+    generate_latex_table_sora2(
+        scores_df, args.output_dir, "sora2_model_table.tex", score_cols
+    )
 
     scores_filtered = filter_by_settings(scores_df, RANKING_EVAL_SETTINGS)
-    # phys_var = scores_filtered[[MODEL_KEY,EVAL_KEY,FPS_KEY, PROMPT_KEY, "variance_spatiotemporal_iou"]]
-    phys_var = scores_filtered[[EVAL_KEY,FPS_KEY] + exp_tables[0].variance_keys].drop_duplicates()
-    pprint(phys_var)
+
+    # FPS is omitted from the groupby because RANKING_EVAL_SETTINGS pins exactly
+    # one canonical FPS per model, so it would only add a redundant index level.
+    pivot_filtered = (
+        scores_filtered.groupby([MODEL_KEY, EVAL_KEY, PROMPT_KEY])[
+            [ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST
+        ].agg(["mean", "std"])
+        * 100
+    )
+    generate_latex_table(
+        args.output_dir, pivot_filtered, "filtered_model_table.tex", score_cols
+    )
+
+    scenario_var_df = build_scenario_variance_df(exp_tables)
+    analyze_variance_shifts(scenario_var_df, args.output_dir)
+    plot_variance_distributions(scenario_var_df, args.output_dir)
+    plot_variance_scenario_scatter(scenario_var_df, args.output_dir)
 
     # ------------------ Analysis of score behavior with respect to evaluation settings -------------------
     bpp_df = scores_filtered[scores_filtered[EVAL_KEY] == "verified_full"]
     op_df = scores_filtered[scores_filtered[EVAL_KEY] == "original"]
     bpp_df = bpp_df.set_index([MODEL_KEY, PROMPT_KEY, FPS_KEY])
     op_df = op_df.set_index([MODEL_KEY, PROMPT_KEY, FPS_KEY])
-    test_direction = "less"  
+    test_direction = "less"
     out_rows = []
     print("\nComparing 'verfied_full' vs 'original' evaluation for op prompts:")
-    for score in [VERIFIED_SCORE_KEY] + SCORES_LIST:  
+    for score in [VERIFIED_SCORE_KEY] + SCORES_LIST:
         bpp_series = bpp_df[score].xs("op", level=PROMPT_KEY)
         op_series = op_df[score].xs("op", level=PROMPT_KEY)
         # print("\nComparing 'verfied_full' vs 'original' prompts for op:")
@@ -967,21 +1808,24 @@ def main():
         diff = bpp_series - op_series
         cohens_d = diff.mean() / diff.std(ddof=1)
         # print(f"Cohen's d for 'verfied_full' vs 'original' evaluation: d={cohens_d:.3f}")
-        out_rows.append({
-            "score": score,
-            "wilcoxon_stat": stat_w,
-            "wilcoxon_p": p_w,
-            "ttest_stat": stat_t,
-            "ttest_p": p_t,
-            "cohens_d": cohens_d
-        })
+        out_rows.append(
+            {
+                "score": score,
+                "wilcoxon_stat": stat_w,
+                "wilcoxon_p": p_w,
+                "ttest_stat": stat_t,
+                "ttest_p": p_t,
+                "cohens_d": cohens_d,
+            }
+        )
     prompt_comparison_df = pd.DataFrame(out_rows)
     pprint(prompt_comparison_df)
-    prompt_comparison_df.to_csv(args.output_dir / "evaluation_comparison_stats.csv", index=False)
+    prompt_comparison_df.to_csv(
+        _subdir(args.output_dir, "data") / "evaluation_comparison_stats.csv",
+        index=False,
+    )
     print("\nPrompt comparison statistics saved to 'evaluation_comparison_stats.csv'.")
-
-
-
+    plot_evaluation_impact(scores_filtered, args.output_dir)
 
     # ------------------ Analysis of score behavior with respect to prompts -------------------
     # TODO: refactor bpp vs op comparison.
@@ -995,7 +1839,7 @@ def main():
     test_direction = "greater"
     out_rows = []
     print("\nComparing 'bpp' vs 'op' prompts for original evaluation:")
-    for score in [VERIFIED_SCORE_KEY] + SCORES_LIST:  
+    for score in [VERIFIED_SCORE_KEY] + SCORES_LIST:
         bpp_series = bpp_df[score].xs("original", level=EVAL_KEY)
         op_series = op_df[score].xs("original", level=EVAL_KEY)
         # print("\nComparing 'bpp' vs 'op' prompts for original evaluation:")
@@ -1006,18 +1850,23 @@ def main():
         diff = bpp_series - op_series
         cohens_d = diff.mean() / diff.std(ddof=1)
         # print(f"Cohen's d for 'bpp' vs 'op' prompts: d={cohens_d:.3f}")
-        out_rows.append({
-            "score": score,
-            "wilcoxon_stat": stat_w,
-            "wilcoxon_p": p_w,
-            "ttest_stat": stat_t,
-            "ttest_p": p_t,
-            "cohens_d": cohens_d
-        })
+        out_rows.append(
+            {
+                "score": score,
+                "wilcoxon_stat": stat_w,
+                "wilcoxon_p": p_w,
+                "ttest_stat": stat_t,
+                "ttest_p": p_t,
+                "cohens_d": cohens_d,
+            }
+        )
     prompt_comparison_df = pd.DataFrame(out_rows)
     pprint(prompt_comparison_df)
-    prompt_comparison_df.to_csv(args.output_dir / "prompt_comparison_stats.csv", index=False)
+    prompt_comparison_df.to_csv(
+        _subdir(args.output_dir, "data") / "prompt_comparison_stats.csv", index=False
+    )
     print("\nPrompt comparison statistics saved to 'prompt_comparison_stats.csv'.")
+    plot_prompt_impact(scores_filtered, args.output_dir)
 
     # cv_table = scores_filtered.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[[ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST].std()
     # cv_table = cv_table / scores_filtered.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[[ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST].mean()
@@ -1025,15 +1874,17 @@ def main():
     # assert False
     plot_score_correlation_matrix(scores_filtered, args.output_dir)
     ranking_results = mean_score_evaluation(scores_filtered)
-    plot_model_performance_bars(scores_filtered, VERIFIED_SCORE_KEY, args.output_dir, mode="original")
-    plot_model_performance_bars(scores_filtered, VERIFIED_SCORE_KEY, args.output_dir, mode="verified")
+    plot_model_performance_bars(
+        scores_filtered, VERIFIED_SCORE_KEY, args.output_dir, mode="original"
+    )
+    plot_model_performance_bars(
+        scores_filtered, VERIFIED_SCORE_KEY, args.output_dir, mode="verified"
+    )
     plot_model_performance_bars_combined(scores_filtered, args.output_dir)
 
-
-    bootstrap_results = run_bootstrap_analysis(exp_tables, args.n_bootstrap, args.output_dir)
-
-    
-
+    bootstrap_results = run_bootstrap_analysis(
+        exp_tables, args.n_bootstrap, args.output_dir
+    )
 
     save_results(
         args.output_dir,

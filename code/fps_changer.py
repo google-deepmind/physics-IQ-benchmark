@@ -18,9 +18,10 @@ import cv2
 import numpy as np
 from PIL import Image
 
+
 def change_video_fps(input_folder: str, output_folder: str, fps_new: float) -> None:
     """
-    Changes the FPS of videos in a folder, processes only the first 5 seconds, 
+    Changes the FPS of videos in a folder, processes only the first 5 seconds,
     and saves them in the output folder.
 
     Args:
@@ -53,7 +54,9 @@ def change_video_fps(input_folder: str, output_folder: str, fps_new: float) -> N
             width, height = width - width % 2, height - height % 2
 
             subclip_duration = min(5, duration)  # Limit to the first 5 seconds
-            print(f"Original FPS: {fps_original}, Duration: {duration}s, Frames: {frame_count}")
+            print(
+                f"Original FPS: {fps_original}, Duration: {duration}s, Frames: {frame_count}"
+            )
 
             frames = []
             for _ in range(int(subclip_duration * fps_original)):
@@ -67,7 +70,9 @@ def change_video_fps(input_folder: str, output_folder: str, fps_new: float) -> N
             frame_count_original = len(frames)
             frame_count_new = int(subclip_duration * fps_new)
 
-            print(f"Original frames: {frame_count_original}, New frames: {frame_count_new}")
+            print(
+                f"Original frames: {frame_count_original}, New frames: {frame_count_new}"
+            )
 
             # Interpolate frames to match the new frame rate
             frames_new = []
@@ -88,7 +93,9 @@ def change_video_fps(input_folder: str, output_folder: str, fps_new: float) -> N
                 frames_new.append(frame_interp)
 
             # Save the new video
-            new_file_name = video_file.replace(f"{int(fps_original)}FPS", f"{int(fps_new)}FPS")
+            new_file_name = video_file.replace(
+                f"{int(fps_original)}FPS", f"{int(fps_new)}FPS"
+            )
             new_file_path = os.path.join(output_folder, new_file_name)
 
             print(f"Saving video with dimensions: {width}x{height}, Codec: H.264")
@@ -96,7 +103,7 @@ def change_video_fps(input_folder: str, output_folder: str, fps_new: float) -> N
                 new_file_path,
                 cv2.VideoWriter_fourcc(*"avc1"),  # Use H.264 codec
                 fps_new,
-                (width, height)
+                (width, height),
             )
 
             for frame in frames_new:
