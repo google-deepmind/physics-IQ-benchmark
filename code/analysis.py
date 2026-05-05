@@ -133,12 +133,23 @@ COMPARISON_KEYS = [
     {EVAL_KEY: "original", PROMPT_KEY: "op"},
 ]
 
+SCORES_COLS_ORIG = [ORIG_SCORE_KEY] + SCORES_LIST
+SCORES_COLS_VERIFIED = [VERIFIED_SCORE_KEY] + VERIFIED_SCORES_LIST
+SCORE_COLS_FULL = []
+for ver_col, orig_col in zip(SCORES_COLS_VERIFIED, SCORES_COLS_ORIG):
+    SCORE_COLS_FULL.extend([orig_col, ver_col])
+SCORES_COLS_DICT = {
+    "original-score" : SCORES_COLS_ORIG,
+    "verified-score" : SCORES_COLS_VERIFIED,
+    "full-score" : SCORE_COLS_FULL,
+}
+
 # Canonical condition instances used throughout the analysis
 CONDITION_ORIGINAL = EvalCondition("original", "op", ORIG_SCORE_KEY, "Original (op)")
 CONDITION_ORIGINAL_BPP = EvalCondition(
     "original", "bpp", ORIG_SCORE_KEY, "Original (bpp)"
 )
-CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE = EvalCondition(
+CONDITION_ORIGINALGT_OP_VERIFIED_SCORE = EvalCondition(
     "original", "op", VERIFIED_SCORE_KEY, "Original (op) verified score"
 )
 CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE = EvalCondition(
@@ -156,6 +167,53 @@ CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE = EvalCondition(
 CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE = EvalCondition(
     "verified_full", "bpp", ORIG_SCORE_KEY, "Verified (bpp) original score"
 )
+
+comparison_list = [
+    {"name": "Original GT & Score: op vs bpp", 
+        "conditions": (CONDITION_ORIGINAL, CONDITION_ORIGINAL_BPP),
+        "evals" : ["condition_stats", "impact"],
+        "subscores" : SCORES_COLS_ORIG},
+    {"name": "Original GT & Verified Score: op vs bpp",
+        "conditions": (CONDITION_ORIGINALGT_OP_VERIFIED_SCORE, CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE),
+        "evals" : ["condition_stats", "impact"],
+        "subscores" : SCORES_COLS_VERIFIED},
+    {"name": "Verified GT & Score: op vs bpp",
+        "conditions": (CONDITION_VERIFIED_OP, CONDITION_VERIFIED),
+        "evals" : ["condition_stats", "impact"],
+        "subscores" : SCORES_COLS_VERIFIED},
+    {"name": "Verified GT & Original Score: op vs bpp",
+        "conditions": (CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE, CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE),
+        "evals" : ["condition_stats", "impact"],
+        "subscores" : SCORES_COLS_ORIG},
+    {"name": "Original score & op: Original vs Verified GT",
+        "conditions": (CONDITION_ORIGINAL, CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE),
+        "subscores": SCORES_COLS_ORIG,
+        "evals" : ["condition_stats", "impact"]},   
+    {"name": "Verified score & op: Original vs Verified GT",
+        "conditions": (CONDITION_ORIGINALGT_OP_VERIFIED_SCORE, CONDITION_VERIFIED_OP),
+        "subscores": SCORES_COLS_VERIFIED,
+        "evals" : ["condition_stats", "impact"]},
+    {"name": "Original GT & op: Original vs Verified score",
+        "conditions": (CONDITION_ORIGINAL, CONDITION_ORIGINALGT_OP_VERIFIED_SCORE),
+        "evals" : ["ranking", "ranking_bootstrap"],
+        "subscores": None},
+    {"name": "Original GT & bpp: Original vs Verified score",
+        "conditions": (CONDITION_ORIGINAL_BPP, CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE),
+        "evals" : ["ranking", "ranking_bootstrap"],
+        "subscores": None},
+    {"name" : "Original vs Verified",
+        "conditions": (CONDITION_ORIGINAL, CONDITION_VERIFIED),
+        "evals" : ["ranking", "ranking_bootstrap"],
+        "subscores": None},
+    # {"name": "Verified GT & op: Original vs Verified score",
+    #     "conditions": (CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE, CONDITION_VERIFIED_OP),
+    #     "evals" : ["ranking", "ranking_bootstrap"],
+    #     "subscores": None},
+    # {"name": "Verified GT & bpp: Original vs Verified score",
+    #     "conditions": (CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE, CONDITION_VERIFIED),
+    #     "evals" : ["ranking", "ranking_bootstrap"],
+    #     "subscores": None},
+]
 
 
 def get_prompt_from_run(x):
@@ -1399,8 +1457,8 @@ def plot_prompt_impact(scores_df: pd.DataFrame, output_path: Path):
     """Slope + delta charts for prompt impact (op → bpp) within original evaluation."""
     _plot_slope_delta(
         scores_df[scores_df[EVAL_KEY] == "original"],
-        EvalCondition("original", "op", VERIFIED_SCORE_KEY, "op"),
-        EvalCondition("original", "bpp", VERIFIED_SCORE_KEY, "bpp"),
+        EvalCondition("original", "op", ORIG_SCORE_KEY, "op"),
+        EvalCondition("original", "bpp", ORIG_SCORE_KEY, "bpp"),
         {
             "score_spatial": "Spatial",
             "score_spatiotemporal": "Spatiotemporal",
@@ -1727,24 +1785,13 @@ def main():
     exp_tables = get_experiment_tables(args.results_dir)
     scores_df = pd.DataFrame([tab.get_output_dict() for tab in exp_tables])
 
-    score_cols_orig = [ORIG_SCORE_KEY] + SCORES_LIST
-    score_cols_verified = [VERIFIED_SCORE_KEY] + VERIFIED_SCORES_LIST
-    full_score_cols = []
-    for ver_col, orig_col in zip(score_cols_verified, score_cols_orig):
-        full_score_cols.extend([orig_col, ver_col])
-    cols_dict = {
-        "original-score" : score_cols_orig,
-        "verified-score" : score_cols_verified,
-        "full-score" : full_score_cols,
-    }
-
     pivot_df_meanstd = (
         scores_df.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[
-            full_score_cols
+            SCORE_COLS_FULL
         ].agg(["mean", "std"])
         * 100
     )
-    for col_set_name, cols in cols_dict.items():
+    for col_set_name, cols in SCORES_COLS_DICT.items():
         print(f"\nGenerating LaTeX tables for {col_set_name}...")
         if col_set_name != "full-score":
             pprint(pivot_df_meanstd[cols])
@@ -1767,11 +1814,11 @@ def main():
     # one canonical FPS per model, so it would only add a redundant index level.
     pivot_filtered = (
         scores_filtered.groupby([MODEL_KEY, EVAL_KEY, PROMPT_KEY])[
-            full_score_cols
+            SCORE_COLS_FULL
         ].agg(["mean", "std"])
         * 100
     )
-    for col_set_name, cols in cols_dict.items():
+    for col_set_name, cols in SCORES_COLS_DICT.items():
         generate_latex_table(
             args.output_dir, pivot_filtered, f"filtered_model_table_{col_set_name}.tex", cols
         )
@@ -1789,7 +1836,7 @@ def main():
             "verified_full", "op", VERIFIED_SCORE_KEY, "Verified (op)"
         ),
         condition_b=EvalCondition("original", "op", ORIG_SCORE_KEY, "Original (op)"),
-        score_cols=score_cols_orig,
+        score_cols=SCORES_COLS_ORIG,
         alternative="less",
     )
     pprint(eval_comp_df)
@@ -1806,9 +1853,9 @@ def main():
     print("\nComparing 'bpp' vs 'op' prompts for original evaluation:")
     prompt_comp_df = compare_conditions_stats(
         scores_filtered,
-        condition_a=EvalCondition("original", "bpp", VERIFIED_SCORE_KEY, "bpp"),
+        condition_a=EvalCondition("original", "bpp", ORIG_SCORE_KEY, "bpp"),
         condition_b=EvalCondition("original", "op", ORIG_SCORE_KEY, "op"),
-        score_cols=score_cols_orig,
+        score_cols=SCORES_COLS_ORIG,
         alternative="greater",
     )
     pprint(prompt_comp_df)
