@@ -23,10 +23,12 @@ def clip(value, min_value=0.0, max_value=1.0):
 
 
 ORIG_SCORE_KEY = "final_score_orig"
-VERIFIED_SCORE_KEY = "final_score_stable"
-# VERIFIED_SCORE_KEY = "final_score_view"
+# VERIFIED_SCORE_KEY = "final_score_stable"
+VERIFIED_SCORE_KEY = "final_score_view"
 METRIC_KEYS = ["spatial", "spatiotemporal", "weighted_spatial", "mse"]
+
 SCORES_LIST = [f"score_{metric}" for metric in METRIC_KEYS]
+VERIFIED_SCORES_LIST = [f"score_{metric}_view" for metric in METRIC_KEYS]
 VARIANCE_KEYS = [f"physical_variance_{metric}" for metric in METRIC_KEYS]
 
 
@@ -205,12 +207,16 @@ class IQTable:
         return out
 
     @classmethod
-    def compute_means_by_row_inplace(cls, df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    def compute_means_by_row_inplace(
+        cls, df: pd.DataFrame, cols: list[str]
+    ) -> pd.DataFrame:
         df["final_arithmetic"] = clip(df[cols].to_numpy()).mean(axis=1)
         df["final_geometric"] = clip(df[cols].to_numpy()).prod(axis=1) ** (
             1 / len(cols)
         )
-        df["final_harmonic"] = len(cols) / (1 / (clip(df[cols].to_numpy() + cls.ratio_eps))).sum(axis=1)
+        df["final_harmonic"] = len(cols) / (
+            1 / (clip(df[cols].to_numpy() + cls.ratio_eps))
+        ).sum(axis=1)
 
     def compute_metric_scores_scenario_by_view(self, metric_key):
         ratio_by_view = self.compute_metric_ratio_by_view(metric_key)
@@ -337,7 +343,7 @@ class IQTable:
         return final_score_stable
 
     def get_output_dict(self):
-        view_scenario_scores = self.compute_scores_scenario_by_view()
+        view_scenario_scores = clip(self.compute_scores_scenario_by_view())
         out_dict = {
             "score_spatiotemporal": self.get_score(self.spatiotemporal_iou_key),
             "score_spatial": self.get_score(self.spatial_iou_key),
@@ -355,13 +361,16 @@ class IQTable:
                 self.variance_weighted_spatial_key
             ),
             "final_score_view": view_scenario_scores["final_geometric"].mean(),
-            "score_spatiotemporal_view": view_scenario_scores[self.spatiotemporal_iou_key+"_score"].mean(),
-            "score_spatial_view": view_scenario_scores[self.spatial_iou_key+"_score"].mean(),
-            "score_weighted_spatial_view": view_scenario_scores[self.weighted_spatial_iou_key+"_score"].mean(),
-            "score_mse_view": view_scenario_scores[self.mse_key+"_score"].mean(),
-
-            
-            
+            "score_spatiotemporal_view": view_scenario_scores[
+                self.spatiotemporal_iou_key + "_score"
+            ].mean(),
+            "score_spatial_view": view_scenario_scores[
+                self.spatial_iou_key + "_score"
+            ].mean(),
+            "score_weighted_spatial_view": view_scenario_scores[
+                self.weighted_spatial_iou_key + "_score"
+            ].mean(),
+            "score_mse_view": view_scenario_scores[self.mse_key + "_score"].mean(),
         }
         out_dict.update(self.metadata)
 

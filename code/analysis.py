@@ -20,6 +20,7 @@ which FPS setting to use per model in the ranking comparison.
 
 import argparse
 import json
+from dataclasses import dataclass
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -34,9 +35,30 @@ from calculate_iq_score_stable import (
     ORIG_SCORE_KEY,
     SCORES_LIST,
     VERIFIED_SCORE_KEY,
+    VERIFIED_SCORES_LIST,
     IQTable,
 )
 from plot_settings import model_to_color, model_to_plotting_name
+
+
+@dataclass(frozen=True)
+class EvalCondition:
+    """Names the three things that vary between comparison arms.
+
+    ``eval_type`` and ``prompt`` are used to filter ``scores_df`` rows.
+    ``score_key`` is the column used for ranking / slope chart y-axis.
+    ``label`` is the human-readable x-axis tick label.
+    """
+
+    eval_type: str  # "original" | "verified_full"
+    prompt: str  # "op" | "bpp"
+    score_key: str  # ORIG_SCORE_KEY | VERIFIED_SCORE_KEY
+    label: str  # human-readable, e.g. "Original (op)"
+
+    def filter(self, df: "pd.DataFrame") -> "pd.DataFrame":
+        """Return rows of *df* matching this condition."""
+        return df[(df[EVAL_KEY] == self.eval_type) & (df[PROMPT_KEY] == self.prompt)]
+
 
 # Publication-quality rcParams (NeurIPS style)
 plt.rcParams.update(
@@ -111,6 +133,30 @@ COMPARISON_KEYS = [
     {EVAL_KEY: "original", PROMPT_KEY: "op"},
 ]
 
+# Canonical condition instances used throughout the analysis
+CONDITION_ORIGINAL = EvalCondition("original", "op", ORIG_SCORE_KEY, "Original (op)")
+CONDITION_ORIGINAL_BPP = EvalCondition(
+    "original", "bpp", ORIG_SCORE_KEY, "Original (bpp)"
+)
+CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE = EvalCondition(
+    "original", "op", VERIFIED_SCORE_KEY, "Original (op) verified score"
+)
+CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE = EvalCondition(
+    "original", "bpp", VERIFIED_SCORE_KEY, "Original (bpp) verified score"
+)
+CONDITION_VERIFIED = EvalCondition(
+    "verified_full", "bpp", VERIFIED_SCORE_KEY, "Verified (bpp)"
+)
+CONDITION_VERIFIED_OP = EvalCondition(
+    "verified_full", "op", VERIFIED_SCORE_KEY, "Verified (op)"
+)
+CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE = EvalCondition(
+    "verified_full", "op", ORIG_SCORE_KEY, "Verified (op) original score"
+)
+CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE = EvalCondition(
+    "verified_full", "bpp", ORIG_SCORE_KEY, "Verified (bpp) original score"
+)
+
 
 def get_prompt_from_run(x):
     return "op" if "op" in x else ("bpp" if "bpp" in x else "--")
@@ -181,20 +227,33 @@ def filter_by_settings(df: pd.DataFrame, settings: list[dict]) -> pd.DataFrame:
 
 
 def generate_latex_table(
-    output_path: Path, pivot_df_meanstd, table_name: str, score_cols: list
+    output_path: Path,
+    pivot_df_meanstd,
+    table_name: str,
+    score_cols: list,
+    model_subset: list[str] | None = None,
+    adaptive_std: bool = False,
 ):
-    """Write a LaTeX table of mean ± std score cells to *output_path/table_name*.
+    """Write a LaTeX table of score cells to *output_path/tables/table_name*.
 
-    Known models (from ``MODEL_NAMES``) are placed before any unknown ones so the
-    row order is deterministic regardless of how pandas groups the data.
+    Parameters
+    ----------
+    model_subset:
+        When given, only these models are included and they appear first; all
+        other rows follow.  Defaults to ``MODEL_NAMES`` (all known models first).
+    adaptive_std:
+        When True, cells where std is NaN (single run) are formatted as
+        ``$X.X$`` instead of ``$X.X \\pm nan$``.
     """
+    effective_models = model_subset if model_subset is not None else MODEL_NAMES
+
+    def _fmt(row):
+        if adaptive_std and pd.isna(row["std"]):
+            return f"${row['mean']:.1f}$"
+        return f"${row['mean']:.1f} \\pm {row['std']:.1f}$"
+
     latex_table = pd.DataFrame(
-        {
-            col: pivot_df_meanstd[col].apply(
-                lambda row: f"${row['mean']:.1f} \\pm {row['std']:.1f}$", axis=1
-            )
-            for col in score_cols
-        }
+        {col: pivot_df_meanstd[col].apply(_fmt, axis=1) for col in score_cols}
     )
     latex_table.columns = [col.replace("_", " ") for col in latex_table.columns]
     latex_table.index = pd.MultiIndex.from_tuples(
@@ -205,7 +264,7 @@ def generate_latex_table(
         ["verified", "verified full", "original"]
     )
     latex_table = latex_table[mask_valid]
-    mask_models = latex_table.index.get_level_values(MODEL_KEY).isin(MODEL_NAMES)
+    mask_models = latex_table.index.get_level_values(MODEL_KEY).isin(effective_models)
     latex_table = pd.concat([latex_table[mask_models], latex_table[~mask_models]])
     latex_str = latex_table.to_latex(escape=False)
     with open(_subdir(output_path, "tables") / table_name, "w") as f:
@@ -218,12 +277,11 @@ def generate_latex_table_sora2(
     table_name: str,
     score_cols: list,
 ):
-    """LaTeX table for Sora 2 model variants with adaptive cell formatting.
+    """LaTeX table for Sora 2 model variants — delegates to ``generate_latex_table``.
 
-    Cells show ``$mean \\pm std$`` when multiple runs are available, or just
-    ``$value$`` for single-run entries (std = NaN).  Only rows for
-    ``SORA2_MODELS`` are included; FPS is kept in the index because the
-    variants may have been run at different frame rates.
+    FPS is kept in the groupby index because variants may have been run at
+    different frame rates.  Uses ``adaptive_std=True`` so single-run entries
+    render as ``$X.X$`` rather than ``$X.X \\pm nan$``.
     """
     df = scores_df[scores_df[MODEL_KEY].isin(SORA2_MODELS)]
     pivot = (
@@ -232,29 +290,14 @@ def generate_latex_table_sora2(
         )
         * 100
     )
-
-    def _fmt(row):
-        return (
-            f"${row['mean']:.1f}$"
-            if pd.isna(row["std"])
-            else f"${row['mean']:.1f} \\pm {row['std']:.1f}$"
-        )
-
-    latex_table = pd.DataFrame(
-        {col: pivot[col].apply(_fmt, axis=1) for col in score_cols}
+    generate_latex_table(
+        output_path,
+        pivot,
+        table_name,
+        score_cols,
+        model_subset=SORA2_MODELS,
+        adaptive_std=True,
     )
-    latex_table.columns = [col.replace("_", " ") for col in latex_table.columns]
-    latex_table.index = pd.MultiIndex.from_tuples(
-        [tuple(str(v).replace("_", " ") for v in idx) for idx in latex_table.index],
-        names=latex_table.index.names,
-    )
-    mask_valid = latex_table.index.get_level_values(EVAL_KEY).isin(
-        ["verified full", "original"]
-    )
-    latex_table = latex_table[mask_valid]
-    latex_str = latex_table.to_latex(escape=False)
-    with open(_subdir(output_path, "tables") / table_name, "w") as f:
-        f.write(latex_str)
 
 
 # Variance metric keys and human-readable labels used across the variance analysis
@@ -518,40 +561,41 @@ def plot_variance_scenario_scatter(scenario_var_df: pd.DataFrame, output_path: P
     _save_fig(fig, output_path, "variance_scenario_scatter")
 
 
-def mean_score_evaluation(scores_df: pd.DataFrame) -> dict:
-    """Compare point-estimate model rankings between the two evaluation protocols.
+def mean_score_evaluation(
+    scores_df: pd.DataFrame,
+    condition_a: "EvalCondition | None" = None,
+    condition_b: "EvalCondition | None" = None,
+) -> dict:
+    """Compare point-estimate model rankings between two evaluation conditions.
 
-    ``original`` uses the unverified prompt set (``op``) and the original scoring
-    pipeline.  ``verified`` uses the human-verified prompt set (``bpp``) and the
-    stable scoring variant.  Spearman ρ and Kendall τ measure how well the two
-    protocols agree on model ordering.
+    Defaults to ``CONDITION_ORIGINAL`` vs ``CONDITION_VERIFIED``.  Spearman ρ
+    and Kendall τ measure how well the two protocols agree on model ordering.
 
     Returns a dict with keys: ``ranking_df``, ``spearman_rho``, ``spearman_p``,
     ``kendall_tau``, ``kendall_p``.
     """
-    print("\nModel rankings based on original evaluation:")
-    original_df = scores_df[
-        (scores_df[PROMPT_KEY] == "op") & (scores_df[EVAL_KEY] == "original")
-    ]
-    original_scores = (
-        original_df[[MODEL_KEY, ORIG_SCORE_KEY]]
+    if condition_a is None:
+        condition_a = CONDITION_ORIGINAL
+    if condition_b is None:
+        condition_b = CONDITION_VERIFIED
+
+    print(f"\nModel rankings: {condition_a.label} vs {condition_b.label}")
+    scores_a = (
+        condition_a.filter(scores_df)[[MODEL_KEY, condition_a.score_key]]
         .groupby(MODEL_KEY)
         .mean(numeric_only=True)
     )
-    original_scores["rank"] = original_scores[ORIG_SCORE_KEY].rank(ascending=False)
+    scores_a["rank"] = scores_a[condition_a.score_key].rank(ascending=False)
 
-    verified_df = scores_df[
-        (scores_df[PROMPT_KEY] == "bpp") & (scores_df[EVAL_KEY] == "verified_full")
-    ]
-    verified_scores = (
-        verified_df[[MODEL_KEY, VERIFIED_SCORE_KEY]]
+    scores_b = (
+        condition_b.filter(scores_df)[[MODEL_KEY, condition_b.score_key]]
         .groupby(MODEL_KEY)
         .mean(numeric_only=True)
     )
-    verified_scores["rank"] = verified_scores[VERIFIED_SCORE_KEY].rank(ascending=False)
+    scores_b["rank"] = scores_b[condition_b.score_key].rank(ascending=False)
 
-    ranking_df = original_scores.join(
-        verified_scores, lsuffix="_original", rsuffix="_verified", how="inner"
+    ranking_df = scores_a.join(
+        scores_b, lsuffix="_original", rsuffix="_verified", how="inner"
     )
     ranking_df["rank_delta"] = ranking_df["rank_verified"] - ranking_df["rank_original"]
     pprint(ranking_df)
@@ -572,6 +616,50 @@ def mean_score_evaluation(scores_df: pd.DataFrame) -> dict:
         "kendall_tau": tau,
         "kendall_p": p_tau,
     }
+
+
+def compare_conditions_stats(
+    scores_df: pd.DataFrame,
+    condition_a: "EvalCondition",
+    condition_b: "EvalCondition",
+    score_cols: list[str],
+    alternative: str = "two-sided",
+) -> pd.DataFrame:
+    """Paired Wilcoxon, t-test, and Cohen's d for condition_a vs condition_b.
+
+    Pairs are matched on ``(MODEL_KEY, FPS_KEY)``.  Returns one row per score
+    column with columns ``score``, ``wilcoxon_stat``, ``wilcoxon_p``,
+    ``ttest_stat``, ``ttest_p``, ``cohens_d``.
+
+    Importable by ``analysis_gt_runs.py`` for reuse without loading all of
+    ``analysis.py``'s heavy dependencies.
+    """
+    df_a = condition_a.filter(scores_df).set_index([MODEL_KEY, FPS_KEY])
+    df_b = condition_b.filter(scores_df).set_index([MODEL_KEY, FPS_KEY])
+    common = df_a.index.intersection(df_b.index)
+
+    rows = []
+    for score in score_cols:
+        sa = df_a.loc[common, score]
+        sb = df_b.loc[common, score]
+        diff = sb - sa
+        try:
+            stat_w, p_w = stats.wilcoxon(sb.values, sa.values, alternative=alternative)
+        except ValueError:
+            stat_w, p_w = np.nan, np.nan
+        stat_t, p_t = stats.ttest_rel(sb.values, sa.values, alternative=alternative)
+        std_d = diff.std(ddof=1)
+        rows.append(
+            {
+                "score": score,
+                "wilcoxon_stat": float(stat_w) if not np.isnan(stat_w) else np.nan,
+                "wilcoxon_p": float(p_w) if not np.isnan(p_w) else np.nan,
+                "ttest_stat": float(stat_t),
+                "ttest_p": float(p_t),
+                "cohens_d": float(diff.mean() / std_d) if std_d > 0 else np.nan,
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def _subdir(output_path: Path, name: str) -> Path:
@@ -944,6 +1032,9 @@ def run_bootstrap_analysis(
     exp_tables: list[IQTable],
     n_bootstrap: int,
     output_path: Path,
+    ranking_settings: list[dict] | None = None,
+    comparison_conditions: "tuple[EvalCondition, EvalCondition] | None" = None,
+    run_ids: tuple[int, ...] | None = None,
 ) -> dict:
     """Run bootstrap resampling over model runs, produce figures, and return statistics.
 
@@ -970,16 +1061,28 @@ def run_bootstrap_analysis(
     ``within_tau_original``, ``within_rho_verified``, ``within_tau_verified``,
     ``ranks_original``, ``ranks_verified``.
     """
+    if ranking_settings is None:
+        ranking_settings = RANKING_EVAL_SETTINGS
+    if comparison_conditions is None:
+        comparison_conditions = (CONDITION_ORIGINAL, CONDITION_VERIFIED)
+    if run_ids is None:
+        run_ids = (1, 2, 3, 4)
+
+    comparison_keys = [
+        {EVAL_KEY: c.eval_type, PROMPT_KEY: c.prompt} for c in comparison_conditions
+    ]
+    cond_a, cond_b = comparison_conditions
+
     # Each entry is an array of scenario-length run IDs sampled with replacement.
     bootstrap_sample_list = [
-        np.random.choice([1, 2, 3, 4], size=len(exp_tables[0].df), replace=True)
+        np.random.choice(list(run_ids), size=len(exp_tables[0].df), replace=True)
         for _ in range(n_bootstrap)
     ]
 
     bootstrap_dfs = []
     for i, bootstrap_sample in enumerate(bootstrap_sample_list):
         boot_iq_tables = []
-        for setting, comp in product(RANKING_EVAL_SETTINGS, COMPARISON_KEYS):
+        for setting, comp in product(ranking_settings, comparison_keys):
             setting = setting.copy()
             setting.update(comp)
             series = []
@@ -1011,14 +1114,12 @@ def run_bootstrap_analysis(
             .groupby([MODEL_KEY, EVAL_KEY])
             .mean(numeric_only=True)
         )
-        r_orig = ranking_df.xs("original", level=EVAL_KEY)
-        r_ver = ranking_df.xs("verified_full", level=EVAL_KEY)
-        r_orig = r_orig.assign(rank=r_orig[ORIG_SCORE_KEY].rank(ascending=False))[
+        r_orig = ranking_df.xs(cond_a.eval_type, level=EVAL_KEY)
+        r_ver = ranking_df.xs(cond_b.eval_type, level=EVAL_KEY)
+        r_orig = r_orig.assign(rank=r_orig[cond_a.score_key].rank(ascending=False))[
             "rank"
         ]
-        r_ver = r_ver.assign(rank=r_ver[VERIFIED_SCORE_KEY].rank(ascending=False))[
-            "rank"
-        ]
+        r_ver = r_ver.assign(rank=r_ver[cond_b.score_key].rank(ascending=False))["rank"]
         ranks_original.append(r_orig)
         ranks_verified.append(r_ver)
 
@@ -1168,195 +1269,47 @@ def plot_model_performance_bars(
     _save_fig(fig, output_path, plot_title.replace(" ", "_").lower() + "_bars")
 
 
-def plot_prompt_impact(scores_df: pd.DataFrame, output_path: Path):
-    """Slope + delta charts showing the per-model effect of 'bpp' vs 'op' prompts.
+def _plot_slope_delta(
+    scores_df: pd.DataFrame,
+    condition_a: "EvalCondition",
+    condition_b: "EvalCondition",
+    sub_cols: dict[str, str],
+    output_path: Path,
+    stem: str,
+    title: str,
+):
+    """Generic slope chart + per-subscore delta bars for any two EvalConditions.
 
-    Restricted to the original evaluation pipeline so only the prompt variable
-    changes between the two conditions.
-
-    Layout
-    ------
-    Top panel  — slope chart for the final score: each model is a line from its
-                 mean 'op' score to its mean 'bpp' score, with individual run
-                 points shown to convey within-model variability.
-    Bottom row — four horizontal delta bar charts (one per subscore) showing
-                 Δ = bpp − op per model, so the subscore driving the overall
-                 effect is immediately visible.
+    Top panel   — per-model line from condition_a mean to condition_b mean, with
+                  individual run points.  The score column is taken from each
+                  condition's ``score_key``.
+    Bottom row  — horizontal delta bar charts (Δ = condition_b − condition_a)
+                  for each subscore in *sub_cols*.  Models are ordered by their
+                  condition_a mean, best first.
     """
-    df = scores_df[scores_df[EVAL_KEY] == "original"].copy()
+    df_a = condition_a.filter(scores_df)
+    df_b = condition_b.filter(scores_df)
 
-    sub_cols = {
-        "score_spatial": "Spatial",
-        "score_spatiotemporal": "Spatiotemporal",
-        "score_weighted_spatial": "Weighted Spatial",
-        "score_mse": "MSE",
-    }
-
-    # Model order: sorted by op mean on the final score, best first
-    op_means = (
-        df[df[PROMPT_KEY] == "op"].groupby(MODEL_KEY)[VERIFIED_SCORE_KEY].mean() * 100
-    ).sort_values(ascending=False)
-    models = op_means.index.tolist()
+    models = (
+        (df_a.groupby(MODEL_KEY)[condition_a.score_key].mean() * 100)
+        .sort_values(ascending=False)
+        .index.tolist()
+    )
 
     fig = plt.figure(figsize=(6.5, 5.5), layout="constrained")
     gs = fig.add_gridspec(2, 4, height_ratios=[1.4, 1.0])
     ax_main = fig.add_subplot(gs[0, :])
     ax_subs = [fig.add_subplot(gs[1, i]) for i in range(4)]
-
     rng = np.random.default_rng(seed=0)
-
-    # ── Top: slope chart ──────────────────────────────────────────────────────
-    for model in models:
-        color = model_to_color(model)
-        mask = df[MODEL_KEY] == model
-        op_runs = df[mask & (df[PROMPT_KEY] == "op")][VERIFIED_SCORE_KEY].values * 100
-        bpp_runs = df[mask & (df[PROMPT_KEY] == "bpp")][VERIFIED_SCORE_KEY].values * 100
-        if len(op_runs) == 0 or len(bpp_runs) == 0:
-            continue
-        op_mean, bpp_mean = np.mean(op_runs), np.mean(bpp_runs)
-
-        for x_pos, runs in [(0, op_runs), (1, bpp_runs)]:
-            jitter = rng.uniform(-0.06, 0.06, size=len(runs))
-            ax_main.scatter(
-                x_pos + jitter,
-                runs,
-                color=color,
-                s=18,
-                alpha=0.35,
-                linewidths=0,
-                zorder=2,
-            )
-        ax_main.plot(
-            [0, 1],
-            [op_mean, bpp_mean],
-            color=color,
-            linewidth=1.6,
-            marker="o",
-            markersize=6.5,
-            markeredgecolor="white",
-            markeredgewidth=0.7,
-            zorder=3,
-        )
-        ax_main.text(
-            1.04,
-            bpp_mean,
-            model_to_plotting_name(model),
-            va="center",
-            fontsize=8.5,
-            color=color,
-        )
-
-    ax_main.set_xticks([0, 1])
-    ax_main.set_xticklabels(["op", "bpp"], fontsize=9)
-    ax_main.set_xlim(-0.25, 1.6)
-    ax_main.set_ylabel("Physics-IQ Score (×100)")
-    ax_main.set_title("Prompt Impact on Final Score (Original Evaluation)")
-    ax_main.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
-    ax_main.set_axisbelow(True)
-
-    # ── Bottom: per-subscore delta bars ───────────────────────────────────────
-    # Reversed model order so highest-scoring model sits at the top of each chart
-    models_rev = list(reversed(models))
-    y_pos = np.arange(len(models_rev))
-
-    for ax, (sub_col, sub_label) in zip(ax_subs, sub_cols.items()):
-        sub_means = (df.groupby([MODEL_KEY, PROMPT_KEY])[sub_col].mean() * 100).unstack(
-            PROMPT_KEY
-        )
-
-        deltas = []
-        colors_ordered = []
-        for model in models_rev:
-            if (
-                model in sub_means.index
-                and "op" in sub_means.columns
-                and "bpp" in sub_means.columns
-            ):
-                deltas.append(sub_means.loc[model, "bpp"] - sub_means.loc[model, "op"])
-            else:
-                deltas.append(0.0)
-            colors_ordered.append(model_to_color(model))
-
-        ax.barh(
-            y_pos,
-            deltas,
-            height=0.6,
-            color=colors_ordered,
-            alpha=0.85,
-            edgecolor="white",
-            linewidth=0.4,
-            zorder=3,
-        )
-        ax.axvline(0, color="#444444", linewidth=0.8, zorder=4)
-        ax.set_yticks(y_pos)
-        # Only label the leftmost panel; others would just repeat the same names
-        ax.set_yticklabels(
-            (
-                [model_to_plotting_name(m) for m in models_rev]
-                if ax is ax_subs[0]
-                else [""] * len(models_rev)
-            ),
-            fontsize=7.5,
-        )
-        ax.set_title(sub_label, fontsize=9)
-        ax.set_xlabel("Δ (bpp − op)", fontsize=8)
-        ax.xaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
-        ax.set_axisbelow(True)
-
-    _save_fig(fig, output_path, "prompt_impact_original")
-
-
-def plot_evaluation_impact(scores_df: pd.DataFrame, output_path: Path):
-    """Slope + delta charts comparing original vs. verified evaluation pipeline for op prompts.
-
-    Holds the prompt fixed at ``op`` so the only variable is the evaluation
-    pipeline.  Directly complements the aggregate statistics in
-    ``evaluation_comparison_stats.csv``.
-
-    Layout
-    ------
-    Top panel  — slope chart for the final score: each model runs from its mean
-                 score under the original pipeline (``ORIG_SCORE_KEY``) to its
-                 mean score under the verified pipeline (``VERIFIED_SCORE_KEY``),
-                 with individual run points shown.
-    Bottom row — four horizontal delta bar charts (one per subscore) showing
-                 Δ = verified_full − original per model.
-    """
-    df = scores_df[scores_df[PROMPT_KEY] == "op"].copy()
-
-    sub_cols = {
-        "score_spatial": "Spatial",
-        "score_spatiotemporal": "Spatiotemporal",
-        "score_weighted_spatial": "Weighted Spatial",
-        "score_mse": "MSE",
-    }
-
-    # Model order: sorted by original evaluation mean (descending)
-    orig_means = (
-        df[df[EVAL_KEY] == "original"].groupby(MODEL_KEY)[ORIG_SCORE_KEY].mean() * 100
-    ).sort_values(ascending=False)
-    models = orig_means.index.tolist()
-
-    fig = plt.figure(figsize=(6.5, 5.5), layout="constrained")
-    gs = fig.add_gridspec(2, 4, height_ratios=[1.4, 1.0])
-    ax_main = fig.add_subplot(gs[0, :])
-    ax_subs = [fig.add_subplot(gs[1, i]) for i in range(4)]
-
-    rng = np.random.default_rng(seed=0)
-
-    # Each side uses the score formula appropriate for that pipeline
-    eval_specs = [
-        ("original", ORIG_SCORE_KEY, 0, "Original eval.\n(op)"),
-        ("verified_full", VERIFIED_SCORE_KEY, 1, "Verified eval.\n(op)"),
-    ]
 
     for model in models:
         color = model_to_color(model)
-        mask = df[MODEL_KEY] == model
         x_means = []
-
-        for eval_type, score_key, x_pos, _ in eval_specs:
-            runs = df[mask & (df[EVAL_KEY] == eval_type)][score_key].values * 100
+        for x_pos, cond, df_cond in [
+            (0, condition_a, df_a),
+            (1, condition_b, df_b),
+        ]:
+            runs = df_cond[df_cond[MODEL_KEY] == model][cond.score_key].values * 100
             if len(runs) == 0:
                 continue
             jitter = rng.uniform(-0.06, 0.06, size=len(runs))
@@ -1394,33 +1347,25 @@ def plot_evaluation_impact(scores_df: pd.DataFrame, output_path: Path):
             )
 
     ax_main.set_xticks([0, 1])
-    ax_main.set_xticklabels([spec[3] for spec in eval_specs], fontsize=9)
+    ax_main.set_xticklabels([condition_a.label, condition_b.label], fontsize=9)
     ax_main.set_xlim(-0.25, 1.6)
     ax_main.set_ylabel("Physics-IQ Score (×100)")
-    ax_main.set_title("Evaluation Pipeline Impact (op prompts)")
+    ax_main.set_title(title)
     ax_main.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
     ax_main.set_axisbelow(True)
 
-    # Delta panels: verified_full − original per subscore
     models_rev = list(reversed(models))
     y_pos = np.arange(len(models_rev))
+    delta_label = f"Δ ({condition_b.label.split()[0]} − {condition_a.label.split()[0]})"
 
     for ax, (sub_col, sub_label) in zip(ax_subs, sub_cols.items()):
-        orig_sub = (
-            df[df[EVAL_KEY] == "original"].groupby(MODEL_KEY)[sub_col].mean() * 100
-        )
-        ver_sub = (
-            df[df[EVAL_KEY] == "verified_full"].groupby(MODEL_KEY)[sub_col].mean() * 100
-        )
-
-        deltas = []
-        colors_ordered = []
-        for model in models_rev:
-            if model in orig_sub.index and model in ver_sub.index:
-                deltas.append(ver_sub[model] - orig_sub[model])
-            else:
-                deltas.append(0.0)
-            colors_ordered.append(model_to_color(model))
+        sub_a = df_a.groupby(MODEL_KEY)[sub_col].mean() * 100
+        sub_b = df_b.groupby(MODEL_KEY)[sub_col].mean() * 100
+        deltas = [
+            sub_b[m] - sub_a[m] if m in sub_a.index and m in sub_b.index else 0.0
+            for m in models_rev
+        ]
+        colors_ordered = [model_to_color(m) for m in models_rev]
 
         ax.barh(
             y_pos,
@@ -1443,11 +1388,49 @@ def plot_evaluation_impact(scores_df: pd.DataFrame, output_path: Path):
             fontsize=7.5,
         )
         ax.set_title(sub_label, fontsize=9)
-        ax.set_xlabel("Δ (verified − original)", fontsize=8)
+        ax.set_xlabel(delta_label, fontsize=8)
         ax.xaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
         ax.set_axisbelow(True)
 
-    _save_fig(fig, output_path, "evaluation_impact_op_prompts")
+    _save_fig(fig, output_path, stem)
+
+
+def plot_prompt_impact(scores_df: pd.DataFrame, output_path: Path):
+    """Slope + delta charts for prompt impact (op → bpp) within original evaluation."""
+    _plot_slope_delta(
+        scores_df[scores_df[EVAL_KEY] == "original"],
+        EvalCondition("original", "op", VERIFIED_SCORE_KEY, "op"),
+        EvalCondition("original", "bpp", VERIFIED_SCORE_KEY, "bpp"),
+        {
+            "score_spatial": "Spatial",
+            "score_spatiotemporal": "Spatiotemporal",
+            "score_weighted_spatial": "Weighted Spatial",
+            "score_mse": "MSE",
+        },
+        output_path,
+        stem="prompt_impact_original",
+        title="Prompt Impact on Final Score (Original Evaluation)",
+    )
+
+
+def plot_evaluation_impact(scores_df: pd.DataFrame, output_path: Path):
+    """Slope + delta charts for evaluation pipeline impact (original → verified) for op prompts."""
+    _plot_slope_delta(
+        scores_df[scores_df[PROMPT_KEY] == "op"],
+        EvalCondition("original", "op", ORIG_SCORE_KEY, "Original eval.\n(op)"),
+        EvalCondition(
+            "verified_full", "op", VERIFIED_SCORE_KEY, "Verified eval.\n(op)"
+        ),
+        {
+            "score_spatial": "Spatial",
+            "score_spatiotemporal": "Spatiotemporal",
+            "score_weighted_spatial": "Weighted Spatial",
+            "score_mse": "MSE",
+        },
+        output_path,
+        stem="evaluation_impact_op_prompts",
+        title="Evaluation Pipeline Impact (op prompts)",
+    )
 
 
 def plot_model_performance_bars_combined(scores_df: pd.DataFrame, output_path: Path):
@@ -1459,19 +1442,14 @@ def plot_model_performance_bars_combined(scores_df: pd.DataFrame, output_path: P
     """
     specs = [
         (
-            "Original evaluation",
-            ORIG_SCORE_KEY,
-            scores_df[
-                (scores_df[EVAL_KEY] == "original") & (scores_df[PROMPT_KEY] == "op")
-            ],
+            CONDITION_ORIGINAL.label,
+            CONDITION_ORIGINAL.score_key,
+            CONDITION_ORIGINAL.filter(scores_df),
         ),
         (
-            "Verified evaluation",
-            VERIFIED_SCORE_KEY,
-            scores_df[
-                (scores_df[EVAL_KEY] == "verified_full")
-                & (scores_df[PROMPT_KEY] == "bpp")
-            ],
+            CONDITION_VERIFIED.label,
+            CONDITION_VERIFIED.score_key,
+            CONDITION_VERIFIED.filter(scores_df),
         ),
     ]
 
@@ -1549,19 +1527,14 @@ def plot_score_correlation_matrix(scores_df: pd.DataFrame, output_path: Path):
 
     panels = [
         (
-            "Original evaluation",
-            scores_df[
-                (scores_df[EVAL_KEY] == "original") & (scores_df[PROMPT_KEY] == "op")
-            ],
-            ORIG_SCORE_KEY,
+            CONDITION_ORIGINAL.label,
+            CONDITION_ORIGINAL.filter(scores_df),
+            CONDITION_ORIGINAL.score_key,
         ),
         (
-            "Verified evaluation",
-            scores_df[
-                (scores_df[EVAL_KEY] == "verified_full")
-                & (scores_df[PROMPT_KEY] == "bpp")
-            ],
-            VERIFIED_SCORE_KEY,
+            CONDITION_VERIFIED.label,
+            CONDITION_VERIFIED.filter(scores_df),
+            CONDITION_VERIFIED.score_key,
         ),
     ]
 
@@ -1754,21 +1727,39 @@ def main():
     exp_tables = get_experiment_tables(args.results_dir)
     scores_df = pd.DataFrame([tab.get_output_dict() for tab in exp_tables])
 
-    # import pdb; pdb.set_trace()
-    score_cols = [VERIFIED_SCORE_KEY] + SCORES_LIST
+    score_cols_orig = [ORIG_SCORE_KEY] + SCORES_LIST
+    score_cols_verified = [VERIFIED_SCORE_KEY] + VERIFIED_SCORES_LIST
+    full_score_cols = []
+    for ver_col, orig_col in zip(score_cols_verified, score_cols_orig):
+        full_score_cols.extend([orig_col, ver_col])
+    cols_dict = {
+        "original-score" : score_cols_orig,
+        "verified-score" : score_cols_verified,
+        "full-score" : full_score_cols,
+    }
+
     pivot_df_meanstd = (
         scores_df.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[
-            [ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST
+            full_score_cols
         ].agg(["mean", "std"])
         * 100
     )
-    pprint(pivot_df_meanstd)
-    generate_latex_table(
-        args.output_dir, pivot_df_meanstd, "full_model_table.tex", score_cols
-    )
-    generate_latex_table_sora2(
-        scores_df, args.output_dir, "sora2_model_table.tex", score_cols
-    )
+    for col_set_name, cols in cols_dict.items():
+        print(f"\nGenerating LaTeX tables for {col_set_name}...")
+        if col_set_name != "full-score":
+            pprint(pivot_df_meanstd[cols])
+        generate_latex_table(
+            args.output_dir,
+            pivot_df_meanstd,
+            f"full_model_table_{col_set_name}.tex",
+            cols,
+        )
+        generate_latex_table_sora2(
+            scores_df,
+            args.output_dir,
+            f"sora2_model_table_{col_set_name}.tex",
+            cols,
+        )
 
     scores_filtered = filter_by_settings(scores_df, RANKING_EVAL_SETTINGS)
 
@@ -1776,13 +1767,14 @@ def main():
     # one canonical FPS per model, so it would only add a redundant index level.
     pivot_filtered = (
         scores_filtered.groupby([MODEL_KEY, EVAL_KEY, PROMPT_KEY])[
-            [ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST
+            full_score_cols
         ].agg(["mean", "std"])
         * 100
     )
-    generate_latex_table(
-        args.output_dir, pivot_filtered, "filtered_model_table.tex", score_cols
-    )
+    for col_set_name, cols in cols_dict.items():
+        generate_latex_table(
+            args.output_dir, pivot_filtered, f"filtered_model_table_{col_set_name}.tex", cols
+        )
 
     scenario_var_df = build_scenario_variance_df(exp_tables)
     analyze_variance_shifts(scenario_var_df, args.output_dir)
@@ -1790,80 +1782,39 @@ def main():
     plot_variance_scenario_scatter(scenario_var_df, args.output_dir)
 
     # ------------------ Analysis of score behavior with respect to evaluation settings -------------------
-    bpp_df = scores_filtered[scores_filtered[EVAL_KEY] == "verified_full"]
-    op_df = scores_filtered[scores_filtered[EVAL_KEY] == "original"]
-    bpp_df = bpp_df.set_index([MODEL_KEY, PROMPT_KEY, FPS_KEY])
-    op_df = op_df.set_index([MODEL_KEY, PROMPT_KEY, FPS_KEY])
-    test_direction = "less"
-    out_rows = []
-    print("\nComparing 'verfied_full' vs 'original' evaluation for op prompts:")
-    for score in [VERIFIED_SCORE_KEY] + SCORES_LIST:
-        bpp_series = bpp_df[score].xs("op", level=PROMPT_KEY)
-        op_series = op_df[score].xs("op", level=PROMPT_KEY)
-        # print("\nComparing 'verfied_full' vs 'original' prompts for op:")
-        stat_w, p_w = stats.wilcoxon(bpp_series, op_series, alternative=test_direction)
-        # print(f"Wilcoxon signed-rank test comparing 'verfied_full' > 'original' prompts: statistic={stat_w:.3f}, p-value={p_w:.3f}")
-        stat_t, p_t = stats.ttest_rel(bpp_series, op_series, alternative=test_direction)
-        # print(f"Paired t-test comparing 'verfied_full' > 'original' prompts: statistic={stat_t:.3f}, p-value={p_t:.3f}")
-        diff = bpp_series - op_series
-        cohens_d = diff.mean() / diff.std(ddof=1)
-        # print(f"Cohen's d for 'verfied_full' vs 'original' evaluation: d={cohens_d:.3f}")
-        out_rows.append(
-            {
-                "score": score,
-                "wilcoxon_stat": stat_w,
-                "wilcoxon_p": p_w,
-                "ttest_stat": stat_t,
-                "ttest_p": p_t,
-                "cohens_d": cohens_d,
-            }
-        )
-    prompt_comparison_df = pd.DataFrame(out_rows)
-    pprint(prompt_comparison_df)
-    prompt_comparison_df.to_csv(
+    print("\nComparing 'verified_full' vs 'original' evaluation for op prompts:")
+    eval_comp_df = compare_conditions_stats(
+        scores_filtered,
+        condition_a=EvalCondition(
+            "verified_full", "op", VERIFIED_SCORE_KEY, "Verified (op)"
+        ),
+        condition_b=EvalCondition("original", "op", ORIG_SCORE_KEY, "Original (op)"),
+        score_cols=score_cols_orig,
+        alternative="less",
+    )
+    pprint(eval_comp_df)
+    eval_comp_df.to_csv(
         _subdir(args.output_dir, "data") / "evaluation_comparison_stats.csv",
         index=False,
     )
-    print("\nPrompt comparison statistics saved to 'evaluation_comparison_stats.csv'.")
+    print(
+        "\nEvaluation comparison statistics saved to 'evaluation_comparison_stats.csv'."
+    )
     plot_evaluation_impact(scores_filtered, args.output_dir)
 
     # ------------------ Analysis of score behavior with respect to prompts -------------------
-    # TODO: refactor bpp vs op comparison.
-    # Analyzing influence of Prompt op vs bpp on score variability across runs, within each model/eval/fps group.
-    # Step 1 subtract the score of each run's op prompt from the bpp prompt for each model/eval/fps group, so that positive values indicate higher scores for bpp and negative values indicate higher scores for op.
-
-    bpp_df = scores_filtered[scores_filtered[PROMPT_KEY] == "bpp"]
-    op_df = scores_filtered[scores_filtered[PROMPT_KEY] == "op"]
-    bpp_df = bpp_df.set_index([MODEL_KEY, EVAL_KEY, FPS_KEY])
-    op_df = op_df.set_index([MODEL_KEY, EVAL_KEY, FPS_KEY])
-    test_direction = "greater"
-    out_rows = []
     print("\nComparing 'bpp' vs 'op' prompts for original evaluation:")
-    for score in [VERIFIED_SCORE_KEY] + SCORES_LIST:
-        bpp_series = bpp_df[score].xs("original", level=EVAL_KEY)
-        op_series = op_df[score].xs("original", level=EVAL_KEY)
-        # print("\nComparing 'bpp' vs 'op' prompts for original evaluation:")
-        stat_w, p_w = stats.wilcoxon(bpp_series, op_series, alternative=test_direction)
-        # print(f"Wilcoxon signed-rank test comparing 'bpp' > 'op' prompts: statistic={stat_w:.3f}, p-value={p_w:.3f}")
-        stat_t, p_t = stats.ttest_rel(bpp_series, op_series, alternative=test_direction)
-        # print(f"Paired t-test comparing 'bpp' > 'op' prompts: statistic={stat_t:.3f}, p-value={p_t:.3f}")
-        diff = bpp_series - op_series
-        cohens_d = diff.mean() / diff.std(ddof=1)
-        # print(f"Cohen's d for 'bpp' vs 'op' prompts: d={cohens_d:.3f}")
-        out_rows.append(
-            {
-                "score": score,
-                "wilcoxon_stat": stat_w,
-                "wilcoxon_p": p_w,
-                "ttest_stat": stat_t,
-                "ttest_p": p_t,
-                "cohens_d": cohens_d,
-            }
-        )
-    prompt_comparison_df = pd.DataFrame(out_rows)
-    pprint(prompt_comparison_df)
-    prompt_comparison_df.to_csv(
-        _subdir(args.output_dir, "data") / "prompt_comparison_stats.csv", index=False
+    prompt_comp_df = compare_conditions_stats(
+        scores_filtered,
+        condition_a=EvalCondition("original", "bpp", VERIFIED_SCORE_KEY, "bpp"),
+        condition_b=EvalCondition("original", "op", ORIG_SCORE_KEY, "op"),
+        score_cols=score_cols_orig,
+        alternative="greater",
+    )
+    pprint(prompt_comp_df)
+    prompt_comp_df.to_csv(
+        _subdir(args.output_dir, "data") / "prompt_comparison_stats.csv",
+        index=False,
     )
     print("\nPrompt comparison statistics saved to 'prompt_comparison_stats.csv'.")
     plot_prompt_impact(scores_filtered, args.output_dir)
