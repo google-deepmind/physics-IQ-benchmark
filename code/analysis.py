@@ -60,6 +60,34 @@ class EvalCondition:
         return df[(df[EVAL_KEY] == self.eval_type) & (df[PROMPT_KEY] == self.prompt)]
 
 
+@dataclass(frozen=True)
+class Comparison:
+    """Declarative specification of one comparison to run in the analysis pipeline.
+
+    Boolean flags determine which analyses are executed for this pair of conditions.
+    ``subscores`` holds only the *delta-panel* columns (not the final-score key,
+    which lives in ``condition_a.score_key``).  ``save_summary`` marks the one
+    primary comparison whose ranking / bootstrap results feed ``save_results()``.
+    """
+
+    name:              str
+    condition_a:       EvalCondition
+    condition_b:       EvalCondition
+    run_stats:         bool = False   # compare_conditions_stats → <stem>_stats.csv
+    run_impact_plot:   bool = False   # _plot_slope_delta
+    run_ranking:       bool = False   # mean_score_evaluation
+    run_bootstrap:     bool = False   # run_bootstrap_analysis
+    subscores:         "tuple[str, ...] | None" = None
+    stats_alternative: str = "two-sided"
+    save_summary:      bool = False   # feeds save_results() at end of main()
+
+    @property
+    def stem(self) -> str:
+        """Filesystem-safe output-file prefix derived from name."""
+        import re
+        return re.sub(r"[^\w]+", "_", self.name.lower()).strip("_")
+
+
 # Publication-quality rcParams (NeurIPS style)
 plt.rcParams.update(
     {
@@ -168,51 +196,73 @@ CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE = EvalCondition(
     "verified_full", "bpp", ORIG_SCORE_KEY, "Verified (bpp) original score"
 )
 
-comparison_list = [
-    {"name": "Original GT & Score: op vs bpp", 
-        "conditions": (CONDITION_ORIGINAL, CONDITION_ORIGINAL_BPP),
-        "evals" : ["condition_stats", "impact"],
-        "subscores" : SCORES_COLS_ORIG},
-    {"name": "Original GT & Verified Score: op vs bpp",
-        "conditions": (CONDITION_ORIGINALGT_OP_VERIFIED_SCORE, CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE),
-        "evals" : ["condition_stats", "impact"],
-        "subscores" : SCORES_COLS_VERIFIED},
-    {"name": "Verified GT & Score: op vs bpp",
-        "conditions": (CONDITION_VERIFIED_OP, CONDITION_VERIFIED),
-        "evals" : ["condition_stats", "impact"],
-        "subscores" : SCORES_COLS_VERIFIED},
-    {"name": "Verified GT & Original Score: op vs bpp",
-        "conditions": (CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE, CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE),
-        "evals" : ["condition_stats", "impact"],
-        "subscores" : SCORES_COLS_ORIG},
-    {"name": "Original score & op: Original vs Verified GT",
-        "conditions": (CONDITION_ORIGINAL, CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE),
-        "subscores": SCORES_COLS_ORIG,
-        "evals" : ["condition_stats", "impact"]},   
-    {"name": "Verified score & op: Original vs Verified GT",
-        "conditions": (CONDITION_ORIGINALGT_OP_VERIFIED_SCORE, CONDITION_VERIFIED_OP),
-        "subscores": SCORES_COLS_VERIFIED,
-        "evals" : ["condition_stats", "impact"]},
-    {"name": "Original GT & op: Original vs Verified score",
-        "conditions": (CONDITION_ORIGINAL, CONDITION_ORIGINALGT_OP_VERIFIED_SCORE),
-        "evals" : ["ranking", "ranking_bootstrap"],
-        "subscores": None},
-    {"name": "Original GT & bpp: Original vs Verified score",
-        "conditions": (CONDITION_ORIGINAL_BPP, CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE),
-        "evals" : ["ranking", "ranking_bootstrap"],
-        "subscores": None},
-    {"name" : "Original vs Verified",
-        "conditions": (CONDITION_ORIGINAL, CONDITION_VERIFIED),
-        "evals" : ["ranking", "ranking_bootstrap"],
-        "subscores": None},
-    # {"name": "Verified GT & op: Original vs Verified score",
-    #     "conditions": (CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE, CONDITION_VERIFIED_OP),
-    #     "evals" : ["ranking", "ranking_bootstrap"],
-    #     "subscores": None},
-    # {"name": "Verified GT & bpp: Original vs Verified score",
-    #     "conditions": (CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE, CONDITION_VERIFIED),
-    #     "evals" : ["ranking", "ranking_bootstrap"],
-    #     "subscores": None},
+COMPARISONS: "list[Comparison]" = [
+    # ── Prompt impact (op → bpp) for each GT × score combination ──────────────
+    Comparison(
+        name="Original GT & Score: op vs bpp",
+        condition_a=CONDITION_ORIGINAL,
+        condition_b=CONDITION_ORIGINAL_BPP,
+        run_stats=True, run_impact_plot=True,
+        subscores=tuple(SCORES_LIST),
+        stats_alternative="greater",  # hypothesis: bpp > op
+    ),
+    Comparison(
+        name="Original GT & Verified Score: op vs bpp",
+        condition_a=CONDITION_ORIGINALGT_OP_VERIFIED_SCORE,
+        condition_b=CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE,
+        run_stats=True, run_impact_plot=True,
+        subscores=tuple(VERIFIED_SCORES_LIST),
+    ),
+    Comparison(
+        name="Verified GT & Score: op vs bpp",
+        condition_a=CONDITION_VERIFIED_OP,
+        condition_b=CONDITION_VERIFIED,
+        run_stats=True, run_impact_plot=True,
+        subscores=tuple(VERIFIED_SCORES_LIST),
+    ),
+    Comparison(
+        name="Verified GT & Original Score: op vs bpp",
+        condition_a=CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE,
+        condition_b=CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE,
+        run_stats=True, run_impact_plot=True,
+        subscores=tuple(SCORES_LIST),
+    ),
+    # ── Evaluation GT impact (original → verified) for each score × prompt ────
+    Comparison(
+        name="Original score & op: Original vs Verified GT",
+        condition_a=CONDITION_ORIGINAL,
+        condition_b=CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE,
+        run_stats=True, run_impact_plot=True,
+        subscores=tuple(SCORES_LIST),
+        stats_alternative="less",  # hypothesis: verified GT < original GT
+    ),
+    Comparison(
+        name="Verified score & op: Original vs Verified GT",
+        condition_a=CONDITION_ORIGINALGT_OP_VERIFIED_SCORE,
+        condition_b=CONDITION_VERIFIED_OP,
+        run_stats=True, run_impact_plot=True,
+        subscores=tuple(VERIFIED_SCORES_LIST),
+    ),
+    # ── Ranking comparisons (original vs verified scoring formula) ─────────────
+    Comparison(
+        name="Original GT & op: Original vs Verified score",
+        condition_a=CONDITION_ORIGINAL,
+        condition_b=CONDITION_ORIGINALGT_OP_VERIFIED_SCORE,
+        run_ranking=True, run_bootstrap=True,
+    ),
+    Comparison(
+        name="Original GT & bpp: Original vs Verified score",
+        condition_a=CONDITION_ORIGINAL_BPP,
+        condition_b=CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE,
+        run_ranking=True, run_bootstrap=True,
+    ),
+    Comparison(
+        name="Original vs Verified",
+        condition_a=CONDITION_ORIGINAL,
+        condition_b=CONDITION_VERIFIED,
+        run_ranking=True, run_bootstrap=True,
+        save_summary=True,  # primary comparison — feeds save_results()
+    ),
 ]
 
 
@@ -341,9 +391,9 @@ def generate_latex_table_sora2(
     different frame rates.  Uses ``adaptive_std=True`` so single-run entries
     render as ``$X.X$`` rather than ``$X.X \\pm nan$``.
     """
-    df = scores_df[scores_df[MODEL_KEY].isin(SORA2_MODELS)]
+    df = scores_df[scores_df[MODEL_KEY].isin(SORA2_MODELS) & (scores_df[FPS_KEY] == 30)]
     pivot = (
-        df.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[score_cols].agg(
+        df.groupby([MODEL_KEY, EVAL_KEY, PROMPT_KEY])[score_cols].agg(
             ["mean", "std"]
         )
         * 100
@@ -718,6 +768,24 @@ def compare_conditions_stats(
             }
         )
     return pd.DataFrame(rows)
+
+
+_DISPLAY_OVERRIDES: dict[str, str] = {"mse": "MSE"}
+
+
+def _subscore_display(col: str) -> str:
+    """Human-readable panel title for a subscore column name.
+
+    Strips ``score_`` / ``final_score_`` prefixes, handles the ``_view`` suffix
+    from ``VERIFIED_SCORES_LIST``, and applies display overrides (e.g. ``mse``
+    → ``MSE``).
+    """
+    key = col.removeprefix("score_").removeprefix("final_score_")
+    if key.endswith("_view"):
+        base = key[:-5]
+        base_label = _DISPLAY_OVERRIDES.get(base, base.replace("_", " ").title())
+        return f"{base_label} (view)"
+    return _DISPLAY_OVERRIDES.get(key, key.replace("_", " ").title())
 
 
 def _subdir(output_path: Path, name: str) -> Path:
@@ -1453,62 +1521,28 @@ def _plot_slope_delta(
     _save_fig(fig, output_path, stem)
 
 
-def plot_prompt_impact(scores_df: pd.DataFrame, output_path: Path):
-    """Slope + delta charts for prompt impact (op → bpp) within original evaluation."""
-    _plot_slope_delta(
-        scores_df[scores_df[EVAL_KEY] == "original"],
-        EvalCondition("original", "op", ORIG_SCORE_KEY, "op"),
-        EvalCondition("original", "bpp", ORIG_SCORE_KEY, "bpp"),
-        {
-            "score_spatial": "Spatial",
-            "score_spatiotemporal": "Spatiotemporal",
-            "score_weighted_spatial": "Weighted Spatial",
-            "score_mse": "MSE",
-        },
-        output_path,
-        stem="prompt_impact_original",
-        title="Prompt Impact on Final Score (Original Evaluation)",
-    )
 
-
-def plot_evaluation_impact(scores_df: pd.DataFrame, output_path: Path):
-    """Slope + delta charts for evaluation pipeline impact (original → verified) for op prompts."""
-    _plot_slope_delta(
-        scores_df[scores_df[PROMPT_KEY] == "op"],
-        EvalCondition("original", "op", ORIG_SCORE_KEY, "Original eval.\n(op)"),
-        EvalCondition(
-            "verified_full", "op", VERIFIED_SCORE_KEY, "Verified eval.\n(op)"
-        ),
-        {
-            "score_spatial": "Spatial",
-            "score_spatiotemporal": "Spatiotemporal",
-            "score_weighted_spatial": "Weighted Spatial",
-            "score_mse": "MSE",
-        },
-        output_path,
-        stem="evaluation_impact_op_prompts",
-        title="Evaluation Pipeline Impact (op prompts)",
-    )
-
-
-def plot_model_performance_bars_combined(scores_df: pd.DataFrame, output_path: Path):
-    """Side-by-side bar charts for original and verified evaluation on a shared y-axis.
+def plot_model_performance_bars_combined(
+    scores_df: pd.DataFrame,
+    output_path: Path,
+    condition_a: "EvalCondition | None" = None,
+    condition_b: "EvalCondition | None" = None,
+    stem: str = "model_performance_bars_combined",
+):
+    """Side-by-side bar charts for two conditions on a shared y-axis.
 
     Each panel is sorted independently by its own mean score so the rank order is
     visible within each protocol.  The shared y-axis makes absolute score differences
     between protocols directly readable.
     """
+    if condition_a is None:
+        condition_a = CONDITION_ORIGINAL
+    if condition_b is None:
+        condition_b = CONDITION_VERIFIED
+
     specs = [
-        (
-            CONDITION_ORIGINAL.label,
-            CONDITION_ORIGINAL.score_key,
-            CONDITION_ORIGINAL.filter(scores_df),
-        ),
-        (
-            CONDITION_VERIFIED.label,
-            CONDITION_VERIFIED.score_key,
-            CONDITION_VERIFIED.filter(scores_df),
-        ),
+        (condition_a.label, condition_a.score_key, condition_a.filter(scores_df)),
+        (condition_b.label, condition_b.score_key, condition_b.filter(scores_df)),
     ]
 
     # Compute aggregates for both panels up-front so we can set a shared y range
@@ -1569,7 +1603,280 @@ def plot_model_performance_bars_combined(scores_df: pd.DataFrame, output_path: P
 
     axes[0].set_ylabel("Physics-IQ Score")
     fig.tight_layout()
-    _save_fig(fig, output_path, "model_performance_bars_combined")
+    _save_fig(fig, output_path, stem)
+
+
+def plot_model_performance_bars_grouped(
+    scores_df: pd.DataFrame,
+    output_path: Path,
+    condition_a: "EvalCondition | None" = None,
+    condition_b: "EvalCondition | None" = None,
+    stem: str = "model_performance_bars_grouped",
+):
+    """Grouped bar chart comparing two conditions on a single axis.
+
+    Bar colour encodes the model (identical to the combined plot).  Condition
+    is distinguished by hatch texture: condition_a is solid, condition_b uses
+    diagonal hatching.  Models are sorted by condition_a mean (best → worst).
+    """
+    if condition_a is None:
+        condition_a = CONDITION_ORIGINAL
+    if condition_b is None:
+        condition_b = CONDITION_VERIFIED
+
+    agg_a = (
+        condition_a.filter(scores_df)
+        .groupby(MODEL_KEY)[condition_a.score_key]
+        .agg(["mean", "std"]) * 100
+    )
+    agg_b = (
+        condition_b.filter(scores_df)
+        .groupby(MODEL_KEY)[condition_b.score_key]
+        .agg(["mean", "std"]) * 100
+    )
+
+    # Sort by condition_a, append any models that only appear in condition_b
+    models = agg_a["mean"].sort_values(ascending=False).index.tolist()
+    for m in agg_b.index:
+        if m not in models:
+            models.append(m)
+
+    def _get(agg, m, col):
+        return agg.loc[m, col] if m in agg.index else np.nan
+
+    means_a = np.array([_get(agg_a, m, "mean") for m in models])
+    stds_a  = np.nan_to_num(np.array([_get(agg_a, m, "std")  for m in models]))
+    means_b = np.array([_get(agg_b, m, "mean") for m in models])
+    stds_b  = np.nan_to_num(np.array([_get(agg_b, m, "std")  for m in models]))
+    colors  = [model_to_color(m) for m in models]
+
+    n = len(models)
+    bar_w = 0.38
+    x = np.arange(n)
+    y_max = np.nanmax(np.concatenate([means_a + stds_a, means_b + stds_b])) * 1.22
+
+    fig, ax = plt.subplots(figsize=(max(4.5, n * 1.2), 3.8))
+
+    # Hatch pattern distinguishes condition; edgecolor must contrast with fill
+    # so the hatch lines are visible.  condition_a is solid (no hatch).
+    _HATCH_A = ""
+    _HATCH_B = "///"
+
+    for i, (color, mean_a, std_a, mean_b, std_b) in enumerate(
+        zip(colors, means_a, stds_a, means_b, stds_b)
+    ):
+        kw = dict(width=bar_w, alpha=0.85, zorder=3, capsize=4,
+                  error_kw=dict(linewidth=0.9, capthick=0.9, ecolor="#444444"))
+        ax.bar(x[i] - bar_w / 2, mean_a, color=color, hatch=_HATCH_A,
+               edgecolor="white", linewidth=0.5, yerr=std_a, **kw)
+        ax.bar(x[i] + bar_w / 2, mean_b, color=color, hatch=_HATCH_B,
+               edgecolor="#333333", linewidth=0.5, yerr=std_b, **kw)
+
+    for xi, mean, std in zip(x - bar_w / 2, means_a, stds_a):
+        if not np.isnan(mean):
+            ax.text(xi, mean + std + 0.8, f"{mean:.1f}",
+                    ha="center", va="bottom", fontsize=7.5, fontweight="bold")
+    for xi, mean, std in zip(x + bar_w / 2, means_b, stds_b):
+        if not np.isnan(mean):
+            ax.text(xi, mean + std + 0.8, f"{mean:.1f}",
+                    ha="center", va="bottom", fontsize=7.5, fontweight="bold")
+
+    # Legend: grey proxy patches show only the condition distinction via texture
+    from matplotlib.patches import Patch
+    legend_handles = [
+        Patch(facecolor="#aaaaaa", hatch=_HATCH_A, edgecolor="white",
+              label=condition_a.label),
+        Patch(facecolor="#aaaaaa", hatch=_HATCH_B, edgecolor="#333333",
+              label=condition_b.label),
+    ]
+    ax.legend(handles=legend_handles, loc="upper right", framealpha=0.9)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(
+        [model_to_plotting_name(m) for m in models],
+        rotation=30, ha="right", fontsize=9,
+    )
+    ax.set_ylabel("Physics-IQ Score (×100)")
+    ax.set_ylim(0, y_max)
+    ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
+    ax.set_axisbelow(True)
+    fig.tight_layout()
+    _save_fig(fig, output_path, stem)
+
+
+def _bezier_bump(
+    x0: float, y0: float, x1: float, y1: float, n: int = 120
+) -> "tuple[np.ndarray, np.ndarray]":
+    """Cubic Hermite S-curve with zero-slope (horizontal) tangents at both ends.
+
+    Equivalent to the "smooth step" interpolation:
+        y(t) = y0·(1−t)²·(1+2t) + y1·t²·(3−2t)
+    which guarantees y(0)=y0, y(1)=y1, y'(0)=0, y'(1)=0.
+    x is interpolated linearly.
+    """
+    t = np.linspace(0.0, 1.0, n)
+    x = x0 + (x1 - x0) * t
+    y = y0 * (1 - t) ** 2 * (1 + 2 * t) + y1 * t ** 2 * (3 - 2 * t)
+    return x, y
+
+
+def plot_ranking_bump_individual(
+    scores_df: pd.DataFrame,
+    output_path: Path,
+    comparisons: "list[Comparison] | None" = None,
+):
+    """One bump chart per comparison, with smooth Bezier curves between ranks.
+
+    Each figure is saved as ``<comp.stem>_bump.pdf/.png`` under *output_path*.
+    The S-curve shape makes crossings visually unambiguous and keeps the chart
+    readable even when several lines intersect at similar rank values.
+    """
+    if comparisons is None:
+        comparisons = [c for c in COMPARISONS if c.run_ranking]
+
+    for comp in comparisons:
+        s_a = (
+            comp.condition_a.filter(scores_df)
+            .groupby(MODEL_KEY)[comp.condition_a.score_key]
+            .mean()
+        )
+        s_b = (
+            comp.condition_b.filter(scores_df)
+            .groupby(MODEL_KEY)[comp.condition_b.score_key]
+            .mean()
+        )
+        common = s_a.index.intersection(s_b.index)
+        ranks_a = s_a.loc[common].rank(ascending=False)
+        ranks_b = s_b.loc[common].rank(ascending=False)
+        n_models = len(common)
+
+        fig, ax = plt.subplots(figsize=(5.0, 4.5))
+
+        for model in common:
+            color = model_to_color(model)
+            ra, rb = ranks_a[model], ranks_b[model]
+
+            bx, by = _bezier_bump(0.0, ra, 1.0, rb)
+            ax.plot(bx, by, color=color, linewidth=2.0,
+                    solid_capstyle="round", zorder=2)
+            ax.scatter([0, 1], [ra, rb], color=color, s=60, zorder=3,
+                       edgecolors="white", linewidths=0.8)
+
+            ax.text(-0.04, ra, model_to_plotting_name(model),
+                    ha="right", va="center", fontsize=9.0, color=color)
+            ax.text(1.04, rb, model_to_plotting_name(model),
+                    ha="left", va="center", fontsize=9.0, color=color)
+
+        ax.set_xticks([0, 1])
+        ax.set_xticklabels(
+            [comp.condition_a.label, comp.condition_b.label], fontsize=9.5,
+        )
+        ax.set_xlim(-0.45, 1.45)
+        ax.set_ylim(0.5, n_models + 0.5)  # rank 1 (best) at bottom
+        ax.set_yticks(range(1, n_models + 1))
+        ax.set_ylabel("Rank  (1 = best)")
+        ax.set_title(comp.name, fontsize=10)
+        ax.yaxis.grid(True, linewidth=0.5, alpha=0.4, color="#dddddd")
+        ax.set_axisbelow(True)
+        for spine in ("top", "right"):
+            ax.spines[spine].set_visible(False)
+        ax.tick_params(left=False)
+
+        fig.tight_layout()
+        _save_fig(fig, output_path, f"{comp.stem}_bump")
+
+
+def plot_ranking_bump(
+    scores_df: pd.DataFrame,
+    output_path: Path,
+    comparisons: "list[Comparison] | None" = None,
+    stem: str = "ranking_bump",
+):
+    """Bump chart showing rank changes between condition_a and condition_b.
+
+    One panel per comparison (default: all ``run_ranking=True`` entries in
+    ``COMPARISONS``).  Each model is a line connecting its rank under
+    condition_a (left) to its rank under condition_b (right).  Crossings
+    reveal rank reorderings; line colour identifies the model.  Model names
+    are annotated at the right endpoint of the rightmost panel and at the
+    left endpoint of the leftmost panel; middle panels rely on colour alone.
+    """
+    if comparisons is None:
+        comparisons = [c for c in COMPARISONS if c.run_ranking]
+
+    n_comp = len(comparisons)
+    fig, axes = plt.subplots(
+        1, n_comp,
+        figsize=(n_comp * 3.2, 4.2),
+        sharey=True,
+    )
+    if n_comp == 1:
+        axes = [axes]
+
+    # Compute ranks per comparison without triggering the print side-effects of
+    # mean_score_evaluation — we only need the ranking series here.
+    all_ranks = []
+    for comp in comparisons:
+        s_a = (
+            comp.condition_a.filter(scores_df)
+            .groupby(MODEL_KEY)[comp.condition_a.score_key]
+            .mean()
+        )
+        s_b = (
+            comp.condition_b.filter(scores_df)
+            .groupby(MODEL_KEY)[comp.condition_b.score_key]
+            .mean()
+        )
+        common = s_a.index.intersection(s_b.index)
+        all_ranks.append((
+            s_a.loc[common].rank(ascending=False),
+            s_b.loc[common].rank(ascending=False),
+        ))
+
+    n_models = max(len(ra) for ra, _ in all_ranks)
+
+    for panel_idx, (ax, comp, (ranks_a, ranks_b)) in enumerate(
+        zip(axes, comparisons, all_ranks)
+    ):
+        models = ranks_a.index.tolist()
+
+        for model in models:
+            color = model_to_color(model)
+            ra, rb = ranks_a[model], ranks_b[model]
+
+            ax.plot([0, 1], [ra, rb], color=color, linewidth=2.0,
+                    solid_capstyle="round", zorder=2)
+            ax.scatter([0, 1], [ra, rb], color=color, s=55, zorder=3,
+                       edgecolors="white", linewidths=0.8)
+
+            # Model names: left side of first panel, right side of last panel
+            if panel_idx == 0:
+                ax.text(-0.06, ra, model_to_plotting_name(model),
+                        ha="right", va="center", fontsize=8.0, color=color)
+            if panel_idx == n_comp - 1:
+                ax.text(1.06, rb, model_to_plotting_name(model),
+                        ha="left", va="center", fontsize=8.0, color=color)
+
+        ax.set_xticks([0, 1])
+        ax.set_xticklabels(
+            [comp.condition_a.label, comp.condition_b.label],
+            fontsize=8.5,
+        )
+        ax.set_xlim(-0.5 if panel_idx == 0 else -0.15,
+                    1.5 if panel_idx == n_comp - 1 else 1.15)
+        ax.set_title(comp.name, fontsize=8.5)
+        ax.yaxis.grid(True, linewidth=0.5, alpha=0.4, color="#dddddd")
+        ax.set_axisbelow(True)
+        for spine in ("top", "right"):
+            ax.spines[spine].set_visible(False)
+
+    # Shared y-axis: rank 1 (best) at top
+    axes[0].set_ylim(0.5, n_models + 0.5)  # rank 1 (best) at bottom
+    axes[0].set_yticks(range(1, n_models + 1))
+    axes[0].set_ylabel("Rank  (1 = best)")
+
+    fig.tight_layout()
+    _save_fig(fig, output_path, stem)
 
 
 def plot_score_correlation_matrix(scores_df: pd.DataFrame, output_path: Path):
@@ -1828,70 +2135,102 @@ def main():
     plot_variance_distributions(scenario_var_df, args.output_dir)
     plot_variance_scenario_scatter(scenario_var_df, args.output_dir)
 
-    # ------------------ Analysis of score behavior with respect to evaluation settings -------------------
-    print("\nComparing 'verified_full' vs 'original' evaluation for op prompts:")
-    eval_comp_df = compare_conditions_stats(
-        scores_filtered,
-        condition_a=EvalCondition(
-            "verified_full", "op", VERIFIED_SCORE_KEY, "Verified (op)"
-        ),
-        condition_b=EvalCondition("original", "op", ORIG_SCORE_KEY, "Original (op)"),
-        score_cols=SCORES_COLS_ORIG,
-        alternative="less",
-    )
-    pprint(eval_comp_df)
-    eval_comp_df.to_csv(
-        _subdir(args.output_dir, "data") / "evaluation_comparison_stats.csv",
-        index=False,
-    )
-    print(
-        "\nEvaluation comparison statistics saved to 'evaluation_comparison_stats.csv'."
-    )
-    plot_evaluation_impact(scores_filtered, args.output_dir)
-
-    # ------------------ Analysis of score behavior with respect to prompts -------------------
-    print("\nComparing 'bpp' vs 'op' prompts for original evaluation:")
-    prompt_comp_df = compare_conditions_stats(
-        scores_filtered,
-        condition_a=EvalCondition("original", "bpp", ORIG_SCORE_KEY, "bpp"),
-        condition_b=EvalCondition("original", "op", ORIG_SCORE_KEY, "op"),
-        score_cols=SCORES_COLS_ORIG,
-        alternative="greater",
-    )
-    pprint(prompt_comp_df)
-    prompt_comp_df.to_csv(
-        _subdir(args.output_dir, "data") / "prompt_comparison_stats.csv",
-        index=False,
-    )
-    print("\nPrompt comparison statistics saved to 'prompt_comparison_stats.csv'.")
-    plot_prompt_impact(scores_filtered, args.output_dir)
-
-    # cv_table = scores_filtered.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[[ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST].std()
-    # cv_table = cv_table / scores_filtered.groupby([MODEL_KEY, EVAL_KEY, FPS_KEY, PROMPT_KEY])[[ORIG_SCORE_KEY, VERIFIED_SCORE_KEY] + SCORES_LIST].mean()
-
-    # assert False
     plot_score_correlation_matrix(scores_filtered, args.output_dir)
-    ranking_results = mean_score_evaluation(scores_filtered)
     plot_model_performance_bars(
         scores_filtered, VERIFIED_SCORE_KEY, args.output_dir, mode="original"
     )
     plot_model_performance_bars(
         scores_filtered, VERIFIED_SCORE_KEY, args.output_dir, mode="verified"
     )
-    plot_model_performance_bars_combined(scores_filtered, args.output_dir)
+    plot_ranking_bump(scores_filtered, args.output_dir)
+    plot_ranking_bump_individual(scores_filtered, args.output_dir)
 
-    bootstrap_results = run_bootstrap_analysis(
-        exp_tables, args.n_bootstrap, args.output_dir
-    )
+    for comp in COMPARISONS:
+        if comp.run_ranking:
+            comp_out = _subdir(args.output_dir, comp.stem)
+            plot_model_performance_bars_combined(
+                scores_filtered, comp_out,
+                comp.condition_a, comp.condition_b,
+                stem="model_performance_bars_combined",
+            )
+            plot_model_performance_bars_grouped(
+                scores_filtered, comp_out,
+                comp.condition_a, comp.condition_b,
+                stem="model_performance_bars_grouped",
+            )
 
-    save_results(
-        args.output_dir,
-        scores_df,
-        ranking_results,
-        bootstrap_results,
-        seed=args.seed,
-        n_bootstrap=args.n_bootstrap,
-    )
+    # ── Run all comparisons declared in COMPARISONS ───────────────────────────
+    data_dir = _subdir(args.output_dir, "data")
+    primary_ranking   = None
+    primary_bootstrap = None
+
+    for comp in COMPARISONS:
+        print(f"\n── {comp.name} ──")
+
+        if comp.run_stats and comp.subscores:
+            score_cols = [comp.condition_a.score_key] + list(comp.subscores)
+            result = compare_conditions_stats(
+                scores_filtered, comp.condition_a, comp.condition_b,
+                score_cols=score_cols, alternative=comp.stats_alternative,
+            )
+            pprint(result)
+            result.to_csv(data_dir / f"{comp.stem}_stats.csv", index=False)
+
+        if comp.run_impact_plot and comp.subscores:
+            sub_display = {col: _subscore_display(col) for col in comp.subscores}
+            _plot_slope_delta(
+                scores_filtered, comp.condition_a, comp.condition_b,
+                sub_display, args.output_dir, stem=comp.stem, title=comp.name,
+            )
+
+        if comp.run_ranking:
+            result = mean_score_evaluation(
+                scores_filtered, comp.condition_a, comp.condition_b,
+            )
+            # Save per-comparison ranking files regardless of save_summary
+            result["ranking_df"].to_csv(data_dir / f"{comp.stem}_rankings.csv")
+            pd.DataFrame([{
+                "spearman_rho": result["spearman_rho"],
+                "spearman_p":   result["spearman_p"],
+                "kendall_tau":  result["kendall_tau"],
+                "kendall_p":    result["kendall_p"],
+            }]).to_csv(data_dir / f"{comp.stem}_ranking_corr.csv", index=False)
+            if comp.save_summary:
+                primary_ranking = result
+
+        if comp.run_bootstrap:
+            # Each comparison writes figures into its own subdirectory to prevent
+            # overwriting when multiple bootstrap comparisons share the same output path.
+            comp_out = _subdir(args.output_dir, comp.stem)
+            result = run_bootstrap_analysis(
+                exp_tables, args.n_bootstrap, comp_out,
+                comparison_conditions=(comp.condition_a, comp.condition_b),
+            )
+            # Save per-comparison bootstrap correlation summary
+            pd.DataFrame([{
+                "rho_mean":    result["rho_mean"],
+                "tau_mean":    result["tau_mean"],
+                "rho_ci_2_5":  result["ci_rho"][0],
+                "rho_ci_97_5": result["ci_rho"][1],
+                "tau_ci_2_5":  result["ci_tau"][0],
+                "tau_ci_97_5": result["ci_tau"][1],
+            }]).to_csv(
+                _subdir(comp_out, "data") / f"{comp.stem}_bootstrap_corr.csv",
+                index=False,
+            )
+            if comp.save_summary:
+                primary_bootstrap = result
+
+    if primary_ranking and primary_bootstrap:
+        primary = next(c for c in COMPARISONS if c.save_summary)
+        save_results(
+            _subdir(args.output_dir, primary.stem),
+            scores_df,
+            primary_ranking,
+            primary_bootstrap,
+            seed=args.seed,
+            n_bootstrap=args.n_bootstrap,
+        )
 
 
 if __name__ == "__main__":

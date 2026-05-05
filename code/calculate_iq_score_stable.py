@@ -360,7 +360,7 @@ class IQTable:
             "variance_weighted_spatial": self.get_metric_mean(
                 self.variance_weighted_spatial_key
             ),
-            "final_score_view": view_scenario_scores["final_geometric"].mean(),
+            "final_score_view": view_scenario_scores["final_arithmetic"].mean(),
             "score_spatiotemporal_view": view_scenario_scores[
                 self.spatiotemporal_iou_key + "_score"
             ].mean(),
