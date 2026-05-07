@@ -80,6 +80,7 @@ class Comparison:
     subscores:         "tuple[str, ...] | None" = None
     stats_alternative: str = "two-sided"
     save_summary:      bool = False   # feeds save_results() at end of main()
+    delta_label:      str | None = None  # custom label for delta plots
 
     @property
     def stem(self) -> str:
@@ -199,33 +200,37 @@ CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE = EvalCondition(
 COMPARISONS: "list[Comparison]" = [
     # ── Prompt impact (op → bpp) for each GT × score combination ──────────────
     Comparison(
-        name="Original GT & Score: op vs bpp",
+        name="Original GT & Score: op vs bpp Prompt",
         condition_a=CONDITION_ORIGINAL,
         condition_b=CONDITION_ORIGINAL_BPP,
         run_stats=True, run_impact_plot=True,
         subscores=tuple(SCORES_LIST),
         stats_alternative="greater",  # hypothesis: bpp > op
+        delta_label="bpp - op",
     ),
     Comparison(
-        name="Original GT & Verified Score: op vs bpp",
+        name="Original GT & Verified Score: op vs bpp Prompt",
         condition_a=CONDITION_ORIGINALGT_OP_VERIFIED_SCORE,
         condition_b=CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE,
         run_stats=True, run_impact_plot=True,
         subscores=tuple(VERIFIED_SCORES_LIST),
+        delta_label="bpp - op",
     ),
     Comparison(
-        name="Verified GT & Score: op vs bpp",
+        name="Verified GT & Score: op vs bpp Prompt",
         condition_a=CONDITION_VERIFIED_OP,
         condition_b=CONDITION_VERIFIED,
         run_stats=True, run_impact_plot=True,
         subscores=tuple(VERIFIED_SCORES_LIST),
+        delta_label="bpp - op",
     ),
     Comparison(
-        name="Verified GT & Original Score: op vs bpp",
+        name="Verified GT & Original Score: op vs bpp Prompt",
         condition_a=CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE,
         condition_b=CONDITION_VERIFIEDGT_BPP_ORIGINAL_SCORE,
         run_stats=True, run_impact_plot=True,
         subscores=tuple(SCORES_LIST),
+        delta_label="bpp - op",
     ),
     # ── Evaluation GT impact (original → verified) for each score × prompt ────
     Comparison(
@@ -235,6 +240,7 @@ COMPARISONS: "list[Comparison]" = [
         run_stats=True, run_impact_plot=True,
         subscores=tuple(SCORES_LIST),
         stats_alternative="less",  # hypothesis: verified GT < original GT
+        delta_label="verified - original GT",
     ),
     Comparison(
         name="Verified score & op: Original vs Verified GT",
@@ -242,6 +248,7 @@ COMPARISONS: "list[Comparison]" = [
         condition_b=CONDITION_VERIFIED_OP,
         run_stats=True, run_impact_plot=True,
         subscores=tuple(VERIFIED_SCORES_LIST),
+        delta_label="verified - original GT",
     ),
     # ── Ranking comparisons (original vs verified scoring formula) ─────────────
     Comparison(
@@ -249,12 +256,14 @@ COMPARISONS: "list[Comparison]" = [
         condition_a=CONDITION_ORIGINAL,
         condition_b=CONDITION_ORIGINALGT_OP_VERIFIED_SCORE,
         run_ranking=True, run_bootstrap=True,
+        delta_label="verified - original score",
     ),
     Comparison(
         name="Original GT & bpp: Original vs Verified score",
         condition_a=CONDITION_ORIGINAL_BPP,
         condition_b=CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE,
         run_ranking=True, run_bootstrap=True,
+        delta_label="verified - original score",
     ),
     Comparison(
         name="Original vs Verified",
@@ -771,6 +780,15 @@ def compare_conditions_stats(
 
 
 _DISPLAY_OVERRIDES: dict[str, str] = {"mse": "MSE"}
+
+# Columns where a lower value is better.  Deltas for these columns are negated
+# in _plot_slope_delta so "bar extends right = condition_b is better" holds
+# uniformly across all subscore panels.
+_LOWER_IS_BETTER: frozenset[str] = frozenset([
+    IQTable.mse_key,           # "v1_mse"         raw metric
+    "score_mse",               # SCORES_LIST entry
+    IQTable.variance_mse_key,  # "variance_mse"   variance column
+])
 
 
 def _subscore_display(col: str) -> str:
@@ -1395,6 +1413,19 @@ def plot_model_performance_bars(
     _save_fig(fig, output_path, plot_title.replace(" ", "_").lower() + "_bars")
 
 
+def _sig_stars(p: float) -> str:
+    """Return significance stars for a p-value (empty string when not significant)."""
+    if np.isnan(p):
+        return ""
+    if p < 0.001:
+        return "***"
+    if p < 0.01:
+        return "**"
+    if p < 0.05:
+        return "*"
+    return ""
+
+
 def _plot_slope_delta(
     scores_df: pd.DataFrame,
     condition_a: "EvalCondition",
@@ -1403,6 +1434,8 @@ def _plot_slope_delta(
     output_path: Path,
     stem: str,
     title: str,
+    stats_df: "pd.DataFrame | None" = None,
+    delta_label: str | None = None,
 ):
     """Generic slope chart + per-subscore delta bars for any two EvalConditions.
 
@@ -1482,13 +1515,18 @@ def _plot_slope_delta(
 
     models_rev = list(reversed(models))
     y_pos = np.arange(len(models_rev))
-    delta_label = f"Δ ({condition_b.label.split()[0]} − {condition_a.label.split()[0]})"
-
+    if delta_label is None:
+        delta_label = f"Δ ({condition_b.label.split()[0]} − {condition_a.label.split()[0]})"
+    else:
+        delta_label = f"Δ ({delta_label})"
     for ax, (sub_col, sub_label) in zip(ax_subs, sub_cols.items()):
         sub_a = df_a.groupby(MODEL_KEY)[sub_col].mean() * 100
         sub_b = df_b.groupby(MODEL_KEY)[sub_col].mean() * 100
+        lower_is_better = sub_col in _LOWER_IS_BETTER
         deltas = [
-            sub_b[m] - sub_a[m] if m in sub_a.index and m in sub_b.index else 0.0
+            # Negate lower-is-better columns so positive bar = condition_b is better
+            (sub_a[m] - sub_b[m] if lower_is_better else sub_b[m] - sub_a[m])
+            if m in sub_a.index and m in sub_b.index else 0.0
             for m in models_rev
         ]
         colors_ordered = [model_to_color(m) for m in models_rev]
@@ -1514,12 +1552,64 @@ def _plot_slope_delta(
             fontsize=7.5,
         )
         ax.set_title(sub_label, fontsize=9)
-        ax.set_xlabel(delta_label, fontsize=8)
+        ax.set_xlabel(("−" if lower_is_better else "") + delta_label, fontsize=8)
         ax.xaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
         ax.set_axisbelow(True)
 
+        if stats_df is not None:
+            row = stats_df[stats_df["score"] == sub_col]
+            if not row.empty:
+                d   = row["cohens_d"].values[0]
+                p_w = row["wilcoxon_p"].values[0]
+                # Sign of d follows the visual convention: positive = condition_b better
+                d_display = -d if lower_is_better else d
+                stars = _sig_stars(p_w)
+                annotation = (
+                    f"d = {d_display:+.2f}{stars}\n"
+                    f"p = {p_w:.3f}" if not np.isnan(p_w) else f"d = {d_display:+.2f}"
+                )
+                ax.text(
+                    0.97, 0.97, annotation,
+                    transform=ax.transAxes, fontsize=7.0,
+                    va="top", ha="right",
+                    bbox=dict(boxstyle="round,pad=0.3", fc="white",
+                              ec="#cccccc", alpha=0.9),
+                )
+
     _save_fig(fig, output_path, stem)
 
+
+
+def plot_slope_delta_with_stats(
+    scores_df: pd.DataFrame,
+    condition_a: "EvalCondition",
+    condition_b: "EvalCondition",
+    sub_cols: dict[str, str],
+    output_path: Path,
+    stem: str,
+    title: str,
+    stats_alternative: str = "two-sided",
+    delta_label: str | None = None,
+):
+    """Slope + delta chart with per-subscore statistical annotation.
+
+    Calls ``compare_conditions_stats`` internally and annotates each delta
+    panel with Cohen's d (sign-adjusted for lower-is-better columns) and the
+    Wilcoxon p-value with significance stars.  Output is saved with ``_stats``
+    appended to *stem* so it does not overwrite the plain version.
+    """
+    score_cols = [condition_a.score_key] + list(sub_cols.keys())
+    stats = compare_conditions_stats(
+        scores_df, condition_a, condition_b,
+        score_cols=score_cols,
+        alternative=stats_alternative,
+    )
+    _plot_slope_delta(
+        scores_df, condition_a, condition_b, sub_cols,
+        output_path, stem=stem + "_stats", title=title,
+        stats_df=stats,
+        delta_label=delta_label,
+    )
 
 
 def plot_model_performance_bars_combined(
@@ -2181,7 +2271,15 @@ def main():
             _plot_slope_delta(
                 scores_filtered, comp.condition_a, comp.condition_b,
                 sub_display, args.output_dir, stem=comp.stem, title=comp.name,
+                delta_label=comp.delta_label,
             )
+            if comp.run_stats:
+                plot_slope_delta_with_stats(
+                    scores_filtered, comp.condition_a, comp.condition_b,
+                    sub_display, args.output_dir, stem=comp.stem, title=comp.name,
+                    stats_alternative=comp.stats_alternative,
+                    delta_label=comp.delta_label,
+                )
 
         if comp.run_ranking:
             result = mean_score_evaluation(

@@ -69,10 +69,10 @@ _MODELS.append(
     )
 )
 _MODELS.append(Model(model_name="Sora", plotting_name="Sora (i2v)", color="#ff0606"))
-_MODELS.append(Model(model_name="wan-i2v", plotting_name="Wan (i2v)", color="#4E79A7"))
+_MODELS.append(Model(model_name="wan-i2v", plotting_name="Wan", color="#4E79A7"))
 _MODELS.append(Model(model_name="p-video", plotting_name="P-Video", color="#F28E2B"))
 _MODELS.append(
-    Model(model_name="hunyuan-video-v1", plotting_name="HunyuanVideo", color="#59A14F")
+    Model(model_name="hunyuan-video-v1", plotting_name="Hunyuan", color="#59A14F")
 )
 _MODELS.append(Model(model_name="sora-2", plotting_name="Sora 2", color="#E15759"))
 _MODELS.append(
