@@ -1,4 +1,4 @@
-from calculate_iq_score_stable import IQTable
+from calculate_iq_score_stable import IQTable, clip
 from analysis import (
     get_experiment_tables,
     BASEPATH,
@@ -18,6 +18,7 @@ from pathlib import Path
 from pprint import pprint
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 # def cauch_
 out_dir = Path(OUTPUT_PATH) / "score_analysis"
@@ -32,6 +33,57 @@ def plot_df_hist(df, cols, name):
         plt.savefig(out_dir / f"{name}_{col}_histogram.png")
         plt.clf()
 
+
+def unfold_perspective_columns(df, metrics: list[str], keep: list[str], views=('left', 'center', 'right')):
+    """
+    Melt multiple metric groups into long format, preserving specified columns.
+    
+    Each metric in `metrics` must have columns named:
+        {metric}_perspective-left, {metric}_perspective-center, {metric}_perspective-right
+    
+    Returns a dataframe with the kept columns, a 'view' column, and one column per metric.
+    """
+    view_dfs = []
+    for view in views:
+        chunk = df[keep + [f'{m}_perspective-{view}' for m in metrics]].copy()
+        chunk.columns = keep + metrics
+        chunk['view'] = view
+        view_dfs.append(chunk)
+
+    df_long = pd.concat(view_dfs, ignore_index=True)
+    df_long['view'] = pd.Categorical(df_long['view'], categories=list(views), ordered=True)
+    return df_long.sort_values(keep + ['view']).reset_index(drop=True)
+
+
+def get_sample_level_df(tab_orig: IQTable):
+    unfold_views_df = tab_orig.df.copy()
+    unfold_views_df = unfold_perspective_columns(unfold_views_df, keep=["scenario"], metrics=tab_orig.metric_keys+tab_orig.variance_keys)
+    unfold_views_df["scenario"] = unfold_views_df["scenario"].map(lambda s: s.replace(".mp4", ""))  # Keep only the scenario name, remove perspective suffix
+    for col in tab_orig.get_list_keys():
+        unfold_views_df[col+"_temporal"] = unfold_views_df[col]
+        unfold_views_df[col] =unfold_views_df[col].map(lambda x: np.mean(x))
+
+
+    scores_raw_cols = [m+"-score_raw" for m in tab_orig.metric_keys]
+    for m, v in zip(tab_orig.metric_keys, tab_orig.variance_keys):
+        if "MSE" in m:
+            unfold_views_df[m+"-score_raw"] = unfold_views_df[v] / (unfold_views_df[m] + tab_orig.ratio_eps)
+        else:
+            unfold_views_df[m+"-score_raw"] = unfold_views_df[m] / (unfold_views_df[v] + tab_orig.ratio_eps)
+        unfold_views_df[m+"-score"] = clip(unfold_views_df[m+"-score_raw"])
+
+    
+    phys_iq_col = "Physics-IQ verified score"
+    unfold_views_df[phys_iq_col] = unfold_views_df[[ m+"-score" for m in tab_orig.metric_keys]].mean(axis=1)
+    scores_cols = [phys_iq_col]+[m+"-score" for m in tab_orig.metric_keys]
+    id_col = "ID"
+    sample_name_cols = ["scenario", "view"]
+    sample_index_cols = [id_col] + sample_name_cols
+    # enumerate from 0 to len(unfold_views_df)-1
+    unfold_views_df[id_col] = [i for i in range(len(unfold_views_df))]
+    for k in tab_orig.metadata:
+        unfold_views_df[k] = tab_orig.metadata[k]
+    return unfold_views_df,scores_cols,sample_index_cols
 
 if __name__ == "__main__":
     args = parse_args()
@@ -95,3 +147,15 @@ if __name__ == "__main__":
         print(f"{name} - score distribution by view:")
         print(df_scores.describe())
         plot_df_hist(df_scores, df_scores.columns, name.lower() + "-sample")
+
+    unfold_views_df, scores_cols, sample_index_cols = get_sample_level_df(tab_orig)
+
+    vis_df = unfold_views_df[sample_index_cols + scores_cols]
+
+    pprint(vis_df[scores_cols].describe())
+    pprint(vis_df)
+
+
+
+    # pprint(unfold_views_df)
+

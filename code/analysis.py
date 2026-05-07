@@ -23,6 +23,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
@@ -874,31 +875,27 @@ def plot_correlation_distributions(
     _save_fig(fig, output_path, "bootstrap_correlation_distributions")
 
 
-def plot_ranking_scatter(
+def _draw_ranking_scatter(
+    ax: plt.Axes,
     ranks_original: list,
     ranks_verified: list,
     rho_mean: float,
     tau_mean: float,
-    output_path: Path,
-):
-    """Scatter of per-model bootstrap ranks: original vs. verified evaluation."""
-    # Collect per-model bootstrap rank pairs
+    legend_loc: str = "upper left",
+    stat_loc: str = "lower right",
+) -> None:
+    """Draw bootstrap rank scatter into an existing axes."""
     model_ranks: dict[str, list[tuple]] = {}
     for r_orig, r_ver in zip(ranks_original, ranks_verified):
         for model in r_orig.index:
             model_ranks.setdefault(model, []).append((r_orig[model], r_ver[model]))
 
     n_models = len(model_ranks)
-    fig, ax = plt.subplots(figsize=(3.8, 3.8))
+    fs = plt.rcParams.get("font.size", 9)
 
-    # Diagonal reference line (perfect agreement)
     ax.plot(
-        [0.5, n_models + 0.5],
-        [0.5, n_models + 0.5],
-        color="#888888",
-        linewidth=0.9,
-        linestyle=":",
-        zorder=1,
+        [0.5, n_models + 0.5], [0.5, n_models + 0.5],
+        color="#888888", linewidth=0.9, linestyle=":", zorder=1,
     )
 
     for model, pairs in model_ranks.items():
@@ -906,19 +903,11 @@ def plot_ranking_scatter(
         y = [p[1] for p in pairs]
         color = model_to_color(model)
         display = model_to_plotting_name(model)
-        # Individual bootstrap samples (translucent)
         ax.scatter(x, y, color=color, s=18, alpha=0.18, zorder=2, linewidths=0)
-        # Mean position per model (opaque, prominent)
         ax.scatter(
-            np.mean(x),
-            np.mean(y),
-            color=color,
-            s=70,
-            alpha=1.0,
-            zorder=3,
-            label=display,
-            edgecolors="white",
-            linewidths=0.6,
+            np.mean(x), np.mean(y),
+            color=color, s=70, alpha=1.0, zorder=3, label=display,
+            edgecolors="white", linewidths=0.6,
         )
 
     ticks = list(range(1, n_models + 1))
@@ -929,20 +918,31 @@ def plot_ranking_scatter(
     ax.set_xlabel("Rank (original evaluation)")
     ax.set_ylabel("Rank (verified evaluation)")
     ax.set_title("Bootstrap Model Rankings:\nOriginal vs. Verified Evaluation")
+    _STAT_LOC = {
+        "lower right": (0.97, 0.03, "bottom", "right"),
+        "upper left":  (0.03, 0.97, "top",    "left"),
+    }
+    sx, sy, sva, sha = _STAT_LOC[stat_loc]
     ax.text(
-        0.97,
-        0.03,
+        sx, sy,
         f"$\\bar{{\\rho}}$ = {rho_mean:.3f},  $\\bar{{\\tau}}$ = {tau_mean:.3f}",
-        transform=ax.transAxes,
-        fontsize=8.5,
-        va="bottom",
-        ha="right",
-        bbox=dict(
-            boxstyle="round,pad=0.35", facecolor="white", edgecolor="#cccccc", alpha=0.9
-        ),
+        transform=ax.transAxes, fontsize=fs, va=sva, ha=sha,
+        bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor="#cccccc", alpha=0.9),
     )
-    ax.legend(loc="upper left", markerscale=1.2, handletextpad=0.4, borderpad=0.6)
+    ax.legend(loc=legend_loc, markerscale=1.2, handletextpad=0.4, borderpad=0.6)
     ax.set_aspect("equal")
+
+
+def plot_ranking_scatter(
+    ranks_original: list,
+    ranks_verified: list,
+    rho_mean: float,
+    tau_mean: float,
+    output_path: Path,
+):
+    """Scatter of per-model bootstrap ranks: original vs. verified evaluation."""
+    fig, ax = plt.subplots(figsize=(3.8, 3.8))
+    _draw_ranking_scatter(ax, ranks_original, ranks_verified, rho_mean, tau_mean)
     fig.tight_layout()
     _save_fig(fig, output_path, "bootstrap_ranking_scatter")
 
@@ -1696,6 +1696,85 @@ def plot_model_performance_bars_combined(
     _save_fig(fig, output_path, stem)
 
 
+def _draw_bars_grouped(
+    ax: plt.Axes,
+    scores_df: pd.DataFrame,
+    condition_a: "EvalCondition",
+    condition_b: "EvalCondition",
+) -> None:
+    """Draw grouped bar chart comparing two conditions into an existing axes."""
+    agg_a = (
+        condition_a.filter(scores_df)
+        .groupby(MODEL_KEY)[condition_a.score_key]
+        .agg(["mean", "std"]) * 100
+    )
+    agg_b = (
+        condition_b.filter(scores_df)
+        .groupby(MODEL_KEY)[condition_b.score_key]
+        .agg(["mean", "std"]) * 100
+    )
+
+    models = agg_a["mean"].sort_values(ascending=False).index.tolist()
+    for m in agg_b.index:
+        if m not in models:
+            models.append(m)
+
+    def _get(agg, m, col):
+        return agg.loc[m, col] if m in agg.index else np.nan
+
+    means_a = np.array([_get(agg_a, m, "mean") for m in models])
+    stds_a  = np.nan_to_num(np.array([_get(agg_a, m, "std")  for m in models]))
+    means_b = np.array([_get(agg_b, m, "mean") for m in models])
+    stds_b  = np.nan_to_num(np.array([_get(agg_b, m, "std")  for m in models]))
+    colors  = [model_to_color(m) for m in models]
+
+    fs = plt.rcParams.get("font.size", 9)
+    bar_w = 0.38
+    x = np.arange(len(models))
+    y_max = np.nanmax(np.concatenate([means_a + stds_a, means_b + stds_b])) * 1.22
+
+    _HATCH_A = ""
+    _HATCH_B = "///"
+
+    for i, (color, mean_a, std_a, mean_b, std_b) in enumerate(
+        zip(colors, means_a, stds_a, means_b, stds_b)
+    ):
+        kw = dict(width=bar_w, alpha=0.85, zorder=3, capsize=4,
+                  error_kw=dict(linewidth=0.9, capthick=0.9, ecolor="#444444"))
+        ax.bar(x[i] - bar_w / 2, mean_a, color=color, hatch=_HATCH_A,
+               edgecolor="white", linewidth=0.5, yerr=std_a, **kw)
+        ax.bar(x[i] + bar_w / 2, mean_b, color=color, hatch=_HATCH_B,
+               edgecolor="#333333", linewidth=0.5, yerr=std_b, **kw)
+
+    for xi, mean, std in zip(x - bar_w / 2, means_a, stds_a):
+        if not np.isnan(mean):
+            ax.text(xi, mean + std + 0.8, f"{mean:.1f}",
+                    ha="center", va="bottom", fontsize=fs * 0.85, fontweight="bold")
+    for xi, mean, std in zip(x + bar_w / 2, means_b, stds_b):
+        if not np.isnan(mean):
+            ax.text(xi, mean + std + 0.8, f"{mean:.1f}",
+                    ha="center", va="bottom", fontsize=fs * 0.85, fontweight="bold")
+
+    from matplotlib.patches import Patch
+    legend_handles = [
+        Patch(facecolor="#aaaaaa", hatch=_HATCH_A, edgecolor="white",
+              label=condition_a.label),
+        Patch(facecolor="#aaaaaa", hatch=_HATCH_B, edgecolor="#333333",
+              label=condition_b.label),
+    ]
+    ax.legend(handles=legend_handles, loc="upper right", framealpha=0.9)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(
+        [model_to_plotting_name(m) for m in models],
+        rotation=30, ha="right",
+    )
+    ax.set_ylabel("Physics-IQ Score (×100)")
+    ax.set_ylim(0, y_max)
+    ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
+    ax.set_axisbelow(True)
+
+
 def plot_model_performance_bars_grouped(
     scores_df: pd.DataFrame,
     output_path: Path,
@@ -1714,82 +1793,9 @@ def plot_model_performance_bars_grouped(
     if condition_b is None:
         condition_b = CONDITION_VERIFIED
 
-    agg_a = (
-        condition_a.filter(scores_df)
-        .groupby(MODEL_KEY)[condition_a.score_key]
-        .agg(["mean", "std"]) * 100
-    )
-    agg_b = (
-        condition_b.filter(scores_df)
-        .groupby(MODEL_KEY)[condition_b.score_key]
-        .agg(["mean", "std"]) * 100
-    )
-
-    # Sort by condition_a, append any models that only appear in condition_b
-    models = agg_a["mean"].sort_values(ascending=False).index.tolist()
-    for m in agg_b.index:
-        if m not in models:
-            models.append(m)
-
-    def _get(agg, m, col):
-        return agg.loc[m, col] if m in agg.index else np.nan
-
-    means_a = np.array([_get(agg_a, m, "mean") for m in models])
-    stds_a  = np.nan_to_num(np.array([_get(agg_a, m, "std")  for m in models]))
-    means_b = np.array([_get(agg_b, m, "mean") for m in models])
-    stds_b  = np.nan_to_num(np.array([_get(agg_b, m, "std")  for m in models]))
-    colors  = [model_to_color(m) for m in models]
-
-    n = len(models)
-    bar_w = 0.38
-    x = np.arange(n)
-    y_max = np.nanmax(np.concatenate([means_a + stds_a, means_b + stds_b])) * 1.22
-
+    n = condition_a.filter(scores_df).groupby(MODEL_KEY).ngroups
     fig, ax = plt.subplots(figsize=(max(4.5, n * 1.2), 3.8))
-
-    # Hatch pattern distinguishes condition; edgecolor must contrast with fill
-    # so the hatch lines are visible.  condition_a is solid (no hatch).
-    _HATCH_A = ""
-    _HATCH_B = "///"
-
-    for i, (color, mean_a, std_a, mean_b, std_b) in enumerate(
-        zip(colors, means_a, stds_a, means_b, stds_b)
-    ):
-        kw = dict(width=bar_w, alpha=0.85, zorder=3, capsize=4,
-                  error_kw=dict(linewidth=0.9, capthick=0.9, ecolor="#444444"))
-        ax.bar(x[i] - bar_w / 2, mean_a, color=color, hatch=_HATCH_A,
-               edgecolor="white", linewidth=0.5, yerr=std_a, **kw)
-        ax.bar(x[i] + bar_w / 2, mean_b, color=color, hatch=_HATCH_B,
-               edgecolor="#333333", linewidth=0.5, yerr=std_b, **kw)
-
-    for xi, mean, std in zip(x - bar_w / 2, means_a, stds_a):
-        if not np.isnan(mean):
-            ax.text(xi, mean + std + 0.8, f"{mean:.1f}",
-                    ha="center", va="bottom", fontsize=7.5, fontweight="bold")
-    for xi, mean, std in zip(x + bar_w / 2, means_b, stds_b):
-        if not np.isnan(mean):
-            ax.text(xi, mean + std + 0.8, f"{mean:.1f}",
-                    ha="center", va="bottom", fontsize=7.5, fontweight="bold")
-
-    # Legend: grey proxy patches show only the condition distinction via texture
-    from matplotlib.patches import Patch
-    legend_handles = [
-        Patch(facecolor="#aaaaaa", hatch=_HATCH_A, edgecolor="white",
-              label=condition_a.label),
-        Patch(facecolor="#aaaaaa", hatch=_HATCH_B, edgecolor="#333333",
-              label=condition_b.label),
-    ]
-    ax.legend(handles=legend_handles, loc="upper right", framealpha=0.9)
-
-    ax.set_xticks(x)
-    ax.set_xticklabels(
-        [model_to_plotting_name(m) for m in models],
-        rotation=30, ha="right", fontsize=9,
-    )
-    ax.set_ylabel("Physics-IQ Score (×100)")
-    ax.set_ylim(0, y_max)
-    ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
-    ax.set_axisbelow(True)
+    _draw_bars_grouped(ax, scores_df, condition_a, condition_b)
     fig.tight_layout()
     _save_fig(fig, output_path, stem)
 
@@ -1810,6 +1816,52 @@ def _bezier_bump(
     return x, y
 
 
+def _draw_ranking_bump(ax: plt.Axes, scores_df: pd.DataFrame, comp: "Comparison") -> None:
+    """Draw a single bump chart for one comparison into an existing axes."""
+    s_a = (
+        comp.condition_a.filter(scores_df)
+        .groupby(MODEL_KEY)[comp.condition_a.score_key]
+        .mean()
+    )
+    s_b = (
+        comp.condition_b.filter(scores_df)
+        .groupby(MODEL_KEY)[comp.condition_b.score_key]
+        .mean()
+    )
+    common = s_a.index.intersection(s_b.index)
+    ranks_a = s_a.loc[common].rank(ascending=False)
+    ranks_b = s_b.loc[common].rank(ascending=False)
+    n_models = len(common)
+    fs = plt.rcParams.get("font.size", 9)
+
+    for model in common:
+        color = model_to_color(model)
+        ra, rb = ranks_a[model], ranks_b[model]
+
+        bx, by = _bezier_bump(0.0, ra, 1.0, rb)
+        ax.plot(bx, by, color=color, linewidth=2.0, solid_capstyle="round", zorder=2)
+        ax.scatter([0, 1], [ra, rb], color=color, s=60, zorder=3,
+                   edgecolors="white", linewidths=0.8)
+
+        ax.text(-0.04, ra, model_to_plotting_name(model),
+                ha="right", va="center", fontsize=fs, color=color)
+        ax.text(1.04, rb, model_to_plotting_name(model),
+                ha="left", va="center", fontsize=fs, color=color)
+
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels([comp.condition_a.label, comp.condition_b.label])
+    ax.set_xlim(-0.45, 1.45)
+    ax.set_ylim(0.5, n_models + 0.5)
+    ax.set_yticks(range(1, n_models + 1))
+    ax.set_ylabel("Rank  (1 = best)")
+    ax.set_title(comp.name)
+    ax.yaxis.grid(True, linewidth=0.5, alpha=0.4, color="#dddddd")
+    ax.set_axisbelow(True)
+    for spine in ("top", "right"):
+        ax.spines[spine].set_visible(False)
+    ax.tick_params(left=False)
+
+
 def plot_ranking_bump_individual(
     scores_df: pd.DataFrame,
     output_path: Path,
@@ -1825,55 +1877,58 @@ def plot_ranking_bump_individual(
         comparisons = [c for c in COMPARISONS if c.run_ranking]
 
     for comp in comparisons:
-        s_a = (
-            comp.condition_a.filter(scores_df)
-            .groupby(MODEL_KEY)[comp.condition_a.score_key]
-            .mean()
-        )
-        s_b = (
-            comp.condition_b.filter(scores_df)
-            .groupby(MODEL_KEY)[comp.condition_b.score_key]
-            .mean()
-        )
-        common = s_a.index.intersection(s_b.index)
-        ranks_a = s_a.loc[common].rank(ascending=False)
-        ranks_b = s_b.loc[common].rank(ascending=False)
-        n_models = len(common)
-
         fig, ax = plt.subplots(figsize=(5.0, 4.5))
-
-        for model in common:
-            color = model_to_color(model)
-            ra, rb = ranks_a[model], ranks_b[model]
-
-            bx, by = _bezier_bump(0.0, ra, 1.0, rb)
-            ax.plot(bx, by, color=color, linewidth=2.0,
-                    solid_capstyle="round", zorder=2)
-            ax.scatter([0, 1], [ra, rb], color=color, s=60, zorder=3,
-                       edgecolors="white", linewidths=0.8)
-
-            ax.text(-0.04, ra, model_to_plotting_name(model),
-                    ha="right", va="center", fontsize=9.0, color=color)
-            ax.text(1.04, rb, model_to_plotting_name(model),
-                    ha="left", va="center", fontsize=9.0, color=color)
-
-        ax.set_xticks([0, 1])
-        ax.set_xticklabels(
-            [comp.condition_a.label, comp.condition_b.label], fontsize=9.5,
-        )
-        ax.set_xlim(-0.45, 1.45)
-        ax.set_ylim(0.5, n_models + 0.5)  # rank 1 (best) at bottom
-        ax.set_yticks(range(1, n_models + 1))
-        ax.set_ylabel("Rank  (1 = best)")
-        ax.set_title(comp.name, fontsize=10)
-        ax.yaxis.grid(True, linewidth=0.5, alpha=0.4, color="#dddddd")
-        ax.set_axisbelow(True)
-        for spine in ("top", "right"):
-            ax.spines[spine].set_visible(False)
-        ax.tick_params(left=False)
-
+        _draw_ranking_bump(ax, scores_df, comp)
         fig.tight_layout()
         _save_fig(fig, output_path, f"{comp.stem}_bump")
+
+
+def plot_combined_ranking_figure(
+    scores_df: pd.DataFrame,
+    ranks_original: list,
+    ranks_verified: list,
+    rho_mean: float,
+    tau_mean: float,
+    output_path: Path,
+    comparison: "Comparison | None" = None,
+    stem: str = "combined_ranking_figure",
+    font_size: float = 10.0, #9.0, orig
+    title_size: float = 9.0,
+) -> None:
+    """Three-panel figure: bar chart (a), bump chart (b), bootstrap scatter (c).
+
+    Designed to fill the full linewidth of a NeurIPS two-column paper.  All
+    font sizes are uniform across panels, controlled via *font_size* /
+    *title_size* which are applied through an rc_context so only this figure
+    is affected.
+    """
+    if comparison is None:
+        comparison = next(c for c in COMPARISONS if c.save_summary)
+
+    with mpl.rc_context({
+        "font.size": font_size,
+        "axes.titlesize": title_size,
+        "axes.labelsize": font_size,
+        "xtick.labelsize": font_size,
+        "ytick.labelsize": font_size,
+        "legend.fontsize": font_size,
+    }):
+        fig, axes = plt.subplots(1, 3, figsize=(15, 4), gridspec_kw={"width_ratios": [3, 2, 1.5]})
+
+        for ax, label in zip(axes, ("a", "b", "c")):
+            ax.text(-0.1, 1.05, label, transform=ax.transAxes,
+                    fontweight="bold", fontsize=font_size + 2)
+
+        _draw_bars_grouped(axes[0], scores_df, comparison.condition_a, comparison.condition_b)
+        _draw_ranking_bump(axes[1], scores_df, comparison)
+        _draw_ranking_scatter(axes[2], ranks_original, ranks_verified, rho_mean, tau_mean,
+                              legend_loc="lower right", stat_loc="upper left")
+
+        for ax in axes:
+            ax.set_title("")
+
+        fig.tight_layout(w_pad=0.5)
+        _save_fig(fig, output_path, stem)
 
 
 def plot_ranking_bump(
@@ -2328,6 +2383,15 @@ def main():
             primary_bootstrap,
             seed=args.seed,
             n_bootstrap=args.n_bootstrap,
+        )
+        plot_combined_ranking_figure(
+            scores_filtered,
+            primary_bootstrap["ranks_original"],
+            primary_bootstrap["ranks_verified"],
+            primary_bootstrap["rho_mean"],
+            primary_bootstrap["tau_mean"],
+            args.output_dir,
+            comparison=primary,
         )
 
 
