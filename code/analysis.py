@@ -74,6 +74,8 @@ class Comparison:
     name:              str
     condition_a:       EvalCondition
     condition_b:       EvalCondition
+    label_a:         str | None = None  # custom label for condition A in stats output (defaults to condition_a.label)
+    label_b:         str | None = None  # custom label for condition B in stats output (defaults to condition_b.label)
     run_stats:         bool = False   # compare_conditions_stats → <stem>_stats.csv
     run_impact_plot:   bool = False   # _plot_slope_delta
     run_ranking:       bool = False   # mean_score_evaluation
@@ -208,6 +210,7 @@ COMPARISONS: "list[Comparison]" = [
         subscores=tuple(SCORES_LIST),
         stats_alternative="greater",  # hypothesis: bpp > op
         delta_label="bpp - op",
+        label_a="op Prompt", label_b="bpp Prompt",
     ),
     Comparison(
         name="Original GT & Verified Score: op vs bpp Prompt",
@@ -216,6 +219,7 @@ COMPARISONS: "list[Comparison]" = [
         run_stats=True, run_impact_plot=True,
         subscores=tuple(VERIFIED_SCORES_LIST),
         delta_label="bpp - op",
+        label_a="op Prompt", label_b="bpp Prompt",
     ),
     Comparison(
         name="Verified GT & Score: op vs bpp Prompt",
@@ -224,6 +228,7 @@ COMPARISONS: "list[Comparison]" = [
         run_stats=True, run_impact_plot=True,
         subscores=tuple(VERIFIED_SCORES_LIST),
         delta_label="bpp - op",
+        label_a="op Prompt", label_b="bpp Prompt",
     ),
     Comparison(
         name="Verified GT & Original Score: op vs bpp Prompt",
@@ -232,6 +237,7 @@ COMPARISONS: "list[Comparison]" = [
         run_stats=True, run_impact_plot=True,
         subscores=tuple(SCORES_LIST),
         delta_label="bpp - op",
+        label_a="op Prompt", label_b="bpp Prompt",
     ),
     # ── Evaluation GT impact (original → verified) for each score × prompt ────
     Comparison(
@@ -242,6 +248,7 @@ COMPARISONS: "list[Comparison]" = [
         subscores=tuple(SCORES_LIST),
         stats_alternative="less",  # hypothesis: verified GT < original GT
         delta_label="verified - original GT",
+        label_a="original GT", label_b="verified GT",
     ),
     Comparison(
         name="Verified score & op: Original vs Verified GT",
@@ -250,6 +257,7 @@ COMPARISONS: "list[Comparison]" = [
         run_stats=True, run_impact_plot=True,
         subscores=tuple(VERIFIED_SCORES_LIST),
         delta_label="verified - original GT",
+        label_a="original GT", label_b="verified GT",
     ),
     # ── Ranking comparisons (original vs verified scoring formula) ─────────────
     Comparison(
@@ -258,6 +266,7 @@ COMPARISONS: "list[Comparison]" = [
         condition_b=CONDITION_ORIGINALGT_OP_VERIFIED_SCORE,
         run_ranking=True, run_bootstrap=True,
         delta_label="verified - original score",
+        label_a="original score", label_b="verified score",
     ),
     Comparison(
         name="Original GT & bpp: Original vs Verified score",
@@ -265,6 +274,7 @@ COMPARISONS: "list[Comparison]" = [
         condition_b=CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE,
         run_ranking=True, run_bootstrap=True,
         delta_label="verified - original score",
+        label_a="original score", label_b="verified score",
     ),
     Comparison(
         name="Original vs Verified",
@@ -272,6 +282,7 @@ COMPARISONS: "list[Comparison]" = [
         condition_b=CONDITION_VERIFIED,
         run_ranking=True, run_bootstrap=True,
         save_summary=True,  # primary comparison — feeds save_results()
+        label_a="Original", label_b="Verified",
     ),
 ]
 
@@ -2288,11 +2299,40 @@ def main():
         scores_filtered, VERIFIED_SCORE_KEY, args.output_dir, mode="verified"
     )
     plot_ranking_bump(scores_filtered, args.output_dir)
-    plot_ranking_bump_individual(scores_filtered, args.output_dir)
+
+    # ── Run all comparisons declared in COMPARISONS ───────────────────────────
+    primary_ranking   = None
+    primary_bootstrap = None
 
     for comp in COMPARISONS:
+        print(f"\n── {comp.name} ──")
+        comp_out = _subdir(args.output_dir, comp.stem)
+
+        if comp.run_stats and comp.subscores:
+            score_cols = [comp.condition_a.score_key] + list(comp.subscores)
+            result = compare_conditions_stats(
+                scores_filtered, comp.condition_a, comp.condition_b,
+                score_cols=score_cols, alternative=comp.stats_alternative,
+            )
+            pprint(result)
+            result.to_csv(_subdir(comp_out, "data") / f"{comp.stem}_stats.csv", index=False)
+
+        if comp.run_impact_plot and comp.subscores:
+            sub_display = {col: _subscore_display(col) for col in comp.subscores}
+            _plot_slope_delta(
+                scores_filtered, comp.condition_a, comp.condition_b,
+                sub_display, comp_out, stem=comp.stem, title=comp.name,
+                delta_label=comp.delta_label,
+            )
+            if comp.run_stats:
+                plot_slope_delta_with_stats(
+                    scores_filtered, comp.condition_a, comp.condition_b,
+                    sub_display, comp_out, stem=comp.stem, title=comp.name,
+                    stats_alternative=comp.stats_alternative,
+                    delta_label=comp.delta_label,
+                )
+
         if comp.run_ranking:
-            comp_out = _subdir(args.output_dir, comp.stem)
             plot_model_performance_bars_combined(
                 scores_filtered, comp_out,
                 comp.condition_a, comp.condition_b,
@@ -2303,63 +2343,25 @@ def main():
                 comp.condition_a, comp.condition_b,
                 stem="model_performance_bars_grouped",
             )
-
-    # ── Run all comparisons declared in COMPARISONS ───────────────────────────
-    data_dir = _subdir(args.output_dir, "data")
-    primary_ranking   = None
-    primary_bootstrap = None
-
-    for comp in COMPARISONS:
-        print(f"\n── {comp.name} ──")
-
-        if comp.run_stats and comp.subscores:
-            score_cols = [comp.condition_a.score_key] + list(comp.subscores)
-            result = compare_conditions_stats(
-                scores_filtered, comp.condition_a, comp.condition_b,
-                score_cols=score_cols, alternative=comp.stats_alternative,
-            )
-            pprint(result)
-            result.to_csv(data_dir / f"{comp.stem}_stats.csv", index=False)
-
-        if comp.run_impact_plot and comp.subscores:
-            sub_display = {col: _subscore_display(col) for col in comp.subscores}
-            _plot_slope_delta(
-                scores_filtered, comp.condition_a, comp.condition_b,
-                sub_display, args.output_dir, stem=comp.stem, title=comp.name,
-                delta_label=comp.delta_label,
-            )
-            if comp.run_stats:
-                plot_slope_delta_with_stats(
-                    scores_filtered, comp.condition_a, comp.condition_b,
-                    sub_display, args.output_dir, stem=comp.stem, title=comp.name,
-                    stats_alternative=comp.stats_alternative,
-                    delta_label=comp.delta_label,
-                )
-
-        if comp.run_ranking:
+            plot_ranking_bump_individual(scores_filtered, comp_out, comparisons=[comp])
             result = mean_score_evaluation(
                 scores_filtered, comp.condition_a, comp.condition_b,
             )
-            # Save per-comparison ranking files regardless of save_summary
-            result["ranking_df"].to_csv(data_dir / f"{comp.stem}_rankings.csv")
+            result["ranking_df"].to_csv(_subdir(comp_out, "data") / f"{comp.stem}_rankings.csv")
             pd.DataFrame([{
                 "spearman_rho": result["spearman_rho"],
                 "spearman_p":   result["spearman_p"],
                 "kendall_tau":  result["kendall_tau"],
                 "kendall_p":    result["kendall_p"],
-            }]).to_csv(data_dir / f"{comp.stem}_ranking_corr.csv", index=False)
+            }]).to_csv(_subdir(comp_out, "data") / f"{comp.stem}_ranking_corr.csv", index=False)
             if comp.save_summary:
                 primary_ranking = result
 
         if comp.run_bootstrap:
-            # Each comparison writes figures into its own subdirectory to prevent
-            # overwriting when multiple bootstrap comparisons share the same output path.
-            comp_out = _subdir(args.output_dir, comp.stem)
             result = run_bootstrap_analysis(
                 exp_tables, args.n_bootstrap, comp_out,
                 comparison_conditions=(comp.condition_a, comp.condition_b),
             )
-            # Save per-comparison bootstrap correlation summary
             pd.DataFrame([{
                 "rho_mean":    result["rho_mean"],
                 "tau_mean":    result["tau_mean"],
@@ -2376,8 +2378,9 @@ def main():
 
     if primary_ranking and primary_bootstrap:
         primary = next(c for c in COMPARISONS if c.save_summary)
+        primary_out = _subdir(args.output_dir, primary.stem)
         save_results(
-            _subdir(args.output_dir, primary.stem),
+            primary_out,
             scores_df,
             primary_ranking,
             primary_bootstrap,
@@ -2390,7 +2393,7 @@ def main():
             primary_bootstrap["ranks_verified"],
             primary_bootstrap["rho_mean"],
             primary_bootstrap["tau_mean"],
-            args.output_dir,
+            primary_out,
             comparison=primary,
         )
 
