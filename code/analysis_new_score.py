@@ -83,7 +83,20 @@ def get_sample_level_df(tab_orig: IQTable):
     unfold_views_df[id_col] = [i for i in range(len(unfold_views_df))]
     for k in tab_orig.metadata:
         unfold_views_df[k] = tab_orig.metadata[k]
-    return unfold_views_df,scores_cols,sample_index_cols
+
+    col_dict = {
+        "id_col": id_col,   
+        "sample_name_cols": sample_name_cols,
+        "sample_index_cols": sample_index_cols,
+        "scores_cols": scores_cols,
+        "phys_iq_col": phys_iq_col,
+        "sores_raw_cols": scores_raw_cols,
+        "metric_cols" : tab_orig.metric_keys,
+        "variance_cols" : tab_orig.variance_keys,
+        "meta_cols": list(tab_orig.metadata.keys()),    
+    }
+
+    return unfold_views_df, col_dict
 
 if __name__ == "__main__":
     args = parse_args()
@@ -148,9 +161,9 @@ if __name__ == "__main__":
         print(df_scores.describe())
         plot_df_hist(df_scores, df_scores.columns, name.lower() + "-sample")
 
-    unfold_views_df, scores_cols, sample_index_cols = get_sample_level_df(tab_orig)
+    unfold_views_df, col_dict = get_sample_level_df(tab_orig)
 
-    vis_df = unfold_views_df[sample_index_cols + scores_cols]
+    vis_df = unfold_views_df[col_dict["sample_index_cols"] + col_dict["scores_cols"]]
 
     pprint(vis_df[scores_cols].describe())
     pprint(vis_df)
