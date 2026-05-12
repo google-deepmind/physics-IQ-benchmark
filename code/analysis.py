@@ -241,7 +241,7 @@ COMPARISONS: "list[Comparison]" = [
     ),
     # ── Evaluation GT impact (original → verified) for each score × prompt ────
     Comparison(
-        name="Original score & op: Original vs Verified GT",
+        name="Original score & op Prompt: Original vs Verified GT",
         condition_a=CONDITION_ORIGINAL,
         condition_b=CONDITION_VERIFIEDGT_OP_ORIGINAL_SCORE,
         run_stats=True, run_impact_plot=True,
@@ -251,7 +251,7 @@ COMPARISONS: "list[Comparison]" = [
         label_a="original GT", label_b="verified GT",
     ),
     Comparison(
-        name="Verified score & op: Original vs Verified GT",
+        name="Verified score & op Prompt: Original vs Verified GT",
         condition_a=CONDITION_ORIGINALGT_OP_VERIFIED_SCORE,
         condition_b=CONDITION_VERIFIED_OP,
         run_stats=True, run_impact_plot=True,
@@ -261,7 +261,7 @@ COMPARISONS: "list[Comparison]" = [
     ),
     # ── Ranking comparisons (original vs verified scoring formula) ─────────────
     Comparison(
-        name="Original GT & op: Original vs Verified score",
+        name="Original GT & op Prompt: Original vs Verified score",
         condition_a=CONDITION_ORIGINAL,
         condition_b=CONDITION_ORIGINALGT_OP_VERIFIED_SCORE,
         run_ranking=True, run_bootstrap=True,
@@ -269,7 +269,7 @@ COMPARISONS: "list[Comparison]" = [
         label_a="original score", label_b="verified score",
     ),
     Comparison(
-        name="Original GT & bpp: Original vs Verified score",
+        name="Original GT & bpp Prompt: Original vs Verified score",
         condition_a=CONDITION_ORIGINAL_BPP,
         condition_b=CONDITION_ORIGINALGT_BPP_VERIFIED_SCORE,
         run_ranking=True, run_bootstrap=True,
@@ -385,16 +385,34 @@ def generate_latex_table(
         {col: pivot_df_meanstd[col].apply(_fmt, axis=1) for col in score_cols}
     )
     latex_table.columns = [col.replace("_", " ") for col in latex_table.columns]
+
+    # Rename non-model index levels (underscore → space); keep MODEL_KEY raw for filtering
+    model_key_level = latex_table.index.names.index(MODEL_KEY)
     latex_table.index = pd.MultiIndex.from_tuples(
-        [tuple(str(v).replace("_", " ") for v in idx) for idx in latex_table.index],
+        [
+            tuple(str(v) if i == model_key_level else str(v).replace("_", " ")
+                  for i, v in enumerate(idx))
+            for idx in latex_table.index
+        ],
         names=latex_table.index.names,
     )
+
     mask_valid = latex_table.index.get_level_values(EVAL_KEY).isin(
         ["verified", "verified full", "original"]
     )
     latex_table = latex_table[mask_valid]
     mask_models = latex_table.index.get_level_values(MODEL_KEY).isin(effective_models)
     latex_table = pd.concat([latex_table[mask_models], latex_table[~mask_models]])
+
+    # Apply plotting names to model level now that filtering is done
+    latex_table.index = pd.MultiIndex.from_tuples(
+        [
+            tuple(model_to_plotting_name(v) if i == model_key_level else v
+                  for i, v in enumerate(idx))
+            for idx in latex_table.index
+        ],
+        names=latex_table.index.names,
+    )
     latex_str = latex_table.to_latex(escape=False)
     with open(_subdir(output_path, "tables") / table_name, "w") as f:
         f.write(latex_str)
@@ -892,8 +910,9 @@ def _draw_ranking_scatter(
     ranks_verified: list,
     rho_mean: float,
     tau_mean: float,
-    legend_loc: str = "upper left",
-    stat_loc: str = "lower right",
+    label_a: "str | None" = None,
+    label_b: "str | None" = None,
+    swap: bool = False,
 ) -> None:
     """Draw bootstrap rank scatter into an existing axes."""
     model_ranks: dict[str, list[tuple]] = {}
@@ -924,20 +943,17 @@ def _draw_ranking_scatter(
     ticks = list(range(1, n_models + 1))
     ax.set_xticks(ticks)
     ax.set_yticks(ticks)
-    ax.set_xlim(0.5, n_models + 0.5)
-    ax.set_ylim(0.5, n_models + 0.5)
-    ax.set_xlabel("Rank (original evaluation)")
-    ax.set_ylabel("Rank (verified evaluation)")
+    ax.set_xlim(n_models + 0.5, 0.5)
+    ax.set_ylim(n_models + 0.5, 0.5)
+    ax.set_xlabel(f"Rank ({label_a})" if label_a else "Rank (original evaluation)")
+    ax.set_ylabel(f"Rank ({label_b})" if label_b else "Rank (verified evaluation)")
     ax.set_title("Bootstrap Model Rankings:\nOriginal vs. Verified Evaluation")
-    _STAT_LOC = {
-        "lower right": (0.97, 0.03, "bottom", "right"),
-        "upper left":  (0.03, 0.97, "top",    "left"),
-    }
-    sx, sy, sva, sha = _STAT_LOC[stat_loc]
+    stat_x,  stat_y,  stat_va,  stat_ha  = (0.97, 0.03, "bottom", "right") if not swap else (0.03, 0.97, "top", "left")
+    legend_loc = "upper left" if not swap else "lower right"
     ax.text(
-        sx, sy,
+        stat_x, stat_y,
         f"$\\bar{{\\rho}}$ = {rho_mean:.3f},  $\\bar{{\\tau}}$ = {tau_mean:.3f}",
-        transform=ax.transAxes, fontsize=fs, va=sva, ha=sha,
+        transform=ax.transAxes, fontsize=fs, va=stat_va, ha=stat_ha,
         bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor="#cccccc", alpha=0.9),
     )
     ax.legend(loc=legend_loc, markerscale=1.2, handletextpad=0.4, borderpad=0.6)
@@ -950,10 +966,14 @@ def plot_ranking_scatter(
     rho_mean: float,
     tau_mean: float,
     output_path: Path,
+    label_a: "str | None" = None,
+    label_b: "str | None" = None,
+    swap: bool = False,
 ):
     """Scatter of per-model bootstrap ranks: original vs. verified evaluation."""
     fig, ax = plt.subplots(figsize=(3.8, 3.8))
-    _draw_ranking_scatter(ax, ranks_original, ranks_verified, rho_mean, tau_mean)
+    _draw_ranking_scatter(ax, ranks_original, ranks_verified, rho_mean, tau_mean,
+                          label_a=label_a, label_b=label_b, swap=swap)
     fig.tight_layout()
     _save_fig(fig, output_path, "bootstrap_ranking_scatter")
 
@@ -1190,6 +1210,8 @@ def run_bootstrap_analysis(
     ranking_settings: list[dict] | None = None,
     comparison_conditions: "tuple[EvalCondition, EvalCondition] | None" = None,
     run_ids: tuple[int, ...] | None = None,
+    label_a: "str | None" = None,
+    label_b: "str | None" = None,
 ) -> dict:
     """Run bootstrap resampling over model runs, produce figures, and return statistics.
 
@@ -1311,7 +1333,8 @@ def run_bootstrap_analysis(
         spearman_rhos, kendall_taus, rho_mean, ci_rho, tau_mean, ci_tau, output_path
     )
     plot_ranking_scatter(
-        ranks_original, ranks_verified, rho_mean, tau_mean, output_path
+        ranks_original, ranks_verified, rho_mean, tau_mean, output_path,
+        label_a=label_a, label_b=label_b,
     )
     plot_within_evaluation_correlations(
         rhos_within_orig,
@@ -1447,6 +1470,8 @@ def _plot_slope_delta(
     title: str,
     stats_df: "pd.DataFrame | None" = None,
     delta_label: str | None = None,
+    label_a: "str | None" = None,
+    label_b: "str | None" = None,
 ):
     """Generic slope chart + per-subscore delta bars for any two EvalConditions.
 
@@ -1516,10 +1541,13 @@ def _plot_slope_delta(
                 color=color,
             )
 
+    eff_label_a = label_a or condition_a.label
+    eff_label_b = label_b or condition_b.label
+
     ax_main.set_xticks([0, 1])
-    ax_main.set_xticklabels([condition_a.label, condition_b.label], fontsize=9)
+    ax_main.set_xticklabels([eff_label_a, eff_label_b], fontsize=9)
     ax_main.set_xlim(-0.25, 1.6)
-    ax_main.set_ylabel("Physics-IQ Score (×100)")
+    ax_main.set_ylabel("Physics-IQ Score [%]")
     ax_main.set_title(title)
     ax_main.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
     ax_main.set_axisbelow(True)
@@ -1527,7 +1555,7 @@ def _plot_slope_delta(
     models_rev = list(reversed(models))
     y_pos = np.arange(len(models_rev))
     if delta_label is None:
-        delta_label = f"Δ ({condition_b.label.split()[0]} − {condition_a.label.split()[0]})"
+        delta_label = f"Δ ({eff_label_b} − {eff_label_a})"
     else:
         delta_label = f"Δ ({delta_label})"
     for ax, (sub_col, sub_label) in zip(ax_subs, sub_cols.items()):
@@ -1601,6 +1629,8 @@ def plot_slope_delta_with_stats(
     title: str,
     stats_alternative: str = "two-sided",
     delta_label: str | None = None,
+    label_a: "str | None" = None,
+    label_b: "str | None" = None,
 ):
     """Slope + delta chart with per-subscore statistical annotation.
 
@@ -1620,6 +1650,7 @@ def plot_slope_delta_with_stats(
         output_path, stem=stem + "_stats", title=title,
         stats_df=stats,
         delta_label=delta_label,
+        label_a=label_a, label_b=label_b,
     )
 
 
@@ -1712,6 +1743,8 @@ def _draw_bars_grouped(
     scores_df: pd.DataFrame,
     condition_a: "EvalCondition",
     condition_b: "EvalCondition",
+    label_a: "str | None" = None,
+    label_b: "str | None" = None,
 ) -> None:
     """Draw grouped bar chart comparing two conditions into an existing axes."""
     agg_a = (
@@ -1769,9 +1802,9 @@ def _draw_bars_grouped(
     from matplotlib.patches import Patch
     legend_handles = [
         Patch(facecolor="#aaaaaa", hatch=_HATCH_A, edgecolor="white",
-              label=condition_a.label),
+              label=label_a or condition_a.label),
         Patch(facecolor="#aaaaaa", hatch=_HATCH_B, edgecolor="#333333",
-              label=condition_b.label),
+              label=label_b or condition_b.label),
     ]
     ax.legend(handles=legend_handles, loc="upper right", framealpha=0.9)
 
@@ -1780,7 +1813,7 @@ def _draw_bars_grouped(
         [model_to_plotting_name(m) for m in models],
         rotation=30, ha="right",
     )
-    ax.set_ylabel("Physics-IQ Score (×100)")
+    ax.set_ylabel("Physics-IQ Score [%]")
     ax.set_ylim(0, y_max)
     ax.yaxis.grid(True, linewidth=0.5, alpha=0.5, color="#dddddd")
     ax.set_axisbelow(True)
@@ -1792,6 +1825,8 @@ def plot_model_performance_bars_grouped(
     condition_a: "EvalCondition | None" = None,
     condition_b: "EvalCondition | None" = None,
     stem: str = "model_performance_bars_grouped",
+    label_a: "str | None" = None,
+    label_b: "str | None" = None,
 ):
     """Grouped bar chart comparing two conditions on a single axis.
 
@@ -1806,7 +1841,8 @@ def plot_model_performance_bars_grouped(
 
     n = condition_a.filter(scores_df).groupby(MODEL_KEY).ngroups
     fig, ax = plt.subplots(figsize=(max(4.5, n * 1.2), 3.8))
-    _draw_bars_grouped(ax, scores_df, condition_a, condition_b)
+    _draw_bars_grouped(ax, scores_df, condition_a, condition_b,
+                       label_a=label_a, label_b=label_b)
     fig.tight_layout()
     _save_fig(fig, output_path, stem)
 
@@ -1860,9 +1896,10 @@ def _draw_ranking_bump(ax: plt.Axes, scores_df: pd.DataFrame, comp: "Comparison"
                 ha="left", va="center", fontsize=fs, color=color)
 
     ax.set_xticks([0, 1])
-    ax.set_xticklabels([comp.condition_a.label, comp.condition_b.label])
+    ax.set_xticklabels([comp.label_a or comp.condition_a.label,
+                        comp.label_b or comp.condition_b.label])
     ax.set_xlim(-0.45, 1.45)
-    ax.set_ylim(0.5, n_models + 0.5)
+    ax.set_ylim(n_models + 0.5, 0.5)
     ax.set_yticks(range(1, n_models + 1))
     ax.set_ylabel("Rank  (1 = best)")
     ax.set_title(comp.name)
@@ -1930,10 +1967,13 @@ def plot_combined_ranking_figure(
             ax.text(-0.1, 1.05, label, transform=ax.transAxes,
                     fontweight="bold", fontsize=font_size + 2)
 
-        _draw_bars_grouped(axes[0], scores_df, comparison.condition_a, comparison.condition_b)
+        _draw_bars_grouped(axes[0], scores_df, comparison.condition_a, comparison.condition_b,
+                           label_a=comparison.label_a, label_b=comparison.label_b)
         _draw_ranking_bump(axes[1], scores_df, comparison)
         _draw_ranking_scatter(axes[2], ranks_original, ranks_verified, rho_mean, tau_mean,
-                              legend_loc="lower right", stat_loc="upper left")
+                              label_a=comparison.label_a or comparison.condition_a.label,
+                              label_b=comparison.label_b or comparison.condition_b.label,
+                              swap=True)
 
         for ax in axes:
             ax.set_title("")
@@ -2015,7 +2055,8 @@ def plot_ranking_bump(
 
         ax.set_xticks([0, 1])
         ax.set_xticklabels(
-            [comp.condition_a.label, comp.condition_b.label],
+            [comp.label_a or comp.condition_a.label,
+             comp.label_b or comp.condition_b.label],
             fontsize=8.5,
         )
         ax.set_xlim(-0.5 if panel_idx == 0 else -0.15,
@@ -2027,7 +2068,7 @@ def plot_ranking_bump(
             ax.spines[spine].set_visible(False)
 
     # Shared y-axis: rank 1 (best) at top
-    axes[0].set_ylim(0.5, n_models + 0.5)  # rank 1 (best) at bottom
+    axes[0].set_ylim(n_models + 0.5, 0.5)
     axes[0].set_yticks(range(1, n_models + 1))
     axes[0].set_ylabel("Rank  (1 = best)")
 
@@ -2301,8 +2342,8 @@ def main():
     plot_ranking_bump(scores_filtered, args.output_dir)
 
     # ── Run all comparisons declared in COMPARISONS ───────────────────────────
-    primary_ranking   = None
-    primary_bootstrap = None
+    ranking_results:   dict[str, dict] = {}
+    bootstrap_results: dict[str, dict] = {}
 
     for comp in COMPARISONS:
         print(f"\n── {comp.name} ──")
@@ -2316,6 +2357,8 @@ def main():
             )
             pprint(result)
             result.to_csv(_subdir(comp_out, "data") / f"{comp.stem}_stats.csv", index=False)
+            with open(_subdir(comp_out, "stats") / f"{comp.stem}_stats.txt", "w") as fh:
+                fh.write(result.to_string())
 
         if comp.run_impact_plot and comp.subscores:
             sub_display = {col: _subscore_display(col) for col in comp.subscores}
@@ -2323,6 +2366,7 @@ def main():
                 scores_filtered, comp.condition_a, comp.condition_b,
                 sub_display, comp_out, stem=comp.stem, title=comp.name,
                 delta_label=comp.delta_label,
+                label_a=comp.label_a, label_b=comp.label_b,
             )
             if comp.run_stats:
                 plot_slope_delta_with_stats(
@@ -2330,6 +2374,7 @@ def main():
                     sub_display, comp_out, stem=comp.stem, title=comp.name,
                     stats_alternative=comp.stats_alternative,
                     delta_label=comp.delta_label,
+                    label_a=comp.label_a, label_b=comp.label_b,
                 )
 
         if comp.run_ranking:
@@ -2342,6 +2387,7 @@ def main():
                 scores_filtered, comp_out,
                 comp.condition_a, comp.condition_b,
                 stem="model_performance_bars_grouped",
+                label_a=comp.label_a, label_b=comp.label_b,
             )
             plot_ranking_bump_individual(scores_filtered, comp_out, comparisons=[comp])
             result = mean_score_evaluation(
@@ -2354,13 +2400,14 @@ def main():
                 "kendall_tau":  result["kendall_tau"],
                 "kendall_p":    result["kendall_p"],
             }]).to_csv(_subdir(comp_out, "data") / f"{comp.stem}_ranking_corr.csv", index=False)
-            if comp.save_summary:
-                primary_ranking = result
+            ranking_results[comp.stem] = result
 
         if comp.run_bootstrap:
             result = run_bootstrap_analysis(
                 exp_tables, args.n_bootstrap, comp_out,
                 comparison_conditions=(comp.condition_a, comp.condition_b),
+                label_a=comp.label_a or comp.condition_a.label,
+                label_b=comp.label_b or comp.condition_b.label,
             )
             pd.DataFrame([{
                 "rho_mean":    result["rho_mean"],
@@ -2373,11 +2420,13 @@ def main():
                 _subdir(comp_out, "data") / f"{comp.stem}_bootstrap_corr.csv",
                 index=False,
             )
-            if comp.save_summary:
-                primary_bootstrap = result
+            bootstrap_results[comp.stem] = result
+
+    primary = next((c for c in COMPARISONS if c.save_summary), None)
+    primary_ranking   = ranking_results.get(primary.stem)   if primary else None
+    primary_bootstrap = bootstrap_results.get(primary.stem) if primary else None
 
     if primary_ranking and primary_bootstrap:
-        primary = next(c for c in COMPARISONS if c.save_summary)
         primary_out = _subdir(args.output_dir, primary.stem)
         save_results(
             primary_out,

@@ -2,6 +2,10 @@
 physics-IQ-benchmark/
 csv_files/
 results/
+plots/
+plots_store/
+result_tables/
+result_tables_submission/
 code/output*/
 
 # Byte-compiled / optimized / DLL files

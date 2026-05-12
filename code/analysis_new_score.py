@@ -165,8 +165,8 @@ if __name__ == "__main__":
 
     vis_df = unfold_views_df[col_dict["sample_index_cols"] + col_dict["scores_cols"]]
 
-    pprint(vis_df[scores_cols].describe())
-    pprint(vis_df)
+    # pprint(vis_df[scores_cols].describe())
+    # pprint(vis_df)
 
 
 
