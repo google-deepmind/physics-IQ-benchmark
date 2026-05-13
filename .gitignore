@@ -6,7 +6,7 @@ plots/
 plots_store/
 result_tables/
 result_tables_submission/
-code/output*/
+output*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

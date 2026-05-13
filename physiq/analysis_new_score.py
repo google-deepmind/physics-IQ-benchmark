@@ -66,7 +66,7 @@ def get_sample_level_df(tab_orig: IQTable):
 
     scores_raw_cols = [m+"-score_raw" for m in tab_orig.metric_keys]
     for m, v in zip(tab_orig.metric_keys, tab_orig.variance_keys):
-        if "MSE" in m:
+        if "mse" in m:
             unfold_views_df[m+"-score_raw"] = unfold_views_df[v] / (unfold_views_df[m] + tab_orig.ratio_eps)
         else:
             unfold_views_df[m+"-score_raw"] = unfold_views_df[m] / (unfold_views_df[v] + tab_orig.ratio_eps)
@@ -90,7 +90,7 @@ def get_sample_level_df(tab_orig: IQTable):
         "sample_index_cols": sample_index_cols,
         "scores_cols": scores_cols,
         "phys_iq_col": phys_iq_col,
-        "sores_raw_cols": scores_raw_cols,
+        "scores_raw_cols": scores_raw_cols,
         "metric_cols" : tab_orig.metric_keys,
         "variance_cols" : tab_orig.variance_keys,
         "meta_cols": list(tab_orig.metadata.keys()),    
@@ -165,6 +165,8 @@ if __name__ == "__main__":
 
     vis_df = unfold_views_df[col_dict["sample_index_cols"] + col_dict["scores_cols"]]
 
+
+    import IPython; IPython.embed()
     # pprint(vis_df[scores_cols].describe())
     # pprint(vis_df)
 
