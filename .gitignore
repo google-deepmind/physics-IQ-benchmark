@@ -1,5 +1,6 @@
 .DS_Store
 physics-IQ-benchmark/
+physics-IQ-benchmark-verified/
 csv_files/
 results/
 plots/
@@ -7,6 +8,8 @@ plots_store/
 result_tables/
 result_tables_submission/
 output*/
+descriptions/model_specific/*
+test_generated/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
