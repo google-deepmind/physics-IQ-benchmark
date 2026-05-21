@@ -13,6 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
+import json
 import os
 import sys
 import pandas as pd
@@ -23,8 +24,13 @@ import math
 
 from fps_changer import change_video_fps
 from calculate_and_write_metrics_to_csv import process_videos
-from calculate_iq_score import process_directory
+from calculate_iq_score_stable import IQTable
+from calculate_iq_score import calculate_iq_score
 from binary_mask_generator import generate_binary_masks
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+from plot_settings import model_to_plotting_name, model_to_color
+from matplotlib.ticker import FuncFormatter
 
 
 def is_csv_complete(csv_file_path: str, expected_scenarios: set[str]) -> bool:
@@ -96,7 +102,7 @@ def rename_generated_videos(
             raise ValueError("Only .mp4 files are supported.")
 
 
-def validate_directory_exists(directory: str, description: str) -> None:
+def validate_path_exists(directory: str, description: str) -> None:
     """
     Validates that a directory exists.
 
@@ -159,8 +165,8 @@ def get_video_duration(video_path):
     return float(result.stdout)
 
 
-def validate_generations(input_folder: str):
-    """Check that 198 videos exist, each 5 seconds with an ID prefix from 0001_ to 0198_."""
+def validate_generations(input_folder: str, num_videos: int =198, video_duration_s: float = 5):
+    """Check that num_videos .mp4 videos exist, each video_duration_s seconds with an ID prefix from 0001_ to 0198_."""
 
     assert os.path.exists(input_folder)
     assert os.path.isdir(input_folder)
@@ -169,13 +175,10 @@ def validate_generations(input_folder: str):
         [f for f in os.listdir(input_folder) if f.endswith(".mp4")]
     )
 
-    EXPECTED_NUM_VIDEOS = 198  # number of generated videos that need to be evaluated
-    EXPECTED_VIDEO_DURATION = 5  # required duration in seconds for generated videos
-
     length_error_msg = (
-        f"found {len(files_in_folder)} videos but expected {EXPECTED_NUM_VIDEOS}"
+        f"found {len(files_in_folder)} videos but expected {num_videos}"
     )
-    assert len(files_in_folder) == EXPECTED_NUM_VIDEOS, length_error_msg
+    assert len(files_in_folder) == num_videos, length_error_msg
 
     counter = 1
     for f in files_in_folder:
@@ -192,7 +195,7 @@ def validate_generations(input_folder: str):
             + "Please ensure that all generated videos are exactly 5 seconds long."
         )
         assert math.isclose(
-            video_duration, EXPECTED_VIDEO_DURATION, abs_tol=0.001
+            video_duration, video_duration_s, abs_tol=0.001
         ), duration_error_msg
         counter += 1
 
@@ -299,21 +302,22 @@ def get_video_fps(input_folder: str) -> float:
 
 
 def ensure_real_videos_at_fps(
-    output_folder: str, target_fps: float, descriptions_file: str
+    target_fps: float, descriptions_file: str, gt_folder: str
 ) -> str:
     """
-    Ensures that the physics-IQ-benchmark/split-videos/testing/{fps}FPS folder exists, generating it
-    from physics-IQ-benchmark/split-videos/testing/30FPS if necessary.
+    Ensures that the gt_folder/split-videos/testing/{fps}FPS folder exists, generating it
+    from gt_folder/split-videos/testing/30FPS if necessary.
 
     Args:
       output_folder: Path to the output folder.
       target_fps: Target FPS for the videos.
       descriptions_file: Path to the descriptions CSV file.
+      gt_folder: path to benchmark e.g.  ./physics-IQ-benchmark or ./physics-IQ-benchmark-verifed
 
     Returns:
       Path to the folder containing the real videos at the target FPS.
     """
-    testing_folder = "./physics-IQ-benchmark/split-videos/testing"
+    testing_folder = os.path.join(gt_folder, "split-videos", "testing")
     thirty_fps_folder = os.path.join(testing_folder, "30FPS")
     target_fps_folder = os.path.join(testing_folder, f"{int(target_fps)}FPS")
 
@@ -340,7 +344,7 @@ def ensure_real_videos_at_fps(
             print(f"Incomplete real videos at FPS {int(target_fps)}. Regenerating...")
 
     print(f"Generating real videos for FPS {int(target_fps)} from 30FPS...")
-    validate_directory_exists(thirty_fps_folder, "30FPS folder")
+    validate_path_exists(thirty_fps_folder, "30FPS folder")
     expected_files = validate_video_files(
         thirty_fps_folder,
         descriptions_file,
@@ -358,11 +362,11 @@ def ensure_real_videos_at_fps(
 
 
 def ensure_binary_mask_structure(
-    output_folder: str,
     input_folder: str,
     target_fps: float,
     expected_files: set[str],
     is_real: bool,
+    gt_folder: str
 ) -> str:
     """
     Ensures binary masks for videos are generated and validated.
@@ -377,13 +381,9 @@ def ensure_binary_mask_structure(
     Returns:
       Path to the binary masks folder.
     """
-    folder_type = (
-        "real"
-        if is_real
-        else f"generated/{os.path.basename(os.path.normpath(input_folder))}"
-    )
-    binary_mask_folder = (
-        f"./physics-IQ-benchmark/video-masks/{folder_type}/{int(target_fps)}FPS"
+    folder_type = "real" if is_real else os.path.join("generated", os.path.basename(os.path.normpath(input_folder)))
+    binary_mask_folder = os.path.join(
+        gt_folder, "video-masks", folder_type, f"{int(target_fps)}FPS"
     )
 
     if not os.path.exists(binary_mask_folder):
@@ -403,22 +403,109 @@ def ensure_binary_mask_structure(
     )
     return binary_mask_folder
 
+def process_directory(directory_path: str) -> None:
+    """
+    Process all CSV files in a directory to compute Physics IQ scores
+    and generate a bar plot.
+
+    Args:
+      directory_path: Path to the directory containing CSV files.
+
+    Returns:
+      None
+    """
+
+    score_names = ["Original", "Verified"]
+    model_scores_orig = {}
+    model_scores_verified = {}
+    csv_files = [f for f in sorted(os.listdir(directory_path)) if f.endswith(".csv")]
+
+    for csv_file in csv_files:
+        file_path = os.path.join(directory_path, csv_file)
+        print(f"Processing {csv_file}...")
+
+        model_name = os.path.splitext(csv_file)[0]
+        iqtable = IQTable.from_csv(file_path)
+        values = iqtable.get_output_dict()
+        values["final_score_origround"] = calculate_iq_score(file_path)[0]
+        with open(os.path.join(directory_path, f"{model_name}_metrics.json"), "w") as f:
+            json.dump(values, f, indent=4)
+        final_score_orig = round(values["final_score_orig"], 4) * 100
+        final_score_verified = round(values["final_score_view"], 4) * 100
+
+
+        print(f"Physics-IQ score (original) for {csv_file.replace('.csv', '')}: {final_score_orig}")
+        print(f"Physics-IQ score (verified) for {csv_file.replace('.csv', '')}: {final_score_verified}")
+        print("-" * 50)
+
+        model_scores_orig[model_name] = final_score_orig
+        model_scores_verified[model_name] = final_score_verified
+
+
+    for score_name, model_scores in zip(score_names, [model_scores_orig, model_scores_verified]):     
+        sorted_items = sorted(model_scores.items(), key=lambda x: x[1], reverse=True)
+        model_names = [m[0] for m in sorted_items]
+        values = [item[1] for item in sorted_items]
+
+        plt.figure(figsize=(10, 6))
+
+        plot_colors = [model_to_color(m) for m in model_names]
+        plot_names = [model_to_plotting_name(m) for m in model_names]
+
+        bars = plt.bar(plot_names, values, color=plot_colors)
+
+        for bar in bars:
+            height = bar.get_height()
+            plt.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height,
+                f"{height:.1f}",
+                ha="center",
+                va="bottom",
+                fontsize=10,
+            )
+
+        plt.axhline(y=100, color="darkgrey", linestyle="--", linewidth=2)
+
+        midpoint = (len(model_names) - 1) / 2.0
+        plt.text(
+            midpoint,
+            102,
+            "Physical Variance",
+            ha="center",
+            va="bottom",
+            color="black",
+            fontweight="bold",
+        )
+
+        plt.xticks(rotation=45, ha="right")
+
+        ax = plt.gca()
+        ax.spines["right"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+
+        plt.xlabel("")
+        plt.ylabel(f"{score_name} Physics-IQ score \n(higher=better)")
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f}%"))
+        plt.tight_layout()
+        plt.savefig(os.path.join(directory_path, f"physics_IQ_score_{score_name}_barplot.pdf"))
+
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Video Processing Script.")
+    parser = argparse.ArgumentParser(description="Video Processing Script. During evaluation intermediate results (videos) are saved in the benchmark_base_folder.")
     parser.add_argument(
         "--input_folders",
         type=str,
         nargs="+",
         required=True,
-        help="Paths to the folders containing input videos.",
+        help="Paths to the folders containing generated videos.",
     )
     parser.add_argument(
         "--output_folder",
         type=str,
         required=True,
-        help="Path to the folder for output videos.",
+        help="Path to the folder for outputs.",
     )
     parser.add_argument(
         "--descriptions_file",
@@ -426,23 +513,43 @@ if __name__ == "__main__":
         required=True,
         help="Path to the descriptions CSV file (master file).",
     )
+    parser.add_argument(
+        "--original_gt",
+        action="store_true",
+        help="Switch from verified GT (default) to original GT.",
+    )
+    parser.add_argument(
+        "--benchmark_base_folder",
+        type=str,
+        default=".",
+        help="Path to the folder within which physics-IQ-benchmark & physics-IQ-benchmark-verifed data are located.",
+    )
 
     args = parser.parse_args()
 
-    csv_files_folder = os.path.join(args.output_folder, "results")
+    # Setting which Ground truth is being used for evaluation.
+    if args.original_gt:
+        benchmark_name = "physics-IQ-benchmark"
+    else:
+        benchmark_name = "physics-IQ-benchmark-verified"
+
+    benchmark_data_path = os.path.join(args.benchmark_base_folder, benchmark_name)
+    print("Using Data {} from: {}".format("verified" if not args.original_gt else "original", benchmark_data_path))
+
+    csv_files_folder = os.path.join(args.output_folder, benchmark_name , "results")
     os.makedirs(csv_files_folder, exist_ok=True)
 
     for input_folder in args.input_folders:
         print(f"\nProcessing folder: {input_folder}")
 
-        validate_directory_exists(input_folder, "Input folder")
-        validate_directory_exists(args.descriptions_file, "Descriptions file")
+        validate_path_exists(input_folder, "Input folder")
+        validate_path_exists(args.descriptions_file, "Descriptions file")
 
         fps = get_video_fps(input_folder)
 
         # Ensure real videos exist at the target FPS
         real_video_folder = ensure_real_videos_at_fps(
-            args.output_folder, fps, args.descriptions_file
+            fps, args.descriptions_file, benchmark_data_path
         )
 
         # Generate binary masks for real videos
@@ -457,11 +564,11 @@ if __name__ == "__main__":
             f.replace("testing-videos", "mask-videos") for f in expected_real_files
         }
         binary_mask_real_folder = ensure_binary_mask_structure(
-            output_folder=args.output_folder,
             input_folder=real_video_folder,
             target_fps=fps,
             expected_files=expected_real_files,
             is_real=True,
+            gt_folder=benchmark_data_path
         )
 
         # Generate binary masks for generated videos
@@ -475,11 +582,11 @@ if __name__ == "__main__":
         )
 
         binary_mask_generated_folder = ensure_binary_mask_structure(
-            output_folder=args.output_folder,
             input_folder=input_folder,
             target_fps=fps,
             expected_files=expected_generated_files,
             is_real=False,
+            gt_folder=benchmark_data_path
         )
 
         input_folder_name = os.path.basename(input_folder.rstrip("/"))

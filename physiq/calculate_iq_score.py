@@ -13,13 +13,9 @@
 # limitations under the License.
 # ==============================================================================
 
-import os
 import re
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
-from plot_settings import model_to_plotting_name, model_to_color
 
 VIEWS = ["perspective-left", "perspective-center", "perspective-right"]
 
@@ -193,77 +189,3 @@ def calculate_iq_score(file_path: str) -> tuple[float, float]:
 
     return final_score, physical_variance_all_metrics
 
-
-def process_directory(directory_path: str) -> None:
-    """
-    Process all CSV files in a directory to compute Physics IQ scores
-    and generate a bar plot.
-
-    Args:
-      directory_path: Path to the directory containing CSV files.
-
-    Returns:
-      None
-    """
-
-    model_scores = {}
-    csv_files = [f for f in sorted(os.listdir(directory_path)) if f.endswith(".csv")]
-
-    for csv_file in csv_files:
-        file_path = os.path.join(directory_path, csv_file)
-        print(f"Processing {csv_file}...")
-
-        model_name = os.path.splitext(csv_file)[0]
-        final_score, physical_variance = calculate_iq_score(file_path)
-
-        print(f"Physics-IQ score for {csv_file.replace('.csv', '')}: {final_score}")
-        print("-" * 50)
-
-        model_scores[model_name] = final_score
-
-    sorted_items = sorted(model_scores.items(), key=lambda x: x[1], reverse=True)
-    model_names = [m[0] for m in sorted_items]
-    values = [item[1] for item in sorted_items]
-
-    plt.figure(figsize=(10, 6))
-
-    plot_colors = [model_to_color(m) for m in model_names]
-    plot_names = [model_to_plotting_name(m) for m in model_names]
-
-    bars = plt.bar(plot_names, values, color=plot_colors)
-
-    for bar in bars:
-        height = bar.get_height()
-        plt.text(
-            bar.get_x() + bar.get_width() / 2.0,
-            height,
-            f"{height:.1f}",
-            ha="center",
-            va="bottom",
-            fontsize=10,
-        )
-
-    plt.axhline(y=100, color="darkgrey", linestyle="--", linewidth=2)
-
-    midpoint = (len(model_names) - 1) / 2.0
-    plt.text(
-        midpoint,
-        102,
-        "Physical Variance",
-        ha="center",
-        va="bottom",
-        color="black",
-        fontweight="bold",
-    )
-
-    plt.xticks(rotation=45, ha="right")
-
-    ax = plt.gca()
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-
-    plt.xlabel("")
-    plt.ylabel("Physics-IQ score\n(higher=better)")
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f}%"))
-    plt.tight_layout()
-    plt.savefig(os.path.join(directory_path, "physics_IQ_score_barplot.pdf"))

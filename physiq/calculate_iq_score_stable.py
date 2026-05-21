@@ -10,6 +10,8 @@ and exposes the score computations needed for both point-estimate evaluation and
 bootstrap resampling.  ``calculate_iq_score_update`` is a deprecated thin wrapper
 kept for backwards compatibility.
 """
+import joblib
+from functools import cached_property
 
 import numpy as np
 import pandas as pd
@@ -83,39 +85,50 @@ class IQTable:
         for col in self.get_scalar_keys():
             self.df[col] = self._get_scalar_column_mean(col)
 
-    @property
+        self._df_hash = joblib.hash(self.df)
+        self._score_cache: dict[str, float] = {}
+
+    def _verify_df_integrity(self) -> None:
+        """Raise if self.df was mutated after construction."""
+        current = joblib.hash(self.df)
+        if current != self._df_hash:
+            raise RuntimeError(
+                "IQTable.df was mutated after construction; cached scores are invalid."
+            )
+
+    @cached_property
     def spatial_iou_cols(self):
         return [f"{self.spatial_iou_key}_{view}" for view in self.views]
 
-    @property
+    @cached_property
     def weighted_spatial_iou_cols(self):
         return [f"{self.weighted_spatial_iou_key}_{view}" for view in self.views]
 
-    @property
+    @cached_property
     def spatiotemporal_iou_cols(self):
         return [f"{self.spatiotemporal_iou_key}_{view}" for view in self.views]
 
-    @property
+    @cached_property
     def mse_cols(self):
         return [f"{self.mse_key}_{view}" for view in self.views]
 
-    @property
+    @cached_property
     def variance_spatial_cols(self):
         return [f"{self.variance_spatial_key}_{view}" for view in self.views]
 
-    @property
+    @cached_property
     def variance_weighted_spatial_cols(self):
         return [f"{self.variance_weighted_spatial_key}_{view}" for view in self.views]
 
-    @property
+    @cached_property
     def variance_spatiotemporal_iou_cols(self):
         return [f"{self.variance_spatiotemporal_iou_key}_{view}" for view in self.views]
 
-    @property
+    @cached_property
     def variance_mse_cols(self):
         return [f"{self.variance_mse_key}_{view}" for view in self.views]
 
-    @property
+    @cached_property
     def variance_keys(self) -> list[str]:
         return [
             self.variance_spatial_key,
@@ -124,7 +137,7 @@ class IQTable:
             self.variance_mse_key,
         ]
 
-    @property
+    @cached_property
     def metric_keys(self) -> list[str]:
         return [
             self.spatial_iou_key,
@@ -133,7 +146,7 @@ class IQTable:
             self.mse_key,
         ]
 
-    @property
+    @cached_property
     def list_column_mean_by_view_dict(self) -> dict[str, str]:
         metric_cols_map = {
             f"{metric_key}_{view}": f"{metric_key}_mean_{view}"
@@ -142,7 +155,7 @@ class IQTable:
         }
         return metric_cols_map
 
-    def compute_metric_ratio(self, metric_key):
+    def compute_metric_ratio(self, metric_key) -> pd.Series:
         _score_map = {
             self.spatial_iou_key: (self.spatial_iou_key, self.variance_spatial_key),
             self.weighted_spatial_iou_key: (
@@ -161,7 +174,8 @@ class IQTable:
             self.df[_score_map[metric_key][1]] + self.ratio_eps
         )
 
-    def compute_metric_ratio_by_view(self, metric_key):
+    def compute_metric_ratio_by_view(self, metric_key) -> np.ndarray:
+        """Compute the metric ratio for each view separately, returning an array of shape (n_scenarios, n_views)."""
         get_mean_dict = self.list_column_mean_by_view_dict
         mapping_fct = lambda x: [get_mean_dict[view_col] for view_col in x]
         _score_map = {
@@ -187,10 +201,9 @@ class IQTable:
             self.df[variance_cols].to_numpy() + self.ratio_eps
         )
 
-    def hard_ceiling_mse(self):
-        return self.compute_metric_ratio(self.mse_key) ** -1
 
-    def compute_metric_scores_scenario(self, metric_key):
+    def compute_metric_scores_scenario(self, metric_key) -> pd.Series:
+        """Compute the metric score for a single metric key, returning a Series of shape (n_scenarios,)."""
         ratio = self.compute_metric_ratio(metric_key)
         if metric_key == self.mse_key:
             return ratio**-1  # higher is better for MSE, so invert the ratio
@@ -218,14 +231,16 @@ class IQTable:
             1 / (clip(df[cols].to_numpy() + cls.ratio_eps))
         ).sum(axis=1)
 
-    def compute_metric_scores_scenario_by_view(self, metric_key):
+    def compute_metric_scores_scenario_by_view(self, metric_key)-> np.ndarray:
+        """Compute the metric score for a single metric key by view, returning an array of shape (n_scenarios, n_views)."""
         ratio_by_view = self.compute_metric_ratio_by_view(metric_key)
         if metric_key == self.mse_key:
             return ratio_by_view**-1  # higher is better for MSE, so invert the ratio
         else:
             return ratio_by_view  # for IOU metrics, higher is already better
 
-    def compute_scores_scenario_by_view(self):
+    def compute_scores_scenario_by_view(self)-> pd.DataFrame:
+        """Compute the metric scores for all metric keys by view, returning a DataFrame of shape (n_scenarios * n_views, n_metrics)."""
         out = pd.DataFrame()
         metric_score_keys = [metric_key + "_score" for metric_key in self.metric_keys]
         for metric_key, metric_score_key in zip(self.metric_keys, metric_score_keys):
@@ -246,10 +261,13 @@ class IQTable:
         # This ensures that each frame contributes equally to the final score regardless of view.
         assert metric_key in self.get_list_keys(), f"Invalid metric key: {metric_key}"
         metric_cols = [f"{metric_key}_{view}" for view in self.views]
-        out = self.df[metric_cols].map(lambda x: np.mean(x))
-        return out
+        return pd.DataFrame(
+            {col: np.array(self.df[col].tolist()).mean(axis=1) for col in metric_cols},
+            index=self.df.index,
+        )
 
     def _rename_list_column_mean_by_view(self, df_rename: pd.DataFrame) -> pd.DataFrame:
+        """Rename columns of the per-view mean DataFrame to have a consistent naming scheme."""
         # metric_cols_map = {
         #     f"{metric_key}_{view}": f"{metric_key}_mean_{view}" for view in self.views
         # }
@@ -258,17 +276,13 @@ class IQTable:
         return df_rename
 
     def _get_list_column_mean(self, metric_key):
+        """Compute the mean of a list column across all frames and views."""
         # List columns hold per-frame sequences; concatenate across views before averaging
         # so that every frame contributes equally regardless of view.
         assert metric_key in self.get_list_keys(), f"Invalid metric key: {metric_key}"
-
-        # return self.df[[f"{metric_key}_{view}_mean" for view in self.views]].mean(axis=1)
-        return self.df.apply(
-            lambda row: np.mean(
-                np.concatenate([row[f"{metric_key}_{view}"] for view in VIEWS])
-            ),
-            axis=1,
-        )
+        arrays = [np.array(self.df[f"{metric_key}_{view}"].tolist()) for view in VIEWS]
+        stacked = np.concatenate(arrays, axis=1)  # (n_scenarios, n_frames * n_views)
+        return pd.Series(stacked.mean(axis=1), index=self.df.index)
 
     def get_full_df(self):
         """Return a copy of the internal DataFrame with metadata columns appended."""
@@ -278,6 +292,7 @@ class IQTable:
         return out
 
     def _get_scalar_column_mean(self, metric_key):
+        """Scalar columns already have one value per scenario; just average across views."""
         assert (
             metric_key not in self.get_list_keys()
         ), f"Invalid metric key: {metric_key}"
@@ -293,7 +308,14 @@ class IQTable:
         IOU metrics are divided by their physical variance (higher model IOU
         relative to the natural scene variance → higher score).  MSE is subtracted
         because a lower model MSE relative to the physical variance is better.
+
+        Results are cached per instance. The first call verifies that self.df has
+        not been mutated since construction.
         """
+        if not self._score_cache:
+            self._verify_df_integrity()
+        if metric_key in self._score_cache:
+            return self._score_cache[metric_key]
         _score_map = {
             self.spatial_iou_key: (
                 self.spatial_iou_key,
@@ -316,9 +338,12 @@ class IQTable:
             raise ValueError(f"Invalid metric key: {metric_key}")
         metric, variance, op = _score_map[metric_key]
         m, v = self.get_metric_mean(metric), self.get_metric_mean(variance)
-        return m / v if op == "divide" else m - v
+        result = m / v if op == "divide" else m - v
+        self._score_cache[metric_key] = result
+        return result
 
-    def compute_final_score_orig_raw(self):
+    def compute_final_score_orig_raw(self) -> float:
+        """Returns the raw original physics-iq score without clipping."""
         score_spatiotemporal = self.get_score(self.spatiotemporal_iou_key)
         score_spatial = self.get_score(self.spatial_iou_key)
         score_weighted_spatial = self.get_score(self.weighted_spatial_iou_key)
@@ -328,10 +353,12 @@ class IQTable:
         ) / 3 - score_mse
         return final_score_raw
 
-    def compute_final_score_orig(self):
+    def compute_final_score_orig(self) -> float:
+        """Returns the original physics-iq score with clipping."""
         return clip(self.compute_final_score_orig_raw())
 
-    def compute_final_score_stable(self):
+    def compute_final_score_stable(self) -> float:
+        """Returns the stable physics-iq score, where each component is clipped before aggregation."""
         score_spatiotemporal = clip(self.get_score(self.spatiotemporal_iou_key))
         score_spatial = clip(self.get_score(self.spatial_iou_key))
         score_weighted_spatial = clip(self.get_score(self.weighted_spatial_iou_key))
@@ -342,16 +369,22 @@ class IQTable:
         )
         return final_score_stable
 
-    def get_output_dict(self):
+    def get_output_dict(self)-> dict[str, float]:
+        """
+        Return a dict of all relevant scores and metadata for this table.
+        The original score is final_score_orig, but we advise to use final_score_stable for a more robust evaluation.
+        The verified score is final_score_view. Verified subscores also include the _view suffix, e.g. score_spatial_view.
+        """
         view_scenario_scores = clip(self.compute_scores_scenario_by_view())
+        final_score_raw = self.compute_final_score_orig_raw()
         out_dict = {
             "score_spatiotemporal": self.get_score(self.spatiotemporal_iou_key),
             "score_spatial": self.get_score(self.spatial_iou_key),
             "score_weighted_spatial": self.get_score(self.weighted_spatial_iou_key),
             "score_mse": self.get_score(self.mse_key),
-            "final_score_raw": self.compute_final_score_orig_raw(),
+            "final_score_raw": final_score_raw,
             "final_score_stable": self.compute_final_score_stable(),
-            "final_score_orig": self.compute_final_score_orig(),
+            "final_score_orig": clip(final_score_raw),
             "variance_mse": self.get_metric_mean(self.variance_mse_key),
             "variance_spatiotemporal_iou": self.get_metric_mean(
                 self.variance_spatiotemporal_iou_key
@@ -377,7 +410,7 @@ class IQTable:
         return out_dict
 
     @classmethod
-    def get_list_keys(cls):
+    def get_list_keys(cls) -> list[str]:
         """Metric keys whose CSV columns contain per-frame lists (spatiotemporal IOU, MSE)."""
         return [
             cls.spatiotemporal_iou_key,
@@ -387,7 +420,7 @@ class IQTable:
         ]
 
     @classmethod
-    def get_scalar_keys(cls):
+    def get_scalar_keys(cls) -> list[str]:
         """Metric keys whose CSV columns contain a single float per scenario (spatial IOU)."""
         return [
             cls.spatial_iou_key,
@@ -397,7 +430,7 @@ class IQTable:
         ]
 
     @classmethod
-    def get_list_columns(cls):
+    def get_list_columns(cls) -> list[str]:
         return [
             f"{metric}_{view}" for metric in cls.get_list_keys() for view in cls.views
         ]
@@ -409,14 +442,3 @@ class IQTable:
         for col in list_columns:
             df[col] = df[col].apply(parse_list_of_floats)
         return cls(df, *args, **kwargs)
-
-
-def calculate_iq_score_update(file_path: str) -> dict:
-    import warnings
-
-    warnings.warn(
-        "calculate_iq_score_update() is deprecated; use IQTable.from_csv(path).get_output_dict() instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return IQTable.from_csv(file_path).get_output_dict()
