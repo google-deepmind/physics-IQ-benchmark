@@ -1,6 +1,15 @@
 import pandas as pd 
 from pathlib import Path
 
+REGISTRY: dict[str, type["BaseTemplater"]] = {}
+
+def register(name: str):
+    def decorator(cls):
+        REGISTRY[name] = cls
+        return cls
+    return decorator
+
+@register("base")
 class BaseTemplater:
     def __init__(self, df: pd.DataFrame, use_action_suffix: bool = True):
         self.df = df.copy()

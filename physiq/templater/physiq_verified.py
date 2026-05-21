@@ -1,5 +1,6 @@
-from templater.base import BaseTemplater
+from templater.base import BaseTemplater, register
 
+@register("pvideo")
 class PVideoTemplater(BaseTemplater):
     """
     Following official prompting guidelines for P-Video from: https://www.pruna.ai/p-video (2026-04-21).
@@ -22,6 +23,7 @@ class PVideoTemplater(BaseTemplater):
         prompt = ", ".join(filter(self.filter_empty, [subjectaction_description, full_scene, self.camera_description, self.style_description, self.action_description]))
         return prompt
 
+@register("sora2")
 class SoraTemplater(BaseTemplater):
     """
     Following official prompting guidelines for Sora from: https://developers.openai.com/cookbook/examples/sora/sora2_prompting_guide (2026-04-24).
