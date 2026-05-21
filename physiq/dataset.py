@@ -6,7 +6,6 @@ from pathlib import Path
 
 
 
-PERSPECTIVES = ["left", "center", "right"]
 DESCRIPTIONS_PATH = Path(__file__).resolve().parent.parent / "descriptions" / "descriptions.yaml"
 
 @dataclass
@@ -85,9 +84,6 @@ class Benchmark(BaseModel):
 
 
 if __name__ == "__main__":
-    with open(DESCRIPTIONS_PATH, "r") as f:
-        scenes = yaml.safe_load(f)
-
     benchmark = Benchmark.from_yaml(DESCRIPTIONS_PATH)
 
     csv_gen = benchmark.build_original_descriptions()
@@ -103,21 +99,13 @@ if __name__ == "__main__":
     print(h1 == h2)
 
     print("\n"*2)
-    print(csv_gen == csv)
-
     mask = ~(csv_gen==csv)
 
-    print(np.sum((~mask)))
 
     csv_gen_diff = csv_gen[mask].dropna(how="all")
     csv_diff = csv[mask].dropna(how="all")
 
-    print("CSV Gen")
+    print("CSV Gen Diff")
     print(csv_gen_diff)
-    print("CSV")
+    print("CSV Orig Diff")
     print(csv_diff)
-
-    # benchmark = Benchmark(DESCRIPTIONS_PATH)
-    # df = benchmark.to_dataframe()
-    # print(df)
-    import IPython; IPython.embed()
