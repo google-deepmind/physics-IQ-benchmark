@@ -22,4 +22,19 @@ dependencies = [
     "ipywidgets",
     "jupyter",
     "black>=26.3.1",
+    "pytest>=9.0.3",
+    "pydantic>=2.13.4",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["physiq/tests"]
+pythonpath = ["physiq"]
+addopts = "--import-mode=importlib"

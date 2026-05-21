@@ -1,0 +1,1203 @@
+scenes:
+- scene: ball-and-block-fall
+  description: Two pillows on a table and two grabber tools hanging above them from
+    which a brown tennis ball and an orange block are suspended. The grabber tools
+    let go of the ball and block. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The grabber tools release the brown tennis ball and the orange block.
+  scene-description: Two pillows are on a table and two grabber tools are positioned
+    above them.
+  takes:
+  - take: 1
+    left: 1
+    center: 2
+    right: 3 
+  - take: 2
+    left: 199
+    center: 200
+    right: 201
+- scene: ball-behind-rotating-paper
+  description: A grabber arm is holding a tennis ball above a piece of cardstock propped
+    up on a rotating platform sitting on a table that rotates clockwise. The grabber
+    lowers the ball and places is on the table as the cardstock rotates. Static shot
+    with no camera movement.
+  category: Solid Mechanics
+  subject-action: The blue-black grabber tool places the orange tennis ball behind
+    the clockwise-rotating cardstock on the table.
+  pre-action-scene-description: The blue-black grabber tool held the tennis ball above
+    the cardstock and lowered it behind the cardstock.
+  scene-description: The cardstock sits on the black platform on top of a wooden table.
+  temporal-error-(i2v): Starting from the freezeframe the grabber releases the organge
+    ball behind the cardstock, it is never over the cardstock.
+  omitted-key-information: ball color
+  takes:
+  - take: 1
+    left: 4
+    center: 5
+    right: 6
+  - take: 2
+    left: 202
+    center: 203
+    right: 204
+- scene: ball-hits-duck
+  description: A light beige coffee table with a small yellow rubber ducky on it.
+    A mustard yellow couch is in the background. There is a black pipe on one end
+    of the table and a brown tennis ball rolls out of it towards the rubber ducky.
+    Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The brown tennis ball rolls straight out of the black pipe and hits
+    the rubber duck.
+  scene-description: A light beige coffee table with a small yellow rubber duck on
+    it. A mustard yellow couch is in the background. There is a black pipe that points
+    from the left side to the right side of the table.
+  omitted-key-information: the ball hits the duck (speed)
+  takes:
+  - take: 1
+    left: 7
+    center: 8
+    right: 9
+  - take: 2
+    left: 205
+    center: 206
+    right: 207
+- scene: ball-hits-nothing
+  description: A light-colored wooden coffee table with a few small objects on it
+    including a tennis ball and a smaller red ball. An orange ball rolls out of a
+    black pipe that is sitting on the table towards the right side. Static shot with
+    no camera movement.
+  category: Solid Mechanics
+  subject-action: The orange tennis ball rolls straight out of the black pipe over
+    the entire table towards the right side.
+  scene-description: A light-colored wooden coffee table with a few small objects
+    on it, including a brown tennis ball and a smaller red ball.
+  omitted-key-information: ball type (size),the ball rolls over entire table (speed)
+  takes:
+  - take: 1
+    left: 10
+    center: 11
+    right: 12
+  - take: 2
+    left: 208
+    center: 209
+    right: 210
+- scene: ball-in-basket
+  description: An orange inflatable basketball is suspended above a black plastic
+    crate placed on a wooden table. The ball is then released. Static shot with no
+    camera movement.
+  category: Solid Mechanics
+  subject-action: The orange inflatable basketball is released over the black plastic
+    crate.
+  scene-description: The black plastic crate sits on a wooden table.
+  takes:
+  - take: 1
+    left: 13
+    center: 14
+    right: 15
+  - take: 2
+    left: 211
+    center: 212
+    right: 213
+- scene: ball-in-sand
+  description: A blue grabber tool holds a tennis ball above a pile of green kinetic
+    sand on a wooden table. The grabber then releases the ball. Static shot with no
+    camera movement.
+  category: Solid Mechanics
+  subject-action: The blue-black grabber tool releases the blue tennis ball above
+    a pile of green kinetic sand.
+  scene-description: The green kinetic sand is located on a wooden table, and the
+    blue-black grabber tool is suspended over it.
+  takes:
+  - take: 1
+    left: 16
+    center: 17
+    right: 18
+  - take: 2
+    left: 214
+    center: 215
+    right: 216
+- scene: ball-ramp
+  description: A simple ramp made of cardboard propped up by a blue block on a light-colored
+    wooden table. There's a black pipe to the left of the frame and a yellow tennis
+    ball rolls out of the pipe towards the ramp. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The yellow tennis ball rolls straight out of the black pipe onto
+    the ramp.
+  scene-description: A simple ramp made of cardboard, propped up by a blue block on
+    a light-colored wooden table. There's a black pipe to the left of the frame that
+    directly points towards it.
+  omitted-key-information: ball rolls onto the ramp (speed)
+  takes:
+  - take: 1
+    left: 19
+    center: 20
+    right: 21
+  - take: 2
+    left: 217
+    center: 218
+    right: 219
+- scene: ball-rolls-off
+  description: A light wood coffee table in the foreground with a black pipe on the
+    end of the table. A grey tennis ball rolls out of the pipe towards the right and
+    onto the table. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The grey tennis ball rolls out of the pipe over the entire table
+    towards the right.
+  scene-description: A light wood coffee table in the foreground with a black pipe
+    on the left end of the table.
+  omitted-key-information: balls rolls over entire table (speed)
+  takes:
+  - take: 1
+    left: 22
+    center: 23
+    right: 24
+  - take: 2
+    left: 220
+    center: 221
+    right: 222
+- scene: ball-rolls-on-glass
+  description: A piece of clear glass resting on the edge of a light-colored wooden
+    table against a plain white wall. A blue tennis ball rolls on the wooden table
+    and towards the glass. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The blue tennis ball rolls from the wooden table over the glass.
+  scene-description: A piece of clear glass resting on the edge of a light-colored
+    wooden table against a plain white wall.
+  omitted-key-information: ball rolls over table and glass (speed)
+  takes:
+  - take: 1
+    left: 25
+    center: 26
+    right: 27
+  - take: 2
+    left: 223
+    center: 224
+    right: 225
+- scene: ball-train
+  description: A light-colored coffee table with two tennis balls, one orange and
+    one brown, placed near the center back to back. A grey tennis ball rolls out of
+    a black pipe sitting on the table and towards the other two balls. Static shot
+    with no camera movement.
+  category: Solid Mechanics
+  subject-action: The grey tennis ball rolls straight out of a black pipe from the
+    left and hits the brown tennis ball.
+  scene-description: A light-colored coffee table with two tennis balls, one orange
+    and one brown, placed near the center, back to back. A black pipe sits on the
+    table on the left side and points towards the two tennis balls.
+  omitted-key-information: ball hits the brown ball (speed)
+  takes:
+  - take: 1
+    left: 28
+    center: 29
+    right: 30
+  - take: 2
+    left: 226
+    center: 227
+    right: 228
+- scene: balls-collide
+  description: A light-colored wooden tabletop with two pipes at the edges. A blue
+    and yellow tennis ball roll out of the pipes and towards each other. Static shot
+    with no camera movement.
+  category: Solid Mechanics
+  subject-action: The blue and the yellow tennis ball roll out of the pipes and collide
+    with the same speed.
+  scene-description: A light-colored wooden tabletop with two pipes at the edges.
+  omitted-key-information: balls collide (speed), same speed
+  takes:
+  - take: 1
+    left: 31
+    center: 32
+    right: 33
+  - take: 2
+    left: 229
+    center: 230
+    right: 231
+- scene: block-domino
+  description: A row of colorful wooden blocks lined up on a wooden table with a wooden
+    stick attached to a black rotating platform. The platform rotates clockwise and
+    the wooden stick hits the first block as it rotates. Static shot with no camera
+    movement.
+  category: Solid Mechanics
+  subject-action: The wooden stick attached to the black platform rotates clockwise
+    and hits the first block.
+  pre-action-scene-description: A row of colorful wooden blocks has been lined up
+    on a wooden table next to a black platform.
+  subject-action post-fix: Then the rotation stops.
+  takes:
+  - take: 1
+    left: 34
+    center: 35
+    right: 36
+  - take: 2
+    left: 232
+    center: 233
+    right: 234
+- scene: blow-balloon
+  description: A black balloon is attached to a fixed electric air pump hose on a
+    table with a plain wall in the background. Air is being pumped in the balloon.
+    Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: Air is being pumped into the black balloon.
+  scene-description: The balloon is attached to a black hose that points upwards from
+    behind a wooden table.
+  takes:
+  - take: 1
+    left: 37
+    center: 38
+    right: 39
+  - take: 2
+    left: 235
+    center: 236
+    right: 237
+- scene: cut-orange
+  description: A tangerine that has been cut in half is placed on a glass cutting
+    board. A knife is slicing through the tangerine. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The knife slices through the tangerine.
+  pre-action-scene-description: One half of a tangerine has been placed on a glass
+    cutting board.
+  takes:
+  - take: 1
+    left: 40
+    center: 41
+    right: 42
+  - take: 2
+    left: 238
+    center: 239
+    right: 240
+- scene: cut-paper
+  description: Two black and blue gripping tools are pulling a piece of green paper
+    from its two corners, causing it to tear. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: Two blue-black grabber tools pull the piece of green paper from
+    opposite corners, causing it to tear.
+  takes:
+  - take: 1
+    left: 43
+    center: 44
+    right: 45
+  - take: 2
+    left: 241
+    center: 242
+    right: 243
+- scene: domino-in-juice
+  description: A grabber tool holding a white domino drops the domino into a dark-colored
+    liquid in a blue mug that is on a wooden surface. Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: The blue-black grabber tool drops the white ceramic domino into
+    the mug that is filled with a dark-colored liquid.
+  scene-description: The mug is sitting on a wooden surface.
+  omitted-key-information: density of the domino -- wood could float -> ceramic (material)
+  takes:
+  - take: 1
+    left: 46
+    center: 47
+    right: 48
+  - take: 2
+    left: 244
+    center: 245
+    right: 246
+- scene: dominos-with-space
+  description: Two rows of alternating black and white dominoes are set up on a wooden
+    table with a gap between the two rows. A wooden stick attached to a rotating platform
+    rotates clockwise and knocks the first domino in the first row. Static shot with
+    no camera movement.
+  category: Solid Mechanics
+  subject-action: The wooden stick attached to the black platform rotates clockwise
+    and knocks the first domino.
+  pre-action-scene-description: Two rows of alternating black and white dominoes have
+    been set up on a wooden table with a gap between the two rows.
+  subject-action post-fix: Then the rotation stops.
+  takes:
+  - take: 1
+    left: 49
+    center: 50
+    right: 51
+  - take: 2
+    left: 247
+    center: 248
+    right: 249
+- scene: double-cradle
+  description: A Newton's cradle device on the table and two of the metal balls are
+    held up by a blue handled grabber tool. The claw releases the two balls. Static
+    shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: Two metal balls of the Newton's cradle device are released by the
+    blue-black grabber tool.
+  pre-action-scene-description: The blue-black grabber tool was holding two metal
+    balls at the position of the amplitude of the Newton's cradle.
+  scene-description: The Newton's cradle with five metal balls is sitting on a table.
+  takes:
+  - take: 1
+    left: 52
+    center: 53
+    right: 54
+  - take: 2
+    left: 250
+    center: 251
+    right: 252
+- scene: duck-and-dominos
+  description: A yellow rubber duck is positioned in the middle of a line of black
+    and white dominoes on a wooden table. A stick attached to a black rotating platform
+    rotates clockwise and knocks the first domino block. Static shot with no camera
+    movement.
+  category: Solid Mechanics
+  subject-action: The wooden stick attached to the black platform rotates clockwise
+    and knocks the first domino block.
+  pre-action-scene-description: A yellow rubber duck has been positioned in the middle
+    of a line of black and white dominoes on a wooden table.
+  subject-action post-fix: Then the rotation stops.
+  takes:
+  - take: 1
+    left: 55
+    center: 56
+    right: 57
+  - take: 2
+    left: 253
+    center: 254
+    right: 255
+- scene: duck-falls-in-box
+  description: A yellow rubber ducky is suspended above an open dark green fabric
+    box on a wooden table. The duck is then released. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The orange-black grabber tool releases the yellow rubber duck above
+    the open dark green fabric box.
+  scene-description: An orange-black grabber tool is suspended above the open dark
+    green fabric box on a wooden table.
+  takes:
+  - take: 1
+    left: 58
+    center: 59
+    right: 60
+  - take: 2
+    left: 256
+    center: 257
+    right: 258
+- scene: duck-static
+  description: A stationary yellow rubber duck on a light brown wooden table against
+    a plain white background. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The yellow rubber duck sits stationary on a light brown wooden table.
+  scene-description: Behind the wooden table is a plain white background.
+  takes:
+  - take: 1
+    left: 61
+    center: 62
+    right: 63
+  - take: 2
+    left: 259
+    center: 260
+    right: 261
+- scene: fill-glass-red-drink
+  description: A glass beverage dispenser filled with a bright red liquid is set up
+    on a woven basket and is pouring the liquid into a clear glass on a wooden table.
+    Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: The glass beverage dispenser pours the bright red liquid into a
+    clear glass.
+  scene-description: The glass beverage dispenser sits on a woven basket.
+  takes:
+  - take: 1
+    left: 64
+    center: 65
+    right: 66
+  - take: 2
+    left: 262
+    center: 263
+    right: 264
+- scene: glass-stays-same
+  description: A glass beverage dispenser filled with a bright red liquid is set on
+    a wicker base. Under the dispenser there is a glass half filled with red liquid.
+    Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: The glass beverage dispenser, filled with a bright red liquid, is
+    stationary over the glass.
+  scene-description: The glass beverage dispenser sits on a woven basket and the glass
+    is half-filled with red liquid.
+  takes:
+  - take: 1
+    left: 67
+    center: 68
+    right: 69
+  - take: 2
+    left: 265
+    center: 266
+    right: 267
+- scene: juice-in-water
+  description: A glass beverage dispenser pouring grapefruit juice into a glass that
+    has some water inside. Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: The glass beverage dispenser pours grapefruit juice into a glass
+    that has some water inside.
+  takes:
+  - take: 1
+    left: 70
+    center: 71
+    right: 72
+  - take: 2
+    left: 268
+    center: 269
+    right: 270
+- scene: light-on-block
+  description: A blue rectangular wooden block is placed on a black rotating turntable
+    that rotates clockwise illuminated by a spotlight casting a long shadow on the
+    wall behind it. Static shot with no camera movement.
+  category: Optics
+  subject-action: A blue rectangular block rotates clockwise on the black platform
+    while the spotlight casts a large shadow on the wall behind it.
+  scene-description: The blue rectangular block sits on the black, clockwise-rotating
+    platform, and the spotlight points toward the block.
+  takes:
+  - take: 1
+    left: 73
+    center: 74
+    right: 75
+  - take: 2
+    left: 271
+    center: 272
+    right: 273
+- scene: light-on-mug
+  description: A yellow mug is placed on a rotating turntable that rotates clockwise
+    illuminated by a spotlight casting a shadow on the wall behind it. Static shot
+    with no camera movement.
+  category: Optics
+  subject-action: The yellow mug rotates clockwise on the black platform while the
+    spotlight casts a large shadow on the wall behind it.
+  scene-description: The yellow mug sits on the black, clockwise-rotating platform,
+    and the spotlight points toward the yellow mug.
+  takes:
+  - take: 1
+    left: 76
+    center: 77
+    right: 78
+  - take: 2
+    left: 274
+    center: 275
+    right: 276
+- scene: light-on-mug-block
+  description: A yellow mug and a blue wooden block are placed on a rotating turntable
+    that rotates clockwise illuminated by a spotlight casting their shadow on the
+    wall behind it. Static shot with no camera movement.
+  category: Optics
+  subject-action: The yellow mug and the blue rectangular block are rotating clockwise
+    around the center of the black rotating platform, while the spotlight casts a
+    large shadow on the wall behind it.
+  scene-description: The yellow mug and the blue rectangular block sit on the black,
+    clockwise-rotating platform, and the spotlight points toward the yellow mug and
+    the block.
+  takes:
+  - take: 1
+    left: 79
+    center: 80
+    right: 81
+  - take: 2
+    left: 277
+    center: 278
+    right: 279
+- scene: light-on-statue
+  description: A small statue made of porcelain illuminated by a spotlight on a rotating
+    base that rotates clockwise. The spotlight casts a large shadow of the statue
+    onto the wall behind it. Static shot with no camera movement.
+  category: Optics
+  subject-action: The small porcelain statue rotates clockwise on the black platform
+    while the spotlight casts a large shadow on the wall behind it.
+  scene-description: The small porcelain statue sits on the black, clockwise-rotating
+    platform, and the spotlight points toward the porcelain statue.
+  takes:
+  - take: 1
+    left: 82
+    center: 83
+    right: 84
+  - take: 2
+    left: 280
+    center: 281
+    right: 282
+- scene: liquid-on-duck
+  description: A yellow rubber ducky is placed in an empty black baking pan on a wooden
+    table.  A beverage dispenser with red liquid inside sits on a woven basket behind
+    it. The liquid pours on the duck from the dispenser. Static shot with no camera
+    movement.
+  category: Fluid Dynamics
+  subject-action: The glass beverage dispenser pours the bright red liquid on the
+    yellow rubber duck.
+  scene-description: The yellow rubber duck is placed on an empty baking tray, and
+    the beverage dispenser sits on a woven basket behind it. The glass beverage dispenser
+    is filled with a bright-red liquid.
+  takes:
+  - take: 1
+    left: 85
+    center: 86
+    right: 87
+  - take: 2
+    left: 283
+    center: 284
+    right: 285
+- scene: liquid-overfill
+  description: A bright red liquid being poured from a dispenser into a glass which
+    is placed on a dark baking tray on a wooden table. Static shot with no camera
+    movement.
+  category: Fluid Dynamics
+  subject-action: The glass beverage dispenser pours the bright red liquid into the
+    glass.
+  scene-description: The glass beverage dispenser is filled with a bright red liquid,
+    and the glass sits on a baking tray.
+  takes:
+  - take: 1
+    left: 88
+    center: 89
+    right: 90
+  - take: 2
+    left: 286
+    center: 287
+    right: 288
+- scene: lit-candle
+  description: Two candle holders that have tall red candles in them are placed on
+    a wooden table. One of the candles is burning. Static shot with no camera movement.
+  category: Thermodynamics
+  subject-action: The left candle is burning.
+  scene-description: Two red candles are attached to two candle holders that sit on
+    a wooden table.
+  takes:
+  - take: 1
+    left: 91
+    center: 92
+    right: 93
+  - take: 2
+    left: 289
+    center: 290
+    right: 291
+- scene: magnet-domino
+  description: A powerful magnet is placed on the table facing a black rotating platform
+    that rotates clockwise. A small white plastic domino block is placed on the platform
+    and is rotating towards the magnet. Static shot with no camera movement.
+  category: Magnetism
+  subject-action: The small white plastic domino rotates clockwise on the black platform
+    near the powerful magnet.
+  pre-action-scene-description: The small white domino was placed on the black platform.
+  scene-description: The powerful magnet sits on the table facing the black platform.
+  takes:
+  - take: 1
+    left: 94
+    center: 95
+    right: 96
+  - take: 2
+    left: 292
+    center: 293
+    right: 294
+- scene: magnet-transparent-peakaboo
+  description: A clear acrylic box suspended from a cord hangs above a tennis ball
+    with a smiley face drawn on it positioned on a wooden table. The box is lowered
+    to cover the ball. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The clear acrylic box hanging from an orange cord lowers to cover
+    the tennis ball with a smiley face.
+  pre-action-scene-description: The clear acrylic box was suspended over the tennis
+    ball with a smiley face.
+  scene-description: The tennis ball with the smiley is positioned on a wooden table.
+  omitted-key-information: cord color
+  takes:
+  - take: 1
+    left: 97
+    center: 98
+    right: 99
+  - take: 2
+    left: 295
+    center: 296
+    right: 297
+- scene: magnet-wrench
+  description: A powerful magnet is placed on the table facing a black rotating platform
+    that rotates clockwise. A small metal wrench is placed on the platform and is
+    rotating towards the magnet. Static shot with no camera movement.
+  category: Magnetism
+  subject-action: The small metal wrench rotates clockwise on the black platform near
+    the powerful magnet.
+  pre-action-scene-description: The small metal wrench was placed on the black platform.
+  scene-description: The powerful magnet sits on the table facing the black platform.
+  takes:
+  - take: 1
+    left: 100
+    center: 101
+    right: 102
+  - take: 2
+    left: 298
+    center: 299
+    right: 300
+- scene: marble-run-x
+  description: A few magnetic ramps are attached to a whiteboard for a game of marble
+    run. A yellow marble is released at the top of the ramps and slides down the ramps.
+    Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The yellow glass marble is released at the top of the ramps and
+    then slides down the magnetic ramps.
+  scene-description: The magnetic ramps are attached to a whiteboard for a game of
+    marble run.
+  vague language: marble material due to magnetic ramp
+  takes:
+  - take: 1
+    left: 103
+    center: 104
+    right: 105
+  - take: 2
+    left: 301
+    center: 302
+    right: 303
+- scene: marble-run-y
+  description: A few magnetic ramps are attached to a whiteboard for a game of marble
+    run. A yellow marble is released at the top of the ramps and slides down the ramps.
+    Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The yellow glass marble is released at the top of the ramps and
+    then slides down the magnetic ramps.
+  scene-description: The magnetic ramps are attached to a whiteboard for a game of
+    marble run.
+  vague language: marble material due to magnetic ramp
+  takes:
+  - take: 1
+    left: 106
+    center: 107
+    right: 108
+  - take: 2
+    left: 304
+    center: 305
+    right: 306
+- scene: match
+  description: A lit match is being lowered into a glass of water. Static shot with
+    no camera movement.
+  category: Fluid Dynamics
+  subject-action: The lit match is being lowered into the glass of water.
+  takes:
+  - take: 1
+    left: 109
+    center: 110
+    right: 111
+  - take: 2
+    left: 307
+    center: 308
+    right: 309
+- scene: match-blows-balloon
+  description: A black balloon is sitting on a wooden table next to a small rotating
+    platform with a lit matchstick taped to it. The match rotates clockwise and touches
+    the balloon. Static shot with no camera movement.
+  category: Thermodynamics
+  subject-action: The lit match rotates clockwise on the black platform and touches
+    the black balloon.
+  pre-action-scene-description: The black balloon was placed on a wooden table next
+    to the black platform.
+  scene-description: The lit match is attached to the black platform.
+  subject-action post-fix: Then the rotation stops.
+  takes:
+  - take: 1
+    left: 112
+    center: 113
+    right: 114
+  - take: 2
+    left: 310
+    center: 311
+    right: 312
+- scene: mirror-ball-fall
+  description: A tennis ball attached to a magnet and string is hanging in front of
+    a mirror and creating an illusion of two tennis balls. The string lowers the ball
+    slowly. Static shot with no camera movement.
+  category: Optics
+  subject-action: The tennis ball hanging in front of the mirror is slowly lowered.
+  pre-action-scene-description: The tennis ball attached to a magnet that hangs from
+    an orange cord was hovering in the air in front of the mirror.
+  scene-description: The mirror creates the illusion of two tennis balls.
+  takes:
+  - take: 1
+    left: 115
+    center: 116
+    right: 117
+  - take: 2
+    left: 313
+    center: 314
+    right: 315
+- scene: mirror-ball-rotate
+  description: A tennis ball with a smiley face drawn on it is slowly rotating on
+    a black rotating platform that rotates clockwise in front of a mirror and reflecting
+    the side of the ball that has no smiley face. Static shot with no camera movement.
+  category: Optics
+  subject-action: The tennis ball with a smiley face rotates slowly clockwise on the
+    black platform in front of the mirror.
+  pre-action-scene-description: The mirror points towards the tennis ball and initially
+    reflects the side of the tennis ball without a smiley face.
+  scene-description: The tennis ball with a smiley face sits on the black platform.
+  takes:
+  - take: 1
+    left: 118
+    center: 119
+    right: 120
+  - take: 2
+    left: 316
+    center: 317
+    right: 318
+- scene: mirror-teapot-rotate
+  description: A teapot on a rotating display base that rotates clockwise in front
+    of a mirror reflecting the teapot's image. Static shot with no camera movement.
+  category: Optics
+  subject-action: The teapot rotates clockwise on the black platform in front of a
+    mirror that reflects the teapot's image.
+  takes:
+  - take: 1
+    left: 121
+    center: 122
+    right: 123
+  - take: 2
+    left: 319
+    center: 320
+    right: 321
+- scene: mug-breaks
+  description: A yellow mug is held by a grabber tool in front of a white projection
+    screen with a concrete brick positioned beneath it. The grabber releases the mug.
+    Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The blue-black grabber releases the yellow ceramic mug over the
+    concrete brick.
+  pre-action-scene-description: The blue-black grabber tool was holding the yellow
+    ceramic mug.
+  scene-description: The blue-black grabber tool is suspended over the ceramic block
+    in front of a white projection screen.
+  omitted-key-information: ceramic for shattering (material)
+  takes:
+  - take: 1
+    left: 124
+    center: 125
+    right: 126
+  - take: 2
+    left: 322
+    center: 323
+    right: 324
+- scene: napkin-soak
+  description: A grabber tool holds a piece of paper towel over a shallow dish of
+    light blue liquid on a wooden table. The grabber releases the paper towel on the
+    dish. Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: The orange-black grabber releases the piece of paper towel over
+    the dish filled with light blue liquid.
+  pre-action-scene-description: The orange-black grabber tool was holding the piece
+    of paper towel over the dish filled with light blue liquid.
+  takes:
+  - take: 1
+    left: 127
+    center: 128
+    right: 129
+  - take: 2
+    left: 325
+    center: 326
+    right: 327
+- scene: paint-on-glass
+  description: A clear acrylic sheet placed on a wooden table with a small dollop
+    of red paint. A rotating paintbrush attached to a rotating platform rotates clockwise
+    and goes through the paint. Static shot with no camera movement.
+  category: Fluid Dynamics
+  description-factual: A clear acrylic sheet is placed on a wooden table with a small
+    dollop of red paint. A paintbrush, attached to a rotating platform, rotates clockwise
+    and goes through the paint. Static shot with no camera movement.
+  subject-action: The paintbrush rotates clockwise on the black platform, passes through
+    the dollop of red paint on the clear acrylic sheet, and moves past the dollop
+    of red paint.
+  pre-action-scene-description: On top of the acrylic sheet was placed a small dollop
+    of red paint.
+  scene-description: The paintbrush is attached to the black platform sitting next
+    to the clear acrylic sheet with red paint on it on a wooden table.
+  factual-error: Rotating paintbrush on a rotating platform. Only the platform rotates.
+  takes:
+  - take: 1
+    left: 130
+    center: 131
+    right: 132
+  - take: 2
+    left: 328
+    center: 329
+    right: 330
+- scene: paper-fall-water
+  description: A grabber tool is holding a crumpled piece of paper over a bowl of
+    water on a wooden table. The grabber then releases the crumpled paper onto the
+    bowl. Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: The orange-black grabber tool releases the crumpled piece of paper
+    over the bowl of water.
+  scene-description: The orange-black grabber tool is suspended over the bowl of water
+    on a wooden table.
+  takes:
+  - take: 1
+    left: 133
+    center: 134
+    right: 135
+  - take: 2
+    left: 331
+    center: 332
+    right: 333
+- scene: paper-in-water
+  description: A small piece of crumpled white paper is being lowered into a tall
+    glass containing blue liquid with a green band showing the water level. The crumpled
+    paper is released into the glass. Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: The blue-black grabber releases the small crumpled piece of paper
+    into the glass containing blue liquid with a green band marking the water level.
+  pre-action-scene-description: The blue-black grabber tool was holding the small
+    crumpled piece of paper at the inner rim of the glass containing the blue liquid
+    and the green water level marking.
+  temporal-error-(i2v): paper is being lowered into a glass.... Only a release during
+    the video
+  takes:
+  - take: 1
+    left: 136
+    center: 137
+    right: 138
+  - take: 2
+    left: 334
+    center: 335
+    right: 336
+- scene: paper-smoke
+  description: A piece of folded paper is placed on a glass cutting board. The paper
+    is being burnt and white smoke is emitting from it. Static shot with no camera
+    movement.
+  category: Thermodynamics
+  subject-action: The piece of folded paper is burning while white smoke is emitting
+    from it.
+  scene-description: The piece of folded paper sits on a glass cutting board.
+  takes:
+  - take: 1
+    left: 139
+    center: 140
+    right: 141
+  - take: 2
+    left: 337
+    center: 338
+    right: 339
+- scene: potato-in-water
+  description: A potato is held by a grabber tool and dropped into a tall glass containing
+    blue liquid with a band of green tape marking a level on the glass. Static shot
+    with no camera movement.
+  category: Fluid Dynamics
+  subject-action: The blue-black grabber releases the potato into the glass containing
+    blue liquid with a green band marking the water level.
+  pre-action-scene-description: The blue-black grabber tool was holding the potato
+    at the inner rim of the glass containing the blue liquid and the green water level
+    marking.
+  takes:
+  - take: 1
+    left: 142
+    center: 143
+    right: 144
+  - take: 2
+    left: 340
+    center: 341
+    right: 342
+- scene: roll-behind-box
+  description: A small white lampshade is on a light wood surface. A grey tennis ball
+    rolls out of the black tube sitting on the table and rolls on the table towards
+    the right. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The grey tennis ball rolls from the left straight out of the black
+    tube over the entire table.
+  scene-description: A small white lampshade is on a light wooden table and a black
+    tube points from the left side to the right side.
+  omitted-key-information: ball rolls from left to right (speed)
+  takes:
+  - take: 1
+    left: 145
+    center: 146
+    right: 147
+  - take: 2
+    left: 343
+    center: 344
+    right: 345
+- scene: roll-front-box
+  description: A small white lampshade is on a light wood surface. A grey tennis ball
+    rolls out of the black tube sitting on the table and rolls on the table towards
+    the right. Static shot with no camera movement.
+  category: Solid Mechanics
+  description-factual: A small white lampshade is on a light wood surface. A brown
+    tennis ball rolls out of the black tube sitting on the table and rolls on the
+    table towards the right. Static shot with no camera movement.
+  subject-action: The brown tennis ball rolls from the left straight out of the black
+    tube over the entire table.
+  scene-description: A small white lampshade is on a light wooden table and a black
+    tube points from the left side to the right side.
+  factual-error: A grey ball != a brown ball
+  omitted-key-information: ball rolls from left to right (speed)
+  takes:
+  - take: 1
+    left: 148
+    center: 149
+    right: 150
+  - take: 2
+    left: 346
+    center: 347
+    right: 348
+- scene: roll-in-box
+  description: An olive green fabric box is on a light wood surface. A brown tennis
+    ball rolls out of the black tube sitting on the table and rolls towards the box.
+    Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The brown tennis ball rolls from the left straight out of the black
+    tube and hits the olive green fabric box.
+  scene-description: The olive green fabric box is on a light wooden table and a black
+    tube points from the left side to the right side.
+  omitted-key-information: ball hits the box (speed)
+  takes:
+  - take: 1
+    left: 151
+    center: 152
+    right: 153
+  - take: 2
+    left: 349
+    center: 350
+    right: 351
+- scene: rolling-reflection
+  description: A 30lb kettlebell resting on a wooden table next to a mirror. A tennis
+    ball rolls towards the kettlebell. Static shot with no camera movement.
+  category: Optics
+  subject-action: The tennis ball rolls slowly towards the 30lb kettlebell next to
+    a mirror and hits the kettlebell.
+  scene-description: The 30lb kettlebell sits next to a mirror that reflects the
+    kettlebell on a wooden table.
+  omitted-key-information: ball hits kettlebell slowly (speed)
+  takes:
+  - take: 1
+    left: 154
+    center: 155
+    right: 156
+  - take: 2
+    left: 352
+    center: 353
+    right: 354
+- scene: silk-cover
+  description: A teapot is placed on a wooden table. a piece of silk fabric is lowered
+    on the teapot to cover it. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The piece of silk fabric is lowered over the teapot and covers it.
+  scene-description: The teapot is on a wooden table.
+  takes:
+  - take: 1
+    left: 157
+    center: 158
+    right: 159
+  - take: 2
+    left: 355
+    center: 356
+    right: 357
+- scene: single-cradle
+  description: A Newton's cradle device on the table and one of the metal balls is
+    held up by a blue handled grabber tool. The claw releases the ball. Static shot
+    with no camera movement.
+  category: Solid Mechanics
+  subject-action: One metal ball of the Newton's cradle device is released by the
+    blue-black grabber tool.
+  pre-action-scene-description: The blue-black grabber tool was holding one metal
+    ball at the position of the amplitude of the Newton's cradle.
+  scene-description: The Newton's cradle with five metal balls is sitting on a table.
+  takes:
+  - take: 1
+    left: 160
+    center: 161
+    right: 162
+  - take: 2
+    left: 358
+    center: 359
+    right: 360
+- scene: siphon
+  description: A bundle of lit matchsticks is placed in a bowl of red liquid. A glass
+    jar gets lowered and covers the matchsticks. Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: A glass jar gets lowered to cover a bundle of lit matchsticks that
+    are placed in a bowl filled with red liquid.
+  takes:
+  - take: 1
+    left: 163
+    center: 164
+    right: 165
+  - take: 2
+    left: 361
+    center: 362
+    right: 363
+- scene: smiley-ball-rotates
+  description: A tennis ball with a smiley face drawn on it is placed on a rotating
+    black platform that rotates clockwise. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The tennis ball with a smiley face rotates slowly clockwise on the
+    black platform.
+  takes:
+  - take: 1
+    left: 166
+    center: 167
+    right: 168
+  - take: 2
+    left: 364
+    center: 365
+    right: 366
+- scene: solid-ball-peakaboo
+  description: A woven basket is hanging from a rope with a strong magnet attached
+    to the bottom. An orange tennis ball is placed on a table beneath it. The basket
+    is lowered and covers the ball and then the basket starts to lift again. Static
+    shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The woven basket hanging on an orange cord covers the ball and is
+    then lifted to the top of the frame.
+  scene-description: The orange tennis ball is on the table. The woven basket is
+    attached to a strong magnet that is connected to an orange cord.
+  temporal-error-(i2v): The basket is lowered and covers the ball and then the basket...
+    the basket is only lifted in the scene.
+  takes:
+  - take: 1
+    left: 169
+    center: 170
+    right: 171
+  - take: 2
+    left: 367
+    center: 368
+    right: 369
+- scene: stable-blocks
+  description: A pink block is being lowered towards a simple structure made of colorful
+    blocks resembling a gate. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: A pink block is carefully placed atop a simple structure of colorful
+    blocks that resembles a gate by a blue-black grabber tool that then retracts upward.
+  omitted-key-information: slowly lowered != careful release/placement
+  vague language: grabber movement lift
+  takes:
+  - take: 1
+    left: 172
+    center: 173
+    right: 174
+  - take: 2
+    left: 370
+    center: 371
+    right: 372
+- scene: teapot-rotates
+  description: A teapot is placed on a rotating display that rotates clockwise. Static
+    shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The teapot rotates slowly clockwise on the black platform.
+  scene-description: The teapot sits on the black platform.
+  takes:
+  - take: 1
+    left: 175
+    center: 176
+    right: 177
+  - take: 2
+    left: 373
+    center: 374
+    right: 375
+- scene: two-balls-pass
+  description: A light-colored wooden tabletop with two pipes at the edges. A blue
+    and yellow tennis ball roll out of the pipes and towards each other. Static shot
+    with no camera movement.
+  category: Solid Mechanics
+  description-factual: A light-colored wooden tabletop with two pipes at the edges.
+    A brown and a grey tennis ball roll out of the pipes. Static shot with no camera
+    movement.
+  subject-action: The brown and the grey tennis balls roll with high speed straight
+    out of the two black pipes.
+  scene-description: The two black pipes are on opposite sides of the light-colored
+    wooden table, but offset of each other.
+  factual-error: color of balls, balls do not roll towards each other they roll
+    straight out of the pipe, a blue and yellow tennis ball = 1 ball
+  omitted-key-information: balls roll over the table (speed)
+  takes:
+  - take: 1
+    left: 178
+    center: 179
+    right: 180
+  - take: 2
+    left: 376
+    center: 377
+    right: 378
+- scene: unstable-block-stack
+  description: A grabber tool carefully placing a blue wooden block on top of a yellow
+    block which is balanced on a red block forming an L shape. Static shot with no
+    camera movement.
+  category: Solid Mechanics
+  subject-action: The blue wooden block is placed by the orange-black grabber tool
+    atop the yellow block.
+  scene-description: The yellow block is balanced on the red block, forming an L shape.
+  takes:
+  - take: 1
+    left: 181
+    center: 182
+    right: 183
+  - take: 2
+    left: 379
+    center: 380
+    right: 381
+- scene: water-in-juice
+  description: A glass beverage dispenser is dispensing water into a glass which has
+    some grapefruit juice in it. Static shot with no camera movement.
+  category: Fluid Dynamics
+  subject-action: The glass beverage dispenser pours water into the glass.
+  scene-description: The glass is filled with some grapefruit juice.
+  takes:
+  - take: 1
+    left: 184
+    center: 185
+    right: 186
+  - take: 2
+    left: 382
+    center: 383
+    right: 384
+- scene: weight-on-ceramic
+  description: A 30lb kettlebell is slowly lowered on top of a yellow ceramic coffee
+    mug placed on a wooden table. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The 30lb kettlebell is placed on top of the yellow ceramic mug.
+  scene-description: The yellow ceramic mug is on a wooden table.
+  takes:
+  - take: 1
+    left: 187
+    center: 188
+    right: 189
+  - take: 2
+    left: 385
+    center: 386
+    right: 387
+- scene: weight-on-paper
+  description: A 30lb kettlebell is slowly lowered onto a white styrofoam cup placed
+    on a wooden table on its side. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The 30lb kettlebell is placed on top of the white styrofoam cup.
+  scene-description: The white styrofoam cup is on a wooden table.
+  takes:
+  - take: 1
+    left: 190
+    center: 191
+    right: 192
+  - take: 2
+    left: 388
+    center: 389
+    right: 390
+- scene: weight-on-pillow
+  description: A 30lb kettlebell and a green piece of paper are lowered onto two pillows.
+    Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The 30-lb kettlebell and the green piece of paper are each placed
+    onto the pillow below them simultaneously.
+  takes:
+  - take: 1
+    left: 193
+    center: 194
+    right: 195
+  - take: 2
+    left: 391
+    center: 392
+    right: 393
+- scene: weight-protects-duck
+  description: A light beige coffee table with a black kettlebell and a yellow rubber
+    duck on it. A grey tennis ball rolls out of the black tube sitting on the table
+    and towards the duck and kettlebell. Static shot with no camera movement.
+  category: Solid Mechanics
+  subject-action: The grey tennis ball rolls swiftly straight out of the black pipe
+    from the left side and hits the 30lb kettlebell.
+  scene-description: The 30lb kettlebell and the yellow rubber duck sit on a light-colored
+    wooden table. The black pipe is on the left side of the table and points to the
+    right.
+  omitted-key-information: ball hits kettlebell (speed)
+  takes:
+  - take: 1
+    left: 196
+    center: 197
+    right: 198
+  - take: 2
+    left: 394
+    center: 395
+    right: 396
