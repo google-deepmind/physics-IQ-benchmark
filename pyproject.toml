@@ -32,9 +32,11 @@ dev = [
 
 [project.urls]
 "Homepage Physics-IQ" = "https://physics-iq.github.io/"
-"Homepage Physics-IQ Verified" = ""
+# TODO: Change this to new website
+"Homepage Physics-IQ Verified" = "https://physics-iq.github.io/"
 "Physics-IQ Paper" = "https://arxiv.org/abs/2501.09038"
-"Physics-IQ Verified Paper" = ""
+# TODO: Change this to new paper
+"Physics-IQ Verified Paper" = "https://arxiv.org/abs/2501.09038"
 Repository = "https://github.com/google-deepmind/physics-IQ-benchmark"
 "Bug Tracker" = "https://github.com/google-deepmind/physics-IQ-benchmark/issues"
 
