@@ -33,10 +33,14 @@ Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)
 </p>
 
 ---
-
 ## Leaderboard
 The best possible score on Physics-IQ is 100.0%, this score would be achieved by physically realistic videos that differ only in physical randomness but adhere to all tested principles of physics.
+### Leaderboard Verified
+If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
+<!-- TODO: Add values from paper here in table. -->
+
+### Leaderboard Original
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
 | **#** | **Model** | **input type** | **Physics-IQ score** | **date added (YYYY-MM-DD)** |
@@ -77,6 +81,7 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 ### 1. Download Benchmark Dataset
 
 For the verified Benchmark visit the [Physics-IQ Verified Google Cloud Storage link]() to download the dataset.
+<!-- TODO: Add our Download link here.-->
 For the original Benchmark visit the [Physics-IQ Google Cloud Storage link](https://console.cloud.google.com/storage/browser/physics-iq-benchmark) to download the dataset.
 
 Alternatively after installing gcloud SDK from [here](https://docs.cloud.google.com/sdk/docs/install-sdk) and run the following:
