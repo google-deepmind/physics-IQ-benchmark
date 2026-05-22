@@ -16,6 +16,7 @@
 import os
 import subprocess
 import multiprocessing
+import argparse
 
 from fps_changer import change_video_fps
 
@@ -39,7 +40,7 @@ def download_directory(remote_path: str, local_path: str):
         raise
 
 
-def download_physics_iq_data(fps: str):
+def download_physics_iq_data(fps: list[int]| tuple[int,] , base_dir: str,verified: bool = True):
     """Download the Physics-IQ dataset based on the specified FPS.
 
     Args:
@@ -47,21 +48,22 @@ def download_physics_iq_data(fps: str):
         available pre-computed; any other value in range is downsampled
         locally from the 30 FPS data.
     """
-    try:
-        fps_int = int(fps)
-    except (TypeError, ValueError):
-        raise ValueError(f'FPS must be an integer in [1, 30], got {fps!r}')
-    assert 1 <= fps_int <= 30, f'FPS must be in [1, 30], got {fps_int}'
 
     # Always download 30FPS data
     download_fps = ["30"]
-
     # Additionally download pre-computed non-30 FPS data if available
-    if fps_int in (8, 16, 24):
+    for f in fps:
+        assert 1 <= fps <= 30, f'FPS must be in [1, 30], got {f}'
         download_fps.append(fps)
 
-    base_url = "gs://physics-iq-benchmark"
-    local_base_dir = "./physics-IQ-benchmark"
+    if not verified:
+        local_base_dir = os.path.join(base_dir, "physics-IQ-benchmark")
+        base_url = "gs://physics-iq-benchmark"
+    else:
+        local_base_dir = os.path.join(base_dir, "physics-IQ-benchmark-verified")
+        raise NotImplementedError("Currently there is no download url available for the verified dataset.")
+        # TODO: add download link for physics iq dataset here
+        base_url = "gs://physics-iq-benchmark"
 
     directories = {
         "full-videos/take-1": download_fps,
@@ -87,18 +89,31 @@ def download_physics_iq_data(fps: str):
     # Skip video-masks/real: linear frame interpolation would produce non-binary
     # pixels; run_physics_iq.py::ensure_binary_mask_structure will regenerate
     # proper binary masks from the downsampled real videos at benchmark time.
-    if fps_int not in (8, 16, 24, 30):
-        print(f"Downsampling 30 FPS videos to {fps_int} FPS locally...")
-        for directory, subdirs in directories.items():
-            if subdirs is None or directory == "video-masks/real":
-                continue
-            input_folder = os.path.join(local_base_dir, directory, "30FPS")
-            output_folder = os.path.join(local_base_dir, directory, f"{fps_int}FPS")
-            change_video_fps(input_folder=input_folder, output_folder=output_folder, fps_new=fps_int)
+    for f in fps:
+        if f not in (8, 16, 24, 30):
+            print(f"Downsampling 30 FPS videos to {f} FPS locally...")
+            for directory, subdirs in directories.items():
+                if subdirs is None or directory == "video-masks/real":
+                    continue
+                input_folder = os.path.join(local_base_dir, directory, "30FPS")
+                output_folder = os.path.join(local_base_dir, directory, f"{f}FPS")
+                change_video_fps(input_folder=input_folder, output_folder=output_folder, fps_new=f)
 
     print("Download process complete.")
 
 
+def main():
+    parser = argparse.ArgumentParser(description="Downloads Physics IQ Dataset or Physiqs IQ verified Dataset.")
+    parser.add_argument("--fps", nargs="+", default=(30),type=int, help="Select values in (8, 16, 24, 30) for download otherwise resample")
+    parser.add_argument("--original_gt", action="store_true", help="Whether to download verified (default) or orginal dataset")
+    parser.add_argument(
+        "--benchmark_base_folder",
+        type=str,
+        default=".",
+        help="Path to the folder within which physics-IQ-benchmark & physics-IQ-benchmark-verifed data are or will be located after download.",
+    )
+    args = parser.parse_args()
+    download_physics_iq_data(args.fps, args.benchmark_base_folder, args.original_gt)
+
 if __name__ == '__main__':
-    user_fps = input("Enter your model's frames per second FPS as an integer in [1, 30]: ").strip()
-    download_physics_iq_data(user_fps)
+    main()
