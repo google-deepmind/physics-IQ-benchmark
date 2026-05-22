@@ -127,7 +127,7 @@ _C_VER = "#762A83"  # verified evaluation (purple)
 _C_CROSS = "#636363"  # cross-evaluation comparisons (neutral grey)
 
 
-BASEPATH = Path("/Users/carsten/projects/anates/physics-iq/results_share_neurips")
+BASEPATH = Path(".")
 OUTPUT_PATH = Path("./output")
 
 RUNKEY = "run"

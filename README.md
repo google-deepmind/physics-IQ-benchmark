@@ -4,11 +4,15 @@
 
 [Step A: Generating Videos](#step-a-generating-videos-for-physics-iq-test-cases-based-on-video-model) | [Step B: Evaluating Generated Videos](#step-b-evaluating-generated-videos-on-physics-iq-to-generate-benchmark-scores) | [Leaderboard](#leaderboard) | [Citation](#citation) | [License](#license-and-disclaimer)
 
-# Physics-IQ: Benchmarking physical understanding in generative video models
+# Physics-IQ Verified: Benchmarking physical understanding in generative video models
 
-Physics-IQ is a high-quality, realistic, and comprehensive benchmark dataset for evaluating physical understanding in generative video models.
+The original Physics-IQ is a high-quality, realistic, and comprehensive benchmark dataset for evaluating physical understanding in generative video models.
+Physics-IQ Verfied proposes key improvements with respect to data quality, prompt descriptiveness and the score computation.
 
-Project website: [physics-iq.github.io](https://physics-iq.github.io/)
+
+
+Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)
+<!-- TODO: Add Physics-IQ Verified website here -->
 
 ### Key Features:
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
@@ -72,11 +76,15 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 
 ### 1. Download Benchmark Dataset
 
-Visit the [Google Cloud Storage link](https://console.cloud.google.com/storage/browser/physics-iq-benchmark) to download the dataset, or install gcloud SDK from [here](https://docs.cloud.google.com/sdk/docs/install-sdk) and run the following:
+For the verified Benchmark visit the [Physics-IQ Verified Google Cloud Storage link]() to download the dataset.
+For the original Benchmark visit the [Physics-IQ Google Cloud Storage link](https://console.cloud.google.com/storage/browser/physics-iq-benchmark) to download the dataset.
 
+Alternatively after installing gcloud SDK from [here](https://docs.cloud.google.com/sdk/docs/install-sdk) and run the following:
 ```bash
-uv run physiq/download_physics_iq_data.py
+uv run physiq/download_physics_iq_data.py --fps FPS
 ```
+Whether to download the original or verified Benchmark use the following flag:
+- `--original_gt`: Whether to use the verified benchmark or the original benchmark.
 
 - If your desired FPS already exists in the dataset, it will be downloaded.
 - If it does not exist, the script will download 30 FPS files and generate your desired FPS videos by downsampling the 30 FPS version.
@@ -102,6 +110,39 @@ To regenerate or add a new variant:
 uv run physiq/generate_descriptions.py pvideo   # or sora2, base
 ```
 
+<details>
+  <summary>Adding a new templater for your model</summary>
+
+1. Open `physiq/templater/physiq_verified.py` and add a class decorated with `@register("name")`:
+
+```python
+from templater.base import BaseTemplater, register
+
+@register("mymodel")
+class MyModelTemplater(BaseTemplater):
+    def generate_prompt(self, identifier) -> str:
+        action = self.get_subjectaction_description(identifier)
+        scene = self.get_scene_description(identifier)
+        setup = self.get_scenesetup_description(identifier)
+        # compose however your model expects it
+        return f"{action} {scene} {setup}"
+```
+
+2. Generate the descriptions CSV:
+
+```bash
+uv run physiq/generate_descriptions.py mymodel
+# → writes descriptions/model_specific/descriptions_mymodel.csv
+```
+
+Available helper methods on `BaseTemplater`:
+- `get_subjectaction_description(id)` — what happens in the scene
+- `get_scene_description(id)` — static scene setup
+- `get_scenesetup_description(id)` — pre-action state (optional, may be empty)
+- `self.camera_description` / `self.style_description` / `self.action_description` — fixed boilerplate strings
+
+</details>
+
 #### 2.1 Image-to-Video Models (I2V)
 
 <details>
@@ -109,7 +150,7 @@ uv run physiq/generate_descriptions.py pvideo   # or sora2, base
 
 1. **Input Requirements**:
    - **Initial Frame**: Use frames from `physics-iq-benchmark/switch-frames`.
-   - **Text Input (Optional)**: If required, use descriptions from `descriptions.csv`. Only the first 198 entries (marked as`take-1`) need to be used, feel free to ignore the `take-2` entries since they're not used for sampling from models. 
+   - **Text Input (Optional)**: If required, use descriptions from `descriptions.csv` or `descriptions_model.csv`. Only the first 198 entries (marked as`take-1`) need to be used, feel free to ignore the `take-2` entries since they're not used for sampling from models. 
 
 2. **Steps to Run**:
    - Generate videos using the initial frame (and text condition, if applicable).
@@ -130,7 +171,7 @@ uv run physiq/generate_descriptions.py pvideo   # or sora2, base
    - **Conditioning Frames**:
      - Available in `physics-iq-benchmark/split-videos/conditioning-videos`.
      - Ensure the correct frame rate: `30FPS`, `24FPS`, `16FPS`, or `8FPS`.
-   - **Text Input (Optional)**: Use `descriptions.csv`.
+   - **Text Input (Optional)**: Use `descriptions.csv` or `descriptions_model.csv`.
 
 2. **Steps to Run**:
    - Use conditioning frames to generate videos.
@@ -170,17 +211,32 @@ done
 
 ### 1. Installation
 
-Ensure you have [uv](https://docs.astral.sh/uv/getting-started/installation/) installed. Then, install dependencies:
+**Option A — uv (recommended):**
 
 ```bash
+pip install uv
 uv sync
 ```
 
-System requirements: tested on Linux; requires command `ffprobe` to be available (install if necessary, e.g. `sudo apt-get install ffmpeg`).
+**Option B — pip:**
+
+```bash
+pip install -e .
+```
+
+To also install development tools (formatter, test runner, notebooks):
+
+```bash
+pip install -e ".[dev]"
+```
+
+System requirements: tested on Linux; requires `ffprobe` (install with `sudo apt-get install ffmpeg`).
+
+> **Note for pip users:** replace `uv run` with `python` in all commands below.
 
 ### 2. Dataset Placement
 
-- Ensure you have downloaded and placed the `physics-iq-benchmark` dataset in your working directory. This dataset must include 30FPS videos and optionally your desired FPS. If your desired FPS does not exist in our dataset already, it will be automatically generated. You should have the following structure:
+- Ensure you have downloaded and placed the `physics-iq-benchmark-verified` or `physics-iq-benchmark` dataset in your working directory. This dataset must include 30FPS videos and optionally your desired FPS. If your desired FPS does not exist in our dataset already, it will be automatically generated. You should have the following structure:
 
 ```plaintext
 physics-IQ-benchmark/
@@ -224,6 +280,7 @@ uv run physiq/run_physics_iq.py --input_folders <generated_videos_dirs> --output
 - `--input_folders`: The path to the directories containing input videos (in `.mp4` format), with one directory per model (`/model_name/video.mp4`).
 - `--output_folder`: The path to the directory where output CSV files will be saved.
 - `--descriptions_file`: The path to the `descriptions.csv` file.
+- `--original_gt`: Whether to use the verified benchmark or the original benchmark.
 
 ---
 
@@ -232,6 +289,13 @@ uv run physiq/run_physics_iq.py --input_folders <generated_videos_dirs> --output
 If you think this project is helpful, please feel free to leave a star ⭐️
 
 ```latex
+@article{raedsch2026physics,
+  title={Physics-IQ Verified},
+  author={}
+  journal={arXiv preprint},
+  year=2026
+}
+
 @article{motamed2026physics,
   title={Do generative video models understand physical principles?},
   author={Saman Motamed and Laura Culp and Kevin Swersky and Priyank Jaini and Robert Geirhos},

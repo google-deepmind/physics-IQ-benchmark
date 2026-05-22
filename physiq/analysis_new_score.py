@@ -20,14 +20,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
-# def cauch_
 out_dir = Path(OUTPUT_PATH) / "score_analysis"
 out_dir.mkdir(parents=True, exist_ok=True)
 
 
 def plot_df_hist(df, cols, name):
     for col in cols:
-        # print(f"Plotting {col}...")
         sns.histplot(df[col])
         plt.title(f"Histogram of {col}")
         plt.savefig(out_dir / f"{name}_{col}_histogram.png")
@@ -113,36 +111,6 @@ if __name__ == "__main__":
     plot_df_hist(tab_orig.df, tab_orig.variance_keys, "original")
     plot_df_hist(tab_verified.df, tab_verified.variance_keys, "verified")
 
-    # for score in tab_orig.metric_keys:
-    #     sns.histplot(
-    #         tab_orig.compute_metric_ratio(score),
-    #         label="Original",
-    #         color="blue",
-    #         alpha=0.5,
-    #     )
-    #     sns.histplot(
-    #         tab_verified.compute_metric_ratio(score),
-    #         label="Verified",
-    #         color="orange",
-    #         alpha=0.5,
-    #     )
-    #     plt.title(f"Histogram of {score}")
-    #     plt.legend()
-    #     plt.savefig(f"{score}_comparison_histogram.png")
-    #     plt.clf()
-    #     print("\n")
-    #     print("-" * 20)
-    #     print("Score Descriptiontion:")
-    #     print(f"{score} - Original - Sample:")
-    #     print(tab_orig.compute_metric_scores_scenario(score).describe())
-    #     print(f"{score} - Original - PhysIQ:")
-    #     print(tab_orig.get_score(score))
-
-    #     print(f"{score} - Verified - Sample:")
-    #     print(tab_verified.compute_metric_scores_scenario(score).describe())
-    #     print(f"{score} - Verified - PhysIQ:")
-    #     print(tab_verified.get_score(score))
-
     # Full score analysis
     tables = {
         "Original": tab_orig,
@@ -166,11 +134,5 @@ if __name__ == "__main__":
     vis_df = unfold_views_df[col_dict["sample_index_cols"] + col_dict["scores_cols"]]
 
 
-    import IPython; IPython.embed()
-    # pprint(vis_df[scores_cols].describe())
-    # pprint(vis_df)
 
-
-
-    # pprint(unfold_views_df)
 

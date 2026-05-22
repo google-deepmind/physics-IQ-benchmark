@@ -1,4 +1,5 @@
 .DS_Store
+.vscode/
 physics-IQ-benchmark/
 physics-IQ-benchmark-verified/
 csv_files/

@@ -13,7 +13,7 @@ def register(name: str):
 class BaseTemplater:
     def __init__(self, df: pd.DataFrame, use_action_suffix: bool = True):
         self.df = df.copy()
-        self. use_action_suffix = use_action_suffix
+        self.use_action_suffix = use_action_suffix
         
     @classmethod
     def from_csv(cls, df_path, use_action_suffix: bool = True)->"BaseTemplater":
