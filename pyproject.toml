@@ -1,11 +1,10 @@
 [project]
 name = "physics-iq-benchmark"
-version = "0.1.0"
-description = "Physics IQ Benchmark evaluation suite"
+version = "1.1.0"
+description = "Physics IQ Verified Benchmark evaluation suite"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
-    "argparse",
     "matplotlib",
     "moviepy",
     "numpy",
@@ -19,19 +18,32 @@ dependencies = [
     "kaleido",
     "scipy",
     "scikit-learn",
-    "ipywidgets",
-    "jupyter",
-    "black>=26.3.1",
-    "pytest>=9.0.3",
     "pydantic>=2.13.4",
+    "pyyaml",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = [
+    "pytest>=9.0.3",
+    "black",
+    "jupyter",
+    "ipywidgets",
+]
+
+[project.urls]
+"Homepage Physics-IQ" = "https://physics-iq.github.io/"
+"Homepage Physics-IQ Verified" = ""
+"Physics-IQ Paper" = "https://arxiv.org/abs/2501.09038"
+"Physics-IQ Verified Paper" = ""
+Repository = "https://github.com/google-deepmind/physics-IQ-benchmark"
+"Bug Tracker" = "https://github.com/google-deepmind/physics-IQ-benchmark/issues"
 
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
+    "black>=26.3.1",
+    "jupyter",
+    "ipywidgets",
 ]
 
 [tool.pytest.ini_options]
