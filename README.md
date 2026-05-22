@@ -75,7 +75,7 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 Visit the [Google Cloud Storage link](https://console.cloud.google.com/storage/browser/physics-iq-benchmark) to download the dataset, or install gcloud SDK from [here](https://docs.cloud.google.com/sdk/docs/install-sdk) and run the following:
 
 ```bash
-python3 ./code/download_physics_iq_data.py
+uv run physiq/download_physics_iq_data.py
 ```
 
 - If your desired FPS already exists in the dataset, it will be downloaded.
@@ -86,6 +86,21 @@ python3 ./code/download_physics_iq_data.py
 ### 2. Running Video Model on Test Cases from Benchmark
 
 This section explains how to generate videos using the provided benchmark and save them in the required format. Follow the instructions below based on your model type:
+
+#### Text Descriptions / Prompts
+
+The base descriptions are in `descriptions/descriptions.csv`. For models with specific prompting guidelines, model-optimised descriptions are available in `descriptions/model_specific/`:
+
+| File | Optimised for |
+|---|---|
+| `descriptions_pvideo.csv` | P-Video (Pruna AI) |
+| `descriptions_sora2.csv` | Sora 2 (OpenAI) |
+
+To regenerate or add a new variant:
+
+```bash
+uv run physiq/generate_descriptions.py pvideo   # or sora2, base
+```
 
 #### 2.1 Image-to-Video Models (I2V)
 
@@ -155,10 +170,10 @@ done
 
 ### 1. Installation
 
-Ensure you have Python 3 installed. Then, run the following command to install the necessary packages:
+Ensure you have [uv](https://docs.astral.sh/uv/getting-started/installation/) installed. Then, install dependencies:
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 System requirements: tested on Linux; requires command `ffprobe` to be available (install if necessary, e.g. `sudo apt-get install ffmpeg`).
@@ -203,7 +218,7 @@ physics-IQ-benchmark/
 ### 3. Generate benchmark scores and plots
 
 ```bash
-python3 code/run_physics_iq.py --input_folders <generated_videos_dirs> --output_folder <output_dir> --descriptions_file <descriptions_file>
+uv run physiq/run_physics_iq.py --input_folders <generated_videos_dirs> --output_folder <output_dir> --descriptions_file <descriptions_file>
 ```
 **Parameters:**
 - `--input_folders`: The path to the directories containing input videos (in `.mp4` format), with one directory per model (`/model_name/video.mp4`).
