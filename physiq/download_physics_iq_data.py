@@ -61,7 +61,7 @@ def download_physics_iq_data(fps: list[int]| tuple[int,] , base_dir: str,verifie
         base_url = "gs://physics-iq-benchmark"
     else:
         local_base_dir = os.path.join(base_dir, "physics-IQ-benchmark-verified")
-        raise NotImplementedError("Currently there is no download url available for the verified dataset.")
+        raise NotImplementedError("Currently there is no download url available for the verified dataset.\nPlease Download from the Link provided in the README.md")
         # TODO: add download link for physics iq dataset here
         base_url = "gs://physics-iq-benchmark"
 

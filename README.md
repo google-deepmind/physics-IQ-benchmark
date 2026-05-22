@@ -39,6 +39,22 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
 <!-- TODO: Add values from paper here in table. -->
+| Model      | Prompt | Phys-IQ verified | SP verified    | ST verified    | WS verified    | MSE verified   |
+|------------|--------|------------------|----------------|----------------|----------------|----------------|
+| Grok Video | bpp    | $34.8 \pm 0.6$   | $52.7 \pm 0.9$ | $21.4 \pm 0.6$ | $35.7 \pm 1.0$ | $29.6 \pm 0.4$ |
+|            | op     | $32.7 \pm 0.4$   | $49.8 \pm 0.7$ | $18.8 \pm 0.6$ | $34.0 \pm 0.2$ | $28.2 \pm 0.4$ |
+| Hunyuan    | bpp    | $33.4 \pm 0.8$   | $47.1 \pm 1.2$ | $26.9 \pm 1.0$ | $29.7 \pm 0.6$ | $30.0 \pm 1.0$ |
+|            | op     | $31.7 \pm 0.9$   | $43.5 \pm 1.1$ | $25.4 \pm 1.0$ | $27.4 \pm 1.1$ | $30.4 \pm 0.6$ |
+| P-Video    | bpp    | $25.3 \pm 1.8$   | $38.6 \pm 2.2$ | $16.4 \pm 2.4$ | $22.9 \pm 1.8$ | $23.3 \pm 1.1$ |
+|            | op     | $23.8 \pm 1.7$   | $35.5 \pm 1.6$ | $16.2 \pm 2.9$ | $21.4 \pm 1.3$ | $22.2 \pm 2.0$ |
+| Sora 2     | bpp    | $26.5 \pm 0.8$   | $37.3 \pm 0.6$ | $27.0 \pm 2.2$ | $26.9 \pm 0.7$ | $14.8 \pm 0.6$ |
+|            | op     | $15.7 \pm 0.7$   | $23.6 \pm 1.0$ | $16.5 \pm 1.0$ | $15.4 \pm 0.5$ | $7.4 \pm 0.6$  |
+| Wan 2.2    | bpp    | $32.2 \pm 0.6$   | $51.1 \pm 1.0$ | $20.5 \pm 0.7$ | $28.5 \pm 0.7$ | $28.9 \pm 0.4$ |
+|            | op     | $34.8 \pm 0.7$   | $54.3 \pm 0.9$ | $21.2 \pm 1.1$ | $31.8 \pm 0.7$ | $31.9 \pm 0.2$ |
+
+- bpp is using a custom templater for the specific model
+- op is using the description.csv prompts
+- all models are i2v model
 
 ### Leaderboard Original
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
@@ -294,7 +310,7 @@ uv run physiq/run_physics_iq.py --input_folders <generated_videos_dirs> --output
 
 ## Citation
 If you think this project is helpful, please feel free to leave a star ⭐️
-
+<!-- TODO: finalize our publication here. -->
 ```latex
 @article{raedsch2026physics,
   title={Physics-IQ Verified},
