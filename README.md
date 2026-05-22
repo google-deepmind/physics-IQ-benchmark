@@ -221,14 +221,16 @@ uv sync
 **Option B — pip:**
 
 ```bash
-pip install -e .
+pip install .
 ```
 
 To also install development tools (formatter, test runner, notebooks):
 
 ```bash
-pip install -e ".[dev]"
+pip install ".[dev]"
 ```
+
+> Contributors who need an editable install can use `pip install -e ".[dev]"` instead.
 
 System requirements: tested on Linux; requires `ffprobe` (install with `sudo apt-get install ffmpeg`).
 
