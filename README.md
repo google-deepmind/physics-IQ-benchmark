@@ -1,18 +1,21 @@
 <p align="center">
-  <img src="assets/duckie.png" width="20%" alt="logo">
+  <img src="assets/duckie.png" width="20%" alt="logo" style="vertical-align: middle;">
+  <img src="assets/phys-iq-verified_logo.png" width="20%" alt="Physics-IQ Verified logo" style="vertical-align: middle;">
 </p>
 
-[Step A: Generating Videos](#step-a-generating-videos-for-physics-iq-test-cases-based-on-video-model) | [Step B: Evaluating Generated Videos](#step-b-evaluating-generated-videos-on-physics-iq-to-generate-benchmark-scores) | [Leaderboard](#leaderboard) | [Citation](#citation) | [License](#license-and-disclaimer)
+[Leaderboard](#leaderboard) | [Quick Start](#quick-start) | [Physics-IQ Verified Workflow](#physics-iq-verified-workflow) | [Citation](#citation) | [License](#license-and-disclaimer)
 
 # Physics-IQ Verified: Benchmarking physical understanding in generative video models
 
 The original Physics-IQ is a high-quality, realistic, and comprehensive benchmark dataset for evaluating physical understanding in generative video models.
 Physics-IQ Verfied proposes key improvements with respect to data quality, prompt descriptiveness and the score computation.
+This repository contains the workflow for Physics-IQ Verified, the recommended benchmark variant.
+It also retains support for the original Physics-IQ benchmark for comparison with earlier published results.
 
 
 
-Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)
-<!-- TODO: Add Physics-IQ Verified website here -->
+Original Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)<br>
+Physics-IQ Verified website: <!-- TODO: Add Physics-IQ Verified website here -->
 
 ### Key Features:
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
@@ -35,7 +38,7 @@ Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)
 ---
 ## Leaderboard
 The best possible score on Physics-IQ is 100.0%, this score would be achieved by physically realistic videos that differ only in physical randomness but adhere to all tested principles of physics.
-### Leaderboard Verified
+### Physics-IQ Verified Leaderboard
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
 <!-- TODO: Add values from paper here in table. -->
@@ -56,7 +59,9 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 - op is using the description.csv prompts
 - all models are i2v model
 
-### Leaderboard Original
+<details>
+<summary><strong><big>Physics-IQ Original Leaderboard</big></strong></summary>
+
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
 | **#** | **Model** | **input type** | **Physics-IQ score** | **date added (YYYY-MM-DD)** |
@@ -90,147 +95,53 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 
 *Note to early adopters of the benchmark: results from the paper were finalized on February 19, 2025; if you used the toolbox before please re-run since we changed and improved a few aspects. Likewise, if you downloaded the dataset before that date, it is recommended to re-download it, ensuring the ground truth video masks have a duration of five seconds.*
 
+</details>
+
 ---
 
-## Step A: Generating Videos for Physics-IQ Test Cases Based on Video Model
+## Quick Start
 
-### 1. Download Benchmark Dataset
+Choose one benchmark:
 
-For the verified Benchmark visit the [Physics-IQ Verified Google Cloud Storage link]() to download the dataset.
+- [**Physics-IQ Verified Workflow**](#physics-iq-verified-workflow): recommended benchmark with improved prompts, masks, and scoring. This is the default when running `physiq/run_physics_iq.py`.
+- [**Physics-IQ Original Workflow**](#physics-iq-original-workflow): legacy benchmark for comparison with older published results. Use `--original_gt` when evaluating.
+
+## Physics-IQ Verified Workflow
+
+### A. Download Physics-IQ Verified
+
+Download the verified benchmark from the [Physics-IQ Verified Google Cloud Storage link]().
 <!-- TODO: Add our Download link here.-->
-For the original Benchmark visit the [Physics-IQ Google Cloud Storage link](https://console.cloud.google.com/storage/browser/physics-iq-benchmark) to download the dataset.
 
-Alternatively after installing gcloud SDK from [here](https://docs.cloud.google.com/sdk/docs/install-sdk) and run the following:
-```bash
-uv run physiq/download_physics_iq_data.py --fps FPS
-```
-Whether to download the original or verified Benchmark use the following flag:
-- `--original_gt`: Whether to use the verified benchmark or the original benchmark.
+Ensure you have downloaded and placed the `physics-IQ-benchmark-verified` dataset in your working directory. This dataset must include 30FPS videos and can optionally include your desired FPS. If you downloaded the dataset from the link above, it should contain all provided FPS variants (30FPS, 24FPS, 16FPS, 8FPS). If your desired FPS does not exist in the dataset already, it will be automatically generated. The folder should have the following structure:
 
-- If your desired FPS already exists in the dataset, it will be downloaded.
-- If it does not exist, the script will download 30 FPS files and generate your desired FPS videos by downsampling the 30 FPS version.
-
----
-
-### 2. Running Video Model on Test Cases from Benchmark
-
-This section explains how to generate videos using the provided benchmark and save them in the required format. Follow the instructions below based on your model type:
-
-#### Text Descriptions / Prompts
-
-The base descriptions are in `descriptions/descriptions.csv`. For models with specific prompting guidelines, model-optimised descriptions are available in `descriptions/model_specific/`:
-
-| File | Optimised for |
-|---|---|
-| `descriptions_pvideo.csv` | P-Video (Pruna AI) |
-| `descriptions_sora2.csv` | Sora 2 (OpenAI) |
-
-To regenerate or add a new variant:
-
-```bash
-uv run physiq/generate_descriptions.py pvideo   # or sora2, base
+```plaintext
+physics-IQ-benchmark-verified/
+├── full-videos/
+│   └── take-1/
+│       └── 30FPS/
+│           ├── 0001_full-videos_30FPS_perspective-left_take-1_trimmed-ball-and-block-fall.mp4
+│           ├── 0002_full-videos_30FPS_perspective-center_take-1_trimmed-ball-and-block-fall.mp4
+│           └── ...
+├── split-videos/
+│   └── testing/
+│       └── 30FPS/
+│           ├── 0001_testing-videos_30FPS_perspective-left_take-1_trimmed-ball-and-block-fall.mp4
+│           ├── 0002_testing-videos_30FPS_perspective-center_take-1_trimmed-ball-and-block-fall.mp4
+│           └── ...
+├── switch-frames/
+│   ├── 0001_switch-frames_anyFPS_perspective-left_trimmed-ball-and-block-fall.jpg
+│   ├── 0002_switch-frames_anyFPS_perspective-center_trimmed-ball-and-block-fall.jpg
+│   └── ...
+└── video-masks/
+    └── real/
+        └── 30FPS/
+            ├── 0001_video-masks_30FPS_perspective-left_take-1_trimmed-ball-and-block-fall.mp4
+            ├── 0002_video-masks_30FPS_perspective-center_take-1_trimmed-ball-and-block-fall.mp4
+            └── ...
 ```
 
-<details>
-  <summary>Adding a new templater for your model</summary>
-
-1. Open `physiq/templater/physiq_verified.py` and add a class decorated with `@register("name")`:
-
-```python
-from templater.base import BaseTemplater, register
-
-@register("mymodel")
-class MyModelTemplater(BaseTemplater):
-    def generate_prompt(self, identifier) -> str:
-        action = self.get_subjectaction_description(identifier)
-        scene = self.get_scene_description(identifier)
-        setup = self.get_scenesetup_description(identifier)
-        # compose however your model expects it
-        return f"{action} {scene} {setup}"
-```
-
-2. Generate the descriptions CSV:
-
-```bash
-uv run physiq/generate_descriptions.py mymodel
-# → writes descriptions/model_specific/descriptions_mymodel.csv
-```
-
-Available helper methods on `BaseTemplater`:
-- `get_subjectaction_description(id)` — what happens in the scene
-- `get_scene_description(id)` — static scene setup
-- `get_scenesetup_description(id)` — pre-action state (optional, may be empty)
-- `self.camera_description` / `self.style_description` / `self.action_description` — fixed boilerplate strings
-
-</details>
-
-#### 2.1 Image-to-Video Models (I2V)
-
-<details>
-  <summary>I2V steps</summary>
-
-1. **Input Requirements**:
-   - **Initial Frame**: Use frames from `physics-iq-benchmark/switch-frames`.
-   - **Text Input (Optional)**: If required, use descriptions from `descriptions.csv` or `descriptions_model.csv`. Only the first 198 entries (marked as`take-1`) need to be used, feel free to ignore the `take-2` entries since they're not used for sampling from models. 
-
-2. **Steps to Run**:
-   - Generate videos using the initial frame (and text condition, if applicable).
-   - Save generated videos in the following structure, using any filename as long as the unique ID prefix from the test videos is kept (`0001_`, ..., `0198_`):
-     ```
-     .model_name/{ID}_{anything-you-like}.mp4
-     ```
-   - Refer to the `generated_video_name` column in `descriptions.csv` for file naming conventions.
-
-</details>
-
-#### 2.2 Multiframe-to-Video Models (V2V)
-
-<details>
-  <summary>V2V steps</summary>
-
-1. **Input Requirements**:
-   - **Conditioning Frames**:
-     - Available in `physics-iq-benchmark/split-videos/conditioning-videos`.
-     - Ensure the correct frame rate: `30FPS`, `24FPS`, `16FPS`, or `8FPS`.
-   - **Text Input (Optional)**: Use `descriptions.csv` or `descriptions_model.csv`.
-
-2. **Steps to Run**:
-   - Use conditioning frames to generate videos.
-   - Save generated videos in the structure:
-     ```
-     model_name/{ID}_{perspective}_{scenario_name}.mp4
-     example: model_name/{0001}_{perspective-left}_{trimmed-ball-and-block-fall}.mp4
-     ```
-   - Refer to the `generated_video_name` column in `descriptions.csv` for file naming conventions.
-
-</details>
-
-#### 2.3 Trim Generated Videos to 5 Seconds
-
-⚠️ **IMPORTANT**: Before running the evaluation, you must trim all generated videos to **exactly 5 seconds**. Videos of any other duration are incompatible with the benchmark. If you're running V2V (=multiframe-to-video), please make sure you're not including the 3s conditioning video, only the model-generated 5 seconds.
-
-**Example command to trim your videos using ffmpeg:**
-
-This example is based on cropping to the first 5 seconds which is useful for I2V; for V2V please adapt this command if the generated videos include the 3s conditioning part.
-```bash
-# Create output directory for trimmed videos
-mkdir -p generated_videos_5s
-
-# Trim all videos to 5 seconds at desired frame rate
-# Adjust the `-r 24` parameter to match your desired FPS (e.g. 8, 16, 24, or 30)
-for v in generated_video_path/*.mp4; do
-  ffmpeg -y -i "$v" \
-    -t 5 \
-    -r 24 \
-    "generated_videos_5s/$(basename "$v")"
-done
-```
-
----
-
-## Step B: Evaluating Generated Videos on Physics-IQ to Generate Benchmark Scores
-
-### 1. Installation
+### B. Set Up Environment
 
 **Option A — uv (recommended):**
 
@@ -257,15 +168,263 @@ System requirements: tested on Linux; requires `ffprobe` (install with `sudo apt
 
 > **Note for pip users:** replace `uv run` with `python` in all commands below.
 
-### 2. Dataset Placement
+### C. Choose Prompt Template
 
-- Ensure you have downloaded and placed the `physics-iq-benchmark-verified` or `physics-iq-benchmark` dataset in your working directory. This dataset must include 30FPS videos and optionally your desired FPS. If your desired FPS does not exist in our dataset already, it will be automatically generated. You should have the following structure:
+**C1. Why this matters.**
+
+Prompting conventions differ across video models. To evaluate models fairly, use the prompt template that best matches each model's expected input style instead of forcing every model into the same wording. You can either use one of the existing templates below or write your own model-specific templater. For example, OpenAI provides an excellent [Sora 2 prompting guide](https://developers.openai.com/cookbook/examples/sora/sora2_prompting_guide) that can be used as a reference when designing a templater.
+
+**C2. Prompt settings.**
+
+Physics-IQ Verified uses two prompt settings:
+- `bpp` uses a model-specific benchmark prompt produced by a templater.
+- `op` uses the original `descriptions/descriptions.csv` prompts.
+
+**C3. Existing templates.**
+
+The base descriptions are in `descriptions/descriptions.csv`. For models with specific prompting guidelines, model-optimised descriptions are available in `descriptions/model_specific/`:
+
+| File | Optimised for |
+|---|---|
+| `descriptions_pvideo.csv` | P-Video (Pruna AI) |
+| `descriptions_sora2.csv` | Sora 2 (OpenAI) |
+
+**C4. Generate a descriptions CSV.**
+
+To regenerate or add a new variant:
+
+```bash
+uv run physiq/generate_descriptions.py sora2   # or pvideo, base
+```
+
+This writes a model-specific descriptions CSV, for example:
+
+```plaintext
+descriptions/model_specific/descriptions_sora2.csv
+```
+
+with the same evaluation columns as the base descriptions file:
+
+```csv
+scenario,description,category,generated_video_name
+0001_perspective-left_take-1_trimmed-ball-and-block-fall.mp4,"Style: ...",Solid Mechanics,0001_perspective-left_trimmed-ball-and-block-fall.mp4
+```
+
+**C5. Add a new templater.**
+
+<details>
+  <summary>Adding a new templater for your model</summary>
+
+1. Open `physiq/templater/physiq_verified.py` and add a class decorated with `@register("name")`:
+
+```python
+from templater.base import BaseTemplater, register
+
+@register("mymodel")
+class MyModelTemplater(BaseTemplater):
+    def generate_prompt(self, identifier) -> str:
+        action = self.get_subjectaction_description(identifier)
+        scene = self.get_scene_description(identifier)
+        setup = self.get_scenesetup_description(identifier)
+        # compose however your model expects it
+        return f"{action} {scene} {setup}"
+```
+
+2. Generate the descriptions CSV:
+
+```bash
+uv run physiq/generate_descriptions.py mymodel
+# writes descriptions/model_specific/descriptions_mymodel.csv
+```
+
+Available helper methods on `BaseTemplater`:
+- `get_subjectaction_description(id)` — what happens in the scene
+- `get_scene_description(id)` — static scene setup
+- `get_scenesetup_description(id)` — pre-action state (optional, may be empty)
+- `self.camera_description` / `self.style_description` / `self.action_description` — fixed boilerplate strings
+
+</details>
+
+### D. Generate Videos
+
+First choose the input mode used by your model.
+
+<details open>
+  <summary>Image-to-video models (I2V)</summary>
+
+1. Use initial frames from `physics-IQ-benchmark-verified/switch-frames`.
+2. If your model uses text input, use the descriptions CSV selected or generated in Step C. Only the first 198 rows marked as `take-1` are needed for generation.
+3. Save generated videos with the benchmark ID prefix:
+
+```plaintext
+<model_run_folder>/0001_perspective-left_trimmed-ball-and-block-fall.mp4
+```
+
+</details>
+
+<details>
+  <summary>Multiframe-to-video models (V2V)</summary>
+
+1. Use conditioning videos from `physics-IQ-benchmark-verified/split-videos/conditioning-videos`.
+2. If your model also accepts text input, use the descriptions CSV selected or generated in Step C.
+3. Ensure the frame rate matches the benchmark FPS you will evaluate at.
+4. Save generated videos with the benchmark ID prefix:
+
+```plaintext
+<model_run_folder>/0001_perspective-left_trimmed-ball-and-block-fall.mp4
+```
+
+</details>
+
+Save generated videos in one directory per model run. For reported benchmark numbers, we normally use 4 independent runs per model and prompt. Use the folder name to encode both the prompt setting and the run number:
+
+```plaintext
+<model_name>-<prompt_setting>-run_<run_number>
+```
+
+The prompt setting should be `bpp` for model-specific benchmark prompts or `op` for original prompts. The run number should use `run_01` through `run_04` for the standard four-run benchmark setup. Filenames may vary, but each video must keep the unique ID prefix from the benchmark (`0001_`, ..., `0198_`). Using descriptive benchmark-style names is recommended.
+
+Example generated video folder:
+
+```plaintext
+generated_videos/
+├── <model_name>-bpp-run_01/
+│   ├── 0001_perspective-left_trimmed-ball-and-block-fall.mp4
+│   ├── 0002_perspective-center_trimmed-ball-and-block-fall.mp4
+│   └── ...
+├── <model_name>-bpp-run_02/
+│   └── ...
+├── <model_name>-bpp-run_03/
+│   └── ...
+└── <model_name>-bpp-run_04/
+    └── ...
+```
+
+<details>
+  <summary>Original-prompt (`op`) run folder example</summary>
+
+```plaintext
+generated_videos/
+├── <model_name>-op-run_01/
+│   ├── 0001_perspective-left_trimmed-ball-and-block-fall.mp4
+│   ├── 0002_perspective-center_trimmed-ball-and-block-fall.mp4
+│   └── ...
+├── <model_name>-op-run_02/
+│   └── ...
+├── <model_name>-op-run_03/
+│   └── ...
+└── <model_name>-op-run_04/
+    └── ...
+```
+
+</details>
+
+### E. Trim Videos
+
+Before running evaluation, trim all generated videos to exactly 5 seconds. Videos of any other duration are incompatible with the benchmark. If you are running V2V, do not include the 3-second conditioning segment, only the generated 5 seconds.
+
+Example trimmed video folder:
+
+```plaintext
+generated_videos_5s/
+├── <model_name>-bpp-run_01/
+│   ├── 0001_perspective-left_trimmed-ball-and-block-fall.mp4
+│   ├── 0002_perspective-center_trimmed-ball-and-block-fall.mp4
+│   └── ...
+├── <model_name>-bpp-run_02/
+│   └── ...
+├── <model_name>-bpp-run_03/
+│   └── ...
+└── <model_name>-bpp-run_04/
+    └── ...
+```
+
+<details>
+  <summary>Original-prompt (`op`) trimmed folder example</summary>
+
+```plaintext
+generated_videos_5s/
+├── <model_name>-op-run_01/
+│   ├── 0001_perspective-left_trimmed-ball-and-block-fall.mp4
+│   ├── 0002_perspective-center_trimmed-ball-and-block-fall.mp4
+│   └── ...
+├── <model_name>-op-run_02/
+│   └── ...
+├── <model_name>-op-run_03/
+│   └── ...
+└── <model_name>-op-run_04/
+    └── ...
+```
+
+</details>
+
+```bash
+mkdir -p generated_videos_5s/<model_name>-bpp-run_01
+
+for v in generated_videos/<model_name>-bpp-run_01/*.mp4; do
+  ffmpeg -y -i "$v" \
+    -t 5 \
+    -r 24 \
+    "generated_videos_5s/<model_name>-bpp-run_01/$(basename "$v")"
+done
+```
+
+### F. Run Evaluation
+
+Verified evaluation is the default behavior of `physiq/run_physics_iq.py`.
+
+```bash
+uv run physiq/run_physics_iq.py \
+  --input_folders \
+    generated_videos_5s/<model_name>-bpp-run_01 \
+    generated_videos_5s/<model_name>-bpp-run_02 \
+    generated_videos_5s/<model_name>-bpp-run_03 \
+    generated_videos_5s/<model_name>-bpp-run_04 \
+  --output_folder <output_dir> \
+  --descriptions_file <descriptions_file> \
+  --benchmark_base_folder <folder_containing_physics-IQ-benchmark-verified>
+```
+
+**Parameters:**
+- `--input_folders`: directories containing generated `.mp4` videos, with one directory per model run.
+- `--output_folder`: directory where result CSV files and plots will be saved.
+- `--descriptions_file`: path to the descriptions CSV used for the benchmark.
+- `--benchmark_base_folder`: parent folder containing `physics-IQ-benchmark-verified`.
+
+### G. Run Analysis
+
+Run the analysis pipeline on generated result CSVs:
+
+```bash
+uv run physiq/analysis.py \
+  --results-dir <output_dir> \
+  --output-dir <analysis_output_dir> \
+  --n-bootstrap 500 \
+  --seed 1234
+```
+
+<details>
+<a id="physics-iq-original-workflow"></a>
+<summary><strong><big>Physics-IQ Original Workflow</big></strong></summary>
+
+### A. Download Physics-IQ Original
+
+Download the original benchmark from the [Physics-IQ Google Cloud Storage link](https://console.cloud.google.com/storage/browser/physics-iq-benchmark), or install the `gcloud` SDK and run:
+
+```bash
+uv run physiq/download_physics_iq_data.py \
+  --fps 30 \
+  --benchmark_base_folder <download_parent>
+```
+
+Ensure you have downloaded and placed the `physics-IQ-benchmark` dataset in your working directory. This dataset must include 30FPS videos and can optionally include your desired FPS. If you downloaded the dataset from the link above, it should contain all provided FPS variants (30FPS, 24FPS, 16FPS, 8FPS). If your desired FPS does not exist in the dataset already, it will be automatically generated. The folder should have the following structure:
 
 ```plaintext
 physics-IQ-benchmark/
 ├── full-videos/
-│   └── ...
-|
+│   └── take-1/
+│       └── 30FPS/
+│           └── ...
 ├── split-videos/
 │   ├── conditioning-videos/
 │   │   └── 30FPS/
@@ -289,21 +448,52 @@ physics-IQ-benchmark/
             └── ...
 ```
 
-- the descriptions file which includes all file names and descriptions of the scenarios should be placed in your home directory as `descriptions.csv`.
-- Place your generated videos under `.model_name` directory.
+### B. Set Up Environment
 
-⚠️ **IMPORTANT:** Note that this script evaluates the **first 5 seconds** of your generated videos. Hence, make sure these are the 5 seconds generated right after the switch frame.
+Use the same environment setup as the verified workflow.
 
-### 3. Generate benchmark scores and plots
+### C. Use Original Prompts
+
+Use `descriptions/descriptions.csv` for original Physics-IQ prompts.
+
+### D. Generate Videos
+
+Use the same generated-video folder and filename conventions as the verified workflow, but source frames and conditioning videos from `physics-IQ-benchmark/`.
+
+### E. Trim Videos
+
+Trim generated videos to exactly 5 seconds before evaluation.
+
+### F. Run Evaluation
+
+Add `--original_gt` to evaluate against the original benchmark:
 
 ```bash
-uv run physiq/run_physics_iq.py --input_folders <generated_videos_dirs> --output_folder <output_dir> --descriptions_file <descriptions_file>
+uv run physiq/run_physics_iq.py \
+  --input_folders \
+    generated_videos_5s/<model_name>-op-run_01 \
+    generated_videos_5s/<model_name>-op-run_02 \
+    generated_videos_5s/<model_name>-op-run_03 \
+    generated_videos_5s/<model_name>-op-run_04 \
+  --output_folder <output_dir> \
+  --descriptions_file descriptions/descriptions.csv \
+  --benchmark_base_folder <folder_containing_physics-IQ-benchmark> \
+  --original_gt
 ```
-**Parameters:**
-- `--input_folders`: The path to the directories containing input videos (in `.mp4` format), with one directory per model (`/model_name/video.mp4`).
-- `--output_folder`: The path to the directory where output CSV files will be saved.
-- `--descriptions_file`: The path to the `descriptions.csv` file.
-- `--original_gt`: Whether to use the verified benchmark or the original benchmark.
+
+### G. Run Analysis
+
+Run the same analysis command on the original result output:
+
+```bash
+uv run physiq/analysis.py \
+  --results-dir <output_dir> \
+  --output-dir <analysis_output_dir> \
+  --n-bootstrap 500 \
+  --seed 1234
+```
+
+</details>
 
 ---
 
