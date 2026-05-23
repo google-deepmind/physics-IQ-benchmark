@@ -15,7 +15,7 @@ It also retains support for the original Physics-IQ benchmark for comparison wit
 
 
 Original Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)<br>
-Physics-IQ Verified website: <!-- TODO: Add Physics-IQ Verified website here -->
+Physics-IQ Verified website: TBD
 
 ### Key Features:
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
@@ -40,6 +40,8 @@ Physics-IQ Verified website: <!-- TODO: Add Physics-IQ Verified website here -->
 The best possible score on Physics-IQ is 100.0%, this score would be achieved by physically realistic videos that differ only in physical randomness but adhere to all tested principles of physics.
 ### Physics-IQ Verified Leaderboard
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
+
+> **Note:** We are still figuring out the reporting settings. Inclusion means that the authors get access to the API including relevant credits to reproduce the results by generating videos themselves. Videos should be made available to the authors at minimum. This will be updated to make results as reproducible as possible.
 
 <!-- TODO: Add values from paper here in table. -->
 | Model             | input type | Prompt | Phys-IQ verified | SP verified    | ST verified    | WS verified    | MSE verified   | date added (YYYY-MM-DD) |
@@ -527,6 +529,8 @@ uv run physiq/analysis.py \
 
 ## Citation
 If you think this project is helpful, please feel free to leave a star ⭐️
+
+Please cite both papers if you use this benchmark.
 <!-- TODO: finalize our publication here. -->
 ```latex
 @article{raedsch2026physics,
