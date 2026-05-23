@@ -39,18 +39,18 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
 <!-- TODO: Add values from paper here in table. -->
-| Model      | Prompt | Phys-IQ verified | SP verified    | ST verified    | WS verified    | MSE verified   |
-|------------|--------|------------------|----------------|----------------|----------------|----------------|
-| Grok Video | bpp    | $34.8 \pm 0.6$   | $52.7 \pm 0.9$ | $21.4 \pm 0.6$ | $35.7 \pm 1.0$ | $29.6 \pm 0.4$ |
-|            | op     | $32.7 \pm 0.4$   | $49.8 \pm 0.7$ | $18.8 \pm 0.6$ | $34.0 \pm 0.2$ | $28.2 \pm 0.4$ |
-| Hunyuan    | bpp    | $33.4 \pm 0.8$   | $47.1 \pm 1.2$ | $26.9 \pm 1.0$ | $29.7 \pm 0.6$ | $30.0 \pm 1.0$ |
-|            | op     | $31.7 \pm 0.9$   | $43.5 \pm 1.1$ | $25.4 \pm 1.0$ | $27.4 \pm 1.1$ | $30.4 \pm 0.6$ |
-| P-Video    | bpp    | $25.3 \pm 1.8$   | $38.6 \pm 2.2$ | $16.4 \pm 2.4$ | $22.9 \pm 1.8$ | $23.3 \pm 1.1$ |
-|            | op     | $23.8 \pm 1.7$   | $35.5 \pm 1.6$ | $16.2 \pm 2.9$ | $21.4 \pm 1.3$ | $22.2 \pm 2.0$ |
-| Sora 2     | bpp    | $26.5 \pm 0.8$   | $37.3 \pm 0.6$ | $27.0 \pm 2.2$ | $26.9 \pm 0.7$ | $14.8 \pm 0.6$ |
-|            | op     | $15.7 \pm 0.7$   | $23.6 \pm 1.0$ | $16.5 \pm 1.0$ | $15.4 \pm 0.5$ | $7.4 \pm 0.6$  |
-| Wan 2.2    | bpp    | $32.2 \pm 0.6$   | $51.1 \pm 1.0$ | $20.5 \pm 0.7$ | $28.5 \pm 0.7$ | $28.9 \pm 0.4$ |
-|            | op     | $34.8 \pm 0.7$   | $54.3 \pm 0.9$ | $21.2 \pm 1.1$ | $31.8 \pm 0.7$ | $31.9 \pm 0.2$ |
+| Model             | Prompt | Phys-IQ verified | SP verified    | ST verified    | WS verified    | MSE verified   | date added (YYYY-MM-DD) |
+|-------------------|--------|------------------|----------------|----------------|----------------|----------------|-------------------------|
+| Grok Imagine Video | bpp    | 34.8 <small>± 0.6</small>   | 52.7 <small>± 0.9</small> | 21.4 <small>± 0.6</small> | 35.7 <small>± 1.0</small> | 29.6 <small>± 0.4</small> | 2026-05-22              |
+|                   | op     | 32.7 <small>± 0.4</small>   | 49.8 <small>± 0.7</small> | 18.8 <small>± 0.6</small> | 34.0 <small>± 0.2</small> | 28.2 <small>± 0.4</small> | 2026-05-22              |
+| Hunyuan Video 1.5 | bpp    | 33.4 <small>± 0.8</small>   | 47.1 <small>± 1.2</small> | 26.9 <small>± 1.0</small> | 29.7 <small>± 0.6</small> | 30.0 <small>± 1.0</small> | 2026-05-22              |
+|                   | op     | 31.7 <small>± 0.9</small>   | 43.5 <small>± 1.1</small> | 25.4 <small>± 1.0</small> | 27.4 <small>± 1.1</small> | 30.4 <small>± 0.6</small> | 2026-05-22              |
+| P-Video           | bpp    | 25.3 <small>± 1.8</small>   | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-05-22              |
+|                   | op     | 23.8 <small>± 1.7</small>   | 35.5 <small>± 1.6</small> | 16.2 <small>± 2.9</small> | 21.4 <small>± 1.3</small> | 22.2 <small>± 2.0</small> | 2026-05-22              |
+| Sora 2            | bpp    | 26.5 <small>± 0.8</small>   | 37.3 <small>± 0.6</small> | 27.0 <small>± 2.2</small> | 26.9 <small>± 0.7</small> | 14.8 <small>± 0.6</small> | 2026-05-22              |
+|                   | op     | 15.7 <small>± 0.7</small>   | 23.6 <small>± 1.0</small> | 16.5 <small>± 1.0</small> | 15.4 <small>± 0.5</small> | 7.4 <small>± 0.6</small>  | 2026-05-22              |
+| Wan 2.2           | bpp    | 32.2 <small>± 0.6</small>   | 51.1 <small>± 1.0</small> | 20.5 <small>± 0.7</small> | 28.5 <small>± 0.7</small> | 28.9 <small>± 0.4</small> | 2026-05-22              |
+|                   | op     | 34.8 <small>± 0.7</small>   | 54.3 <small>± 0.9</small> | 21.2 <small>± 1.1</small> | 31.8 <small>± 0.7</small> | 31.9 <small>± 0.2</small> | 2026-05-22              |
 
 - bpp is using a custom templater for the specific model
 - op is using the description.csv prompts
