@@ -42,22 +42,21 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
 <!-- TODO: Add values from paper here in table. -->
-| Model             | Prompt | Phys-IQ verified | SP verified    | ST verified    | WS verified    | MSE verified   | date added (YYYY-MM-DD) |
-|-------------------|--------|------------------|----------------|----------------|----------------|----------------|-------------------------|
-| Grok Imagine Video | bpp    | 34.8 <small>± 0.6</small>   | 52.7 <small>± 0.9</small> | 21.4 <small>± 0.6</small> | 35.7 <small>± 1.0</small> | 29.6 <small>± 0.4</small> | 2026-05-22              |
-|                   | op     | 32.7 <small>± 0.4</small>   | 49.8 <small>± 0.7</small> | 18.8 <small>± 0.6</small> | 34.0 <small>± 0.2</small> | 28.2 <small>± 0.4</small> | 2026-05-22              |
-| Hunyuan Video 1.5 | bpp    | 33.4 <small>± 0.8</small>   | 47.1 <small>± 1.2</small> | 26.9 <small>± 1.0</small> | 29.7 <small>± 0.6</small> | 30.0 <small>± 1.0</small> | 2026-05-22              |
-|                   | op     | 31.7 <small>± 0.9</small>   | 43.5 <small>± 1.1</small> | 25.4 <small>± 1.0</small> | 27.4 <small>± 1.1</small> | 30.4 <small>± 0.6</small> | 2026-05-22              |
-| P-Video           | bpp    | 25.3 <small>± 1.8</small>   | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-05-22              |
-|                   | op     | 23.8 <small>± 1.7</small>   | 35.5 <small>± 1.6</small> | 16.2 <small>± 2.9</small> | 21.4 <small>± 1.3</small> | 22.2 <small>± 2.0</small> | 2026-05-22              |
-| Sora 2            | bpp    | 26.5 <small>± 0.8</small>   | 37.3 <small>± 0.6</small> | 27.0 <small>± 2.2</small> | 26.9 <small>± 0.7</small> | 14.8 <small>± 0.6</small> | 2026-05-22              |
-|                   | op     | 15.7 <small>± 0.7</small>   | 23.6 <small>± 1.0</small> | 16.5 <small>± 1.0</small> | 15.4 <small>± 0.5</small> | 7.4 <small>± 0.6</small>  | 2026-05-22              |
-| Wan 2.2           | bpp    | 32.2 <small>± 0.6</small>   | 51.1 <small>± 1.0</small> | 20.5 <small>± 0.7</small> | 28.5 <small>± 0.7</small> | 28.9 <small>± 0.4</small> | 2026-05-22              |
-|                   | op     | 34.8 <small>± 0.7</small>   | 54.3 <small>± 0.9</small> | 21.2 <small>± 1.1</small> | 31.8 <small>± 0.7</small> | 31.9 <small>± 0.2</small> | 2026-05-22              |
+| Model             | input type | Prompt | Phys-IQ verified | SP verified    | ST verified    | WS verified    | MSE verified   | date added (YYYY-MM-DD) |
+|-------------------|------------|--------|------------------|----------------|----------------|----------------|----------------|-------------------------|
+| Grok Imagine Video | i2v        | bpp    | 34.8 <small>± 0.6</small>   | 52.7 <small>± 0.9</small> | 21.4 <small>± 0.6</small> | 35.7 <small>± 1.0</small> | 29.6 <small>± 0.4</small> | 2026-05-22              |
+| Grok Imagine Video | i2v        | op     | 32.7 <small>± 0.4</small>   | 49.8 <small>± 0.7</small> | 18.8 <small>± 0.6</small> | 34.0 <small>± 0.2</small> | 28.2 <small>± 0.4</small> | 2026-05-22              |
+| Hunyuan Video 1.5 | i2v        | bpp    | 33.4 <small>± 0.8</small>   | 47.1 <small>± 1.2</small> | 26.9 <small>± 1.0</small> | 29.7 <small>± 0.6</small> | 30.0 <small>± 1.0</small> | 2026-05-22              |
+| Hunyuan Video 1.5 | i2v        | op     | 31.7 <small>± 0.9</small>   | 43.5 <small>± 1.1</small> | 25.4 <small>± 1.0</small> | 27.4 <small>± 1.1</small> | 30.4 <small>± 0.6</small> | 2026-05-22              |
+| Wan 2.2           | i2v        | bpp    | 32.2 <small>± 0.6</small>   | 51.1 <small>± 1.0</small> | 20.5 <small>± 0.7</small> | 28.5 <small>± 0.7</small> | 28.9 <small>± 0.4</small> | 2026-05-22              |
+| Wan 2.2           | i2v        | op     | 34.8 <small>± 0.7</small>   | 54.3 <small>± 0.9</small> | 21.2 <small>± 1.1</small> | 31.8 <small>± 0.7</small> | 31.9 <small>± 0.2</small> | 2026-05-22              |
+| Sora 2            | i2v        | bpp    | 26.5 <small>± 0.8</small>   | 37.3 <small>± 0.6</small> | 27.0 <small>± 2.2</small> | 26.9 <small>± 0.7</small> | 14.8 <small>± 0.6</small> | 2026-05-22              |
+| Sora 2            | i2v        | op     | 15.7 <small>± 0.7</small>   | 23.6 <small>± 1.0</small> | 16.5 <small>± 1.0</small> | 15.4 <small>± 0.5</small> | 7.4 <small>± 0.6</small>  | 2026-05-22              |
+| P-Video           | i2v        | bpp    | 25.3 <small>± 1.8</small>   | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-05-22              |
+| P-Video           | i2v        | op     | 23.8 <small>± 1.7</small>   | 35.5 <small>± 1.6</small> | 16.2 <small>± 2.9</small> | 21.4 <small>± 1.3</small> | 22.2 <small>± 2.0</small> | 2026-05-22              |
 
-- bpp is using a custom templater for the specific model
-- op is using the description.csv prompts
-- all models are i2v model
+- `bpp` uses a custom templater for the specific model.
+- `op` uses the original benchmark prompts from `descriptions/descriptions.csv`.
 
 <details>
 <summary><strong><big>Physics-IQ Original Leaderboard</big></strong></summary>
@@ -189,28 +188,7 @@ The base descriptions are in `descriptions/descriptions.csv`. For models with sp
 | `descriptions_pvideo.csv` | P-Video (Pruna AI) |
 | `descriptions_sora2.csv` | Sora 2 (OpenAI) |
 
-**C4. Generate a descriptions CSV.**
-
-To regenerate or add a new variant:
-
-```bash
-uv run physiq/generate_descriptions.py sora2   # or pvideo, base
-```
-
-This writes a model-specific descriptions CSV, for example:
-
-```plaintext
-descriptions/model_specific/descriptions_sora2.csv
-```
-
-with the same evaluation columns as the base descriptions file:
-
-```csv
-scenario,description,category,generated_video_name
-0001_perspective-left_take-1_trimmed-ball-and-block-fall.mp4,"Style: ...",Solid Mechanics,0001_perspective-left_trimmed-ball-and-block-fall.mp4
-```
-
-**C5. Add a new templater.**
+**C4. Add a new templater (optional, recommended for new models).**
 
 <details>
   <summary>Adding a new templater for your model</summary>
@@ -245,7 +223,30 @@ Available helper methods on `BaseTemplater`:
 
 </details>
 
+**C5. Generate a descriptions CSV.**
+
+To regenerate or add a new variant:
+
+```bash
+uv run physiq/generate_descriptions.py sora2   # or pvideo, base
+```
+
+This writes a model-specific descriptions CSV, for example:
+
+```plaintext
+descriptions/model_specific/descriptions_sora2.csv
+```
+
+with the same evaluation columns as the base descriptions file:
+
+```csv
+scenario,description,category,generated_video_name
+0001_perspective-left_take-1_trimmed-ball-and-block-fall.mp4,"Style: ...",Solid Mechanics,0001_perspective-left_trimmed-ball-and-block-fall.mp4
+```
+
 ### D. Generate Videos
+
+**D1. Choose input mode.**
 
 First choose the input mode used by your model.
 
@@ -276,13 +277,17 @@ First choose the input mode used by your model.
 
 </details>
 
-Save generated videos in one directory per model run. For reported benchmark numbers, we normally use 4 independent runs per model and prompt. Use the folder name to encode both the prompt setting and the run number:
+**D2. Name each model-run folder.**
+
+Save generated videos in one directory per model run. For leaderboard-style reporting, generate four independent runs for each model and prompt setting. The aggregate leaderboard score in Step G is computed as the mean ± standard deviation across these four runs. Use the folder name to encode both the prompt setting and the run number:
 
 ```plaintext
 <model_name>-<prompt_setting>-run_<run_number>
 ```
 
 The prompt setting should be `bpp` for model-specific benchmark prompts or `op` for original prompts. The run number should use `run_01` through `run_04` for the standard four-run benchmark setup. Filenames may vary, but each video must keep the unique ID prefix from the benchmark (`0001_`, ..., `0198_`). Using descriptive benchmark-style names is recommended.
+
+**D3. Save generated videos.**
 
 Example generated video folder:
 
@@ -299,6 +304,8 @@ generated_videos/
 └── <model_name>-bpp-run_04/
     └── ...
 ```
+
+**D4. Original-prompt (`op`) example.**
 
 <details>
   <summary>Original-prompt (`op`) run folder example</summary>
@@ -371,7 +378,7 @@ done
 
 ### F. Run Evaluation
 
-Verified evaluation is the default behavior of `physiq/run_physics_iq.py`.
+Verified evaluation is the default behavior of `physiq/run_physics_iq.py`. This step reports two per-run score variants for each input folder: the original score and the verified score. For Physics-IQ Verified leaderboard reporting, use the verified score.
 
 ```bash
 uv run physiq/run_physics_iq.py \
@@ -391,9 +398,29 @@ uv run physiq/run_physics_iq.py \
 - `--descriptions_file`: path to the descriptions CSV used for the benchmark.
 - `--benchmark_base_folder`: parent folder containing `physics-IQ-benchmark-verified`.
 
-### G. Run Analysis
+The evaluator writes one result CSV and one metrics JSON per input folder, using the input folder name as the file stem:
 
-Run the analysis pipeline on generated result CSVs:
+```plaintext
+<output_dir>/
+└── physics-IQ-benchmark-verified/
+    └── results/
+        ├── <model_name>-bpp-run_01.csv
+        ├── <model_name>-bpp-run_01_metrics.json
+        ├── <model_name>-bpp-run_02.csv
+        ├── <model_name>-bpp-run_02_metrics.json
+        ├── <model_name>-bpp-run_03.csv
+        ├── <model_name>-bpp-run_03_metrics.json
+        ├── <model_name>-bpp-run_04.csv
+        ├── <model_name>-bpp-run_04_metrics.json
+        ├── physics_IQ_score_Original_barplot.pdf
+        └── physics_IQ_score_Verified_barplot.pdf
+```
+
+The verified score printed by the evaluator is stored as `final_score_view` in each `_metrics.json` file.
+
+### G. Run Aggregate Analysis for Leaderboard Scores
+
+Step F reports per-run original and verified score variants. To report a Physics-IQ Verified leaderboard score, aggregate the standard four runs with the analysis pipeline and use the verified score. This computes the mean and standard deviation reported as `score ± std` in the leaderboard tables.
 
 ```bash
 uv run physiq/analysis.py \
