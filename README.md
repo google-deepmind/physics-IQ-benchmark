@@ -119,7 +119,7 @@ Choose one benchmark:
 
 ### A. Download Physics-IQ Verified
 
-Download the verified benchmark from the [Physics-IQ Verified Google Cloud Storage link]().
+Download the verified benchmark from the [Physics-IQ Verified Google Cloud Storage link](https://drive.google.com/file/d/1K7sRbks4VNqmpejyB9K7nIl4XcNpNWzk/view).
 <!-- TODO: Add our Download link here.-->
 
 Ensure you have downloaded and placed the `physics-IQ-benchmark-verified` dataset in your working directory. This dataset must include 30FPS videos and can optionally include your desired FPS. If you downloaded the dataset from the link above, it should contain all provided FPS variants (30FPS, 24FPS, 16FPS, 8FPS). If your desired FPS does not exist in the dataset already, it will be automatically generated. The folder should have the following structure:
@@ -154,10 +154,24 @@ physics-IQ-benchmark-verified/
 
 **Option A — uv (recommended):**
 
+
 ```bash
-pip install uv
 uv sync
 ```
+
+<details>
+  <summary>Installing uv</summary>
+Install uv according to [Astral documentation](https://docs.astral.sh/uv/getting-started/installation):
+
+```bash
+wget -qO- https://astral.sh/uv/install.sh | sh
+```
+
+or via pip:
+```bash
+pip install uv
+```
+</details>
 
 **Option B — pip:**
 
