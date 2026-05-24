@@ -434,8 +434,8 @@ def process_directory(directory_path: str) -> None:
         final_score_verified = round(values["final_score_view"], 4) * 100
 
 
-        print(f"Physics-IQ score (original) for {csv_file.replace('.csv', '')}: {final_score_orig}")
-        print(f"Physics-IQ score (verified) for {csv_file.replace('.csv', '')}: {final_score_verified}")
+        print(f"Physics-IQ score (original) for {model_name}: {final_score_orig:.2f}")
+        print(f"Physics-IQ score (verified) for {model_name}: {final_score_verified:.2f}")
         print("-" * 50)
 
         model_scores_orig[model_name] = final_score_orig
