@@ -287,7 +287,7 @@ Save generated videos in one directory per model run. For leaderboard-style repo
 <model_name>-<prompt_setting>-run_<run_number>
 ```
 
-The prompt setting should be `bpp` for model-specific benchmark prompts or `op` for original prompts. The run number should use `run_01` through `run_04` for the standard four-run benchmark setup. Filenames may vary, but each video must keep the unique ID prefix from the benchmark (`0001_`, ..., `0198_`). Using descriptive benchmark-style names is recommended.
+The prompt setting should be `bpp` for model-specific benchmark prompts or `op` for original prompts. The run number should use `run_01` through `run_04` for the standard four-run benchmark setup. Filenames may vary, but each video must keep the unique ID prefix from the benchmark (`0001_`, ..., `0198_`). Using descriptive benchmark-style names is recommended. You can use the repo-local `generated_videos/` folder or pass external generated-video folders directly to the evaluator.
 
 **D3. Save generated videos.**
 
@@ -331,6 +331,8 @@ generated_videos/
 ### E. Trim Videos
 
 Before running evaluation, trim all generated videos to exactly 5 seconds. Videos of any other duration are incompatible with the benchmark. If you are running V2V, do not include the 3-second conditioning segment, only the generated 5 seconds.
+
+You can use the repo-local `generated_videos_5s/` folder for trimmed outputs or store them externally and pass those folders to `--input_folders`.
 
 Example trimmed video folder:
 
