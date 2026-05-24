@@ -42,22 +42,29 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 
 > **Note:** We are still figuring out the reporting settings. Inclusion means that the authors get access to the API including relevant credits to reproduce the results by generating videos themselves. Videos should be made available to the authors at minimum. This will be updated to make results as reproducible as possible.
 
-<!-- TODO: Add values from paper here in table. -->
-| Model             | input type | Prompt | Phys-IQ verified | SP verified    | ST verified    | WS verified    | MSE verified   | date added (YYYY-MM-DD) |
-|-------------------|------------|--------|------------------|----------------|----------------|----------------|----------------|-------------------------|
-| Grok Imagine Video | i2v        | bpp    | 34.8 <small>± 0.6</small>   | 52.7 <small>± 0.9</small> | 21.4 <small>± 0.6</small> | 35.7 <small>± 1.0</small> | 29.6 <small>± 0.4</small> | 2026-05-22              |
-| Grok Imagine Video | i2v        | op     | 32.7 <small>± 0.4</small>   | 49.8 <small>± 0.7</small> | 18.8 <small>± 0.6</small> | 34.0 <small>± 0.2</small> | 28.2 <small>± 0.4</small> | 2026-05-22              |
-| Hunyuan Video 1.5 | i2v        | bpp    | 33.4 <small>± 0.8</small>   | 47.1 <small>± 1.2</small> | 26.9 <small>± 1.0</small> | 29.7 <small>± 0.6</small> | 30.0 <small>± 1.0</small> | 2026-05-22              |
-| Hunyuan Video 1.5 | i2v        | op     | 31.7 <small>± 0.9</small>   | 43.5 <small>± 1.1</small> | 25.4 <small>± 1.0</small> | 27.4 <small>± 1.1</small> | 30.4 <small>± 0.6</small> | 2026-05-22              |
-| Wan 2.2           | i2v        | bpp    | 32.2 <small>± 0.6</small>   | 51.1 <small>± 1.0</small> | 20.5 <small>± 0.7</small> | 28.5 <small>± 0.7</small> | 28.9 <small>± 0.4</small> | 2026-05-22              |
-| Wan 2.2           | i2v        | op     | 34.8 <small>± 0.7</small>   | 54.3 <small>± 0.9</small> | 21.2 <small>± 1.1</small> | 31.8 <small>± 0.7</small> | 31.9 <small>± 0.2</small> | 2026-05-22              |
-| Sora 2            | i2v        | bpp    | 26.5 <small>± 0.8</small>   | 37.3 <small>± 0.6</small> | 27.0 <small>± 2.2</small> | 26.9 <small>± 0.7</small> | 14.8 <small>± 0.6</small> | 2026-05-22              |
-| Sora 2            | i2v        | op     | 15.7 <small>± 0.7</small>   | 23.6 <small>± 1.0</small> | 16.5 <small>± 1.0</small> | 15.4 <small>± 0.5</small> | 7.4 <small>± 0.6</small>  | 2026-05-22              |
-| P-Video           | i2v        | bpp    | 25.3 <small>± 1.8</small>   | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-05-22              |
-| P-Video           | i2v        | op     | 23.8 <small>± 1.7</small>   | 35.5 <small>± 1.6</small> | 16.2 <small>± 2.9</small> | 21.4 <small>± 1.3</small> | 22.2 <small>± 2.0</small> | 2026-05-22              |
+#### Model-specific benchmark prompts (`bpp`)
 
-- `bpp` uses a custom templater for the specific model.
-- `op` uses the original benchmark prompts from `descriptions/descriptions.csv`.
+`bpp` uses a custom templater for the specific model.
+
+| # | Model | input type | Phys-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
+|---|---|---|---|---|---|---|---|---|
+| 1 🥇 | Grok Imagine Video | i2v | 34.8 <small>± 0.6</small> | 52.7 <small>± 0.9</small> | 21.4 <small>± 0.6</small> | 35.7 <small>± 1.0</small> | 29.6 <small>± 0.4</small> | 2026-05-22 |
+| 2 🥈 | Hunyuan Video 1.5 | i2v | 33.4 <small>± 0.8</small> | 47.1 <small>± 1.2</small> | 26.9 <small>± 1.0</small> | 29.7 <small>± 0.6</small> | 30.0 <small>± 1.0</small> | 2026-05-22 |
+| 3 🥉 | Wan 2.2 | i2v | 32.2 <small>± 0.6</small> | 51.1 <small>± 1.0</small> | 20.5 <small>± 0.7</small> | 28.5 <small>± 0.7</small> | 28.9 <small>± 0.4</small> | 2026-05-22 |
+| 4 | Sora 2 | i2v | 26.5 <small>± 0.8</small> | 37.3 <small>± 0.6</small> | 27.0 <small>± 2.2</small> | 26.9 <small>± 0.7</small> | 14.8 <small>± 0.6</small> | 2026-05-22 |
+| 5 | P-Video | i2v | 25.3 <small>± 1.8</small> | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-05-22 |
+
+#### Original benchmark prompts (`op`)
+
+`op` uses the original benchmark prompts from `descriptions/descriptions.csv`.
+
+| # | Model | input type | Phys-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
+|---|---|---|---|---|---|---|---|---|
+| 1 🥇 | Wan 2.2 | i2v | 34.8 <small>± 0.7</small> | 54.3 <small>± 0.9</small> | 21.2 <small>± 1.1</small> | 31.8 <small>± 0.7</small> | 31.9 <small>± 0.2</small> | 2026-05-22 |
+| 2 🥈 | Grok Imagine Video | i2v | 32.7 <small>± 0.4</small> | 49.8 <small>± 0.7</small> | 18.8 <small>± 0.6</small> | 34.0 <small>± 0.2</small> | 28.2 <small>± 0.4</small> | 2026-05-22 |
+| 3 🥉 | Hunyuan Video 1.5 | i2v | 31.7 <small>± 0.9</small> | 43.5 <small>± 1.1</small> | 25.4 <small>± 1.0</small> | 27.4 <small>± 1.1</small> | 30.4 <small>± 0.6</small> | 2026-05-22 |
+| 4 | P-Video | i2v | 23.8 <small>± 1.7</small> | 35.5 <small>± 1.6</small> | 16.2 <small>± 2.9</small> | 21.4 <small>± 1.3</small> | 22.2 <small>± 2.0</small> | 2026-05-22 |
+| 5 | Sora 2 | i2v | 15.7 <small>± 0.7</small> | 23.6 <small>± 1.0</small> | 16.5 <small>± 1.0</small> | 15.4 <small>± 0.5</small> | 7.4 <small>± 0.6</small> | 2026-05-22 |
 
 <details>
 <summary><strong><big>Physics-IQ Original Leaderboard</big></strong></summary>
