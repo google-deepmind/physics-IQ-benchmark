@@ -1,6 +1,5 @@
 <p align="center">
-  <img src="assets/duckie.png" width="20%" alt="logo" style="vertical-align: middle;">
-  <img src="assets/phys-iq-verified_logo.png" width="20%" alt="Physics-IQ Verified logo" style="vertical-align: middle;">
+  <img src="assets/joint_duck.png" width="60%" alt="Physics-IQ and Physics-IQ Verified logos">
 </p>
 
 [Leaderboard](#leaderboard) | [Quick Start](#quick-start) | [Physics-IQ Verified Workflow](#physics-iq-verified-workflow) | [Citation](#citation) | [License](#license-and-disclaimer)
