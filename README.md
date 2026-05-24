@@ -40,6 +40,8 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 ### Physics-IQ Verified Leaderboard
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
+For details on the Physics-IQ Verified metrics, see the [metric definitions](docs/metric_definition_phys_iq_verified.pdf). The full Physics-IQ Verified report will be published soon.
+
 > **Note:** We are still figuring out the reporting settings. Inclusion means that the authors get access to the API including relevant credits to reproduce the results by generating videos themselves. Videos should be made available to the authors at minimum. This will be updated to make results as reproducible as possible.
 
 #### Model-specific benchmark prompts (`bpp`)
