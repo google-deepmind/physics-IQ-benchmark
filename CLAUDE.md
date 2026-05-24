@@ -13,13 +13,6 @@ uv run physiq/run_physics_iq.py \
   --output_folder <output_dir> \
   --descriptions_file <descriptions.csv>
 
-# Run statistical analysis and produce all figures/tables
-uv run physiq/analysis.py \
-  --results-dir /path/to/results \
-  --output-dir ./output \
-  --n-bootstrap 500 \
-  --seed 1234
-
 # Run GT experiment analysis (deterministic, no std)
 uv run physiq/analysis_gt_runs.py \
   --results-dir /path/to/results \
@@ -47,9 +40,9 @@ physiq/run_physics_iq.py
   └─ calculate_iq_score.py      — legacy score calculation, also defines VIEWS and parse_list_of_floats
 ```
 
-**Analysis pipeline** (run repeatedly on existing result CSVs):
+**GT analysis pipeline** (run on existing GT experiment CSVs):
 ```
-physiq/analysis.py / analysis_gt_runs.py
+physiq/analysis_gt_runs.py
   └─ calculate_iq_score_stable.py  — IQTable class (primary scoring interface)
   └─ plot_settings.py              — model display names and hex colors
 ```
@@ -94,30 +87,6 @@ The central data structure. Wraps a per-scenario metrics DataFrame and computes 
 
 All templaters share the `BaseTemplater` interface: `generate_prompt(identifier)` returns the prompt string for a given scenario filename.
 
-### analysis.py configuration
-
-Key constants to edit when adding models or changing evaluation settings:
-
-| Constant | Purpose |
-|---|---|
-| `MODEL_NAMES` | All model identifiers the script will recognise in filenames |
-| `RANKING_EVAL_SETTINGS` | Canonical (model, FPS) pair used for each model in the ranking comparison |
-| `SORA2_MODELS` | Subset of `MODEL_NAMES` for the Sora 2 variant table |
-| `BASEPATH` / `OUTPUT_PATH` | Default paths, overridable with `--results-dir` / `--output-dir` |
-| `COMPARISON_KEYS` | The two (eval_type, prompt) pairs compared in the bootstrap analysis |
-
-### Output directory structure
-
-All writes go through `_subdir(output_path, name)` which creates the folder on demand:
-
-```
-<output-dir>/
-  figures/    — PDF figures (for \includegraphics in LaTeX)
-  preview/    — PNG previews of the same figures
-  tables/     — .tex files
-  data/       — CSVs and results_summary.json
-```
-
 ### Evaluation concepts
 
 - **Prompts**: `op` = original (unverified), `bpp` = human-verified
@@ -128,10 +97,8 @@ All writes go through `_subdir(output_path, name)` which creates the folder on d
 
 ### Adding a new model
 
-1. Add the model key to `MODEL_NAMES` in `physiq/analysis.py`
-2. Add a `RANKING_EVAL_SETTINGS` entry with the canonical FPS
-3. Add a `Model(...)` entry in `physiq/plot_settings.py` with `plotting_name` and `color`
-4. Add the model to `latex_table.tex` with its conditioning type and resolution
+1. Add a `Model(...)` entry in `physiq/plot_settings.py` with `plotting_name` and `color`
+2. Add the model to `latex_table.tex` with its conditioning type and resolution
 
 ### Adding a new templater
 

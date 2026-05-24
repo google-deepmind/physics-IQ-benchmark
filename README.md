@@ -421,17 +421,9 @@ The evaluator writes one result CSV and one metrics JSON per input folder, using
 
 The verified score printed by the evaluator is stored as `final_score_view` in each `_metrics.json` file.
 
-### G. Run Aggregate Analysis for Leaderboard Scores
+### G. Aggregate Leaderboard Scores
 
-Step F reports per-run original and verified score variants. To report a Physics-IQ Verified leaderboard score, aggregate the standard four runs with the analysis pipeline and use the verified score. This computes the mean and standard deviation reported as `score ± std` in the leaderboard tables.
-
-```bash
-uv run physiq/analysis.py \
-  --results-dir <output_dir> \
-  --output-dir <analysis_output_dir> \
-  --n-bootstrap 500 \
-  --seed 1234
-```
+Step F reports per-run original and verified score variants. To report a Physics-IQ Verified leaderboard score, use the verified score from each run and compute the mean and standard deviation across the standard four runs. Report this as `score ± std` in the leaderboard table.
 
 <details>
 <a id="physics-iq-original-workflow"></a>
@@ -511,17 +503,9 @@ uv run physiq/run_physics_iq.py \
   --original_gt
 ```
 
-### G. Run Analysis
+### G. Aggregate Leaderboard Scores
 
-Run the same analysis command on the original result output:
-
-```bash
-uv run physiq/analysis.py \
-  --results-dir <output_dir> \
-  --output-dir <analysis_output_dir> \
-  --n-bootstrap 500 \
-  --seed 1234
-```
+Use the per-run scores from Step F and compute the mean and standard deviation across the standard four runs.
 
 </details>
 
