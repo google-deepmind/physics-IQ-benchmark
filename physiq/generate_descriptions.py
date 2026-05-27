@@ -2,7 +2,7 @@ import argparse
 import pandas as pd
 from pathlib import Path
 from dataset import Benchmark, DESCRIPTIONS_PATH
-from templater import REGISTRY
+from physiq.templater import REGISTRY
 
 
 def main():

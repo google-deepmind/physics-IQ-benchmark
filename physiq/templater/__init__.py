@@ -1,6 +1,6 @@
-import templater.base 
-import templater.physiq_verified
-from templater.base import REGISTRY
+import physiq.templater.base 
+import physiq.templater.physiq_verified
+from physiq.templater.base import REGISTRY
 
 
 # from templater.base import BaseTemplater

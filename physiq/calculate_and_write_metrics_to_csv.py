@@ -15,13 +15,10 @@
 
 """Calculate metrics and plot results from physics-IQ benchmark videos."""
 
-import argparse
 from multiprocessing import pool
 import os
-import re
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tqdm

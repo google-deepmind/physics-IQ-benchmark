@@ -18,7 +18,7 @@ import subprocess
 import multiprocessing
 import argparse
 
-from fps_changer import change_video_fps
+from physiq.fps_changer import change_video_fps
 
 multiprocessing.set_start_method("spawn", force=True)
 

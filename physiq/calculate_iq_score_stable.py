@@ -16,7 +16,7 @@ from functools import cached_property
 import numpy as np
 import pandas as pd
 
-from calculate_iq_score import parse_list_of_floats, VIEWS
+from physiq.calculate_iq_score import parse_list_of_floats, VIEWS
 
 
 def clip(value, min_value=0.0, max_value=1.0):

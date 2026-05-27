@@ -1,4 +1,4 @@
-from templater.base import BaseTemplater, register
+from physiq.templater.base import BaseTemplater, register
 
 @register("pvideo")
 class PVideoTemplater(BaseTemplater):

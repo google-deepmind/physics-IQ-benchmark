@@ -15,22 +15,20 @@
 
 import json
 import os
-import sys
 import pandas as pd
 import cv2
 import argparse
 import subprocess
 import math
-
-from fps_changer import change_video_fps
-from calculate_and_write_metrics_to_csv import process_videos
-from calculate_iq_score_stable import IQTable
-from calculate_iq_score import calculate_iq_score
-from binary_mask_generator import generate_binary_masks
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
-from plot_settings import model_to_plotting_name, model_to_color
-from matplotlib.ticker import FuncFormatter
+
+from physiq.fps_changer import change_video_fps
+from physiq.calculate_and_write_metrics_to_csv import process_videos
+from physiq.calculate_iq_score_stable import IQTable
+from physiq.calculate_iq_score import calculate_iq_score
+from physiq.binary_mask_generator import generate_binary_masks
+from physiq.plot_settings import model_to_plotting_name, model_to_color
 
 
 def is_csv_complete(csv_file_path: str, expected_scenarios: set[str]) -> bool:
