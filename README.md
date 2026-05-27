@@ -217,11 +217,12 @@ python3 code/run_physics_iq.py --input_folders <generated_videos_dirs> --output_
 If you think this project is helpful, please feel free to leave a star ⭐️
 
 ```latex
-@article{motamed2025physics,
+@article{motamed2026physics,
   title={Do generative video models understand physical principles?},
   author={Saman Motamed and Laura Culp and Kevin Swersky and Priyank Jaini and Robert Geirhos},
-  journal={arXiv preprint arXiv:2501.09038},
-  year={2025}
+  booktitle={Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision},
+  pages={948--958},
+  year={2026}
 }
 ```
 
