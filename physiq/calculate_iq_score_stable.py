@@ -67,7 +67,9 @@ class IQTable:
     views = VIEWS
     ratio_eps = 1e-8  # small constant to prevent divide-by-zero in ratio computations
 
-    def __init__(self, df: pd.DataFrame, metadata: dict = None):
+    def __init__(
+        self, df: pd.DataFrame, metadata: dict = None, lazy_integrity: bool = False
+    ):
         self.df = df.copy()  # own our data so callers can't mutate it under us
         self.metadata = metadata or {}
 
@@ -84,11 +86,17 @@ class IQTable:
         for col in self.get_scalar_keys():
             self.df[col] = self._get_scalar_column_mean(col)
 
-        self._df_hash = joblib.hash(self.df)
+        self._lazy_integrity = lazy_integrity
+        if self._lazy_integrity:
+            self._df_hash = None
+        else:
+            self._df_hash = joblib.hash(self.df)
         self._score_cache: dict[str, float] = {}
 
     def _verify_df_integrity(self) -> None:
         """Raise if self.df was mutated after construction."""
+        if self._lazy_integrity:
+            return None
         current = joblib.hash(self.df)
         if current != self._df_hash:
             raise RuntimeError(
