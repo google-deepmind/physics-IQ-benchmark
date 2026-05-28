@@ -7,8 +7,7 @@ ground-truth outcome itself varies across repeated real-world trials.
 
 ``IQTable`` is the primary interface: it wraps a per-scenario metrics DataFrame
 and exposes the score computations needed for both point-estimate evaluation and
-bootstrap resampling.  ``calculate_iq_score_update`` is a deprecated thin wrapper
-kept for backwards compatibility.
+bootstrap resampling.
 """
 import joblib
 from functools import cached_property
@@ -25,7 +24,6 @@ def clip(value, min_value=0.0, max_value=1.0):
 
 
 ORIG_SCORE_KEY = "final_score_orig"
-# VERIFIED_SCORE_KEY = "final_score_stable"
 VERIFIED_SCORE_KEY = "final_score_view"
 METRIC_KEYS = ["spatial", "spatiotemporal", "weighted_spatial", "mse"]
 
