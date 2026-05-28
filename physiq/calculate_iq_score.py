@@ -14,8 +14,9 @@
 # ==============================================================================
 
 import re
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 VIEWS = ["perspective-left", "perspective-center", "perspective-right"]
 
@@ -188,4 +189,3 @@ def calculate_iq_score(file_path: str) -> tuple[float, float]:
     final_score = round(max(min(final_score, 100.0), 0.0), 2)
 
     return final_score, physical_variance_all_metrics
-

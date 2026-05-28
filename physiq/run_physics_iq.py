@@ -13,22 +13,23 @@
 # limitations under the License.
 # ==============================================================================
 
-import json
-import os
-import pandas as pd
-import cv2
 import argparse
-import subprocess
+import json
 import math
+import os
+import subprocess
+
+import cv2
 import matplotlib.pyplot as plt
+import pandas as pd
 from matplotlib.ticker import FuncFormatter
 
-from physiq.fps_changer import change_video_fps
-from physiq.calculate_and_write_metrics_to_csv import process_videos
-from physiq.calculate_iq_score_stable import IQTable
-from physiq.calculate_iq_score import calculate_iq_score
 from physiq.binary_mask_generator import generate_binary_masks
-from physiq.plot_settings import model_to_plotting_name, model_to_color
+from physiq.calculate_and_write_metrics_to_csv import process_videos
+from physiq.calculate_iq_score import calculate_iq_score
+from physiq.calculate_iq_score_stable import IQTable
+from physiq.fps_changer import change_video_fps
+from physiq.plot_settings import model_to_color, model_to_plotting_name
 
 
 def is_csv_complete(csv_file_path: str, expected_scenarios: set[str]) -> bool:
@@ -163,7 +164,9 @@ def get_video_duration(video_path):
     return float(result.stdout)
 
 
-def validate_generations(input_folder: str, num_videos: int =198, video_duration_s: float = 5):
+def validate_generations(
+    input_folder: str, num_videos: int = 198, video_duration_s: float = 5
+):
     """Check that num_videos .mp4 videos exist, each video_duration_s seconds with an ID prefix from 0001_ to 0198_."""
 
     assert os.path.exists(input_folder)
@@ -173,9 +176,7 @@ def validate_generations(input_folder: str, num_videos: int =198, video_duration
         [f for f in os.listdir(input_folder) if f.endswith(".mp4")]
     )
 
-    length_error_msg = (
-        f"found {len(files_in_folder)} videos but expected {num_videos}"
-    )
+    length_error_msg = f"found {len(files_in_folder)} videos but expected {num_videos}"
     assert len(files_in_folder) == num_videos, length_error_msg
 
     counter = 1
@@ -364,7 +365,7 @@ def ensure_binary_mask_structure(
     target_fps: float,
     expected_files: set[str],
     is_real: bool,
-    gt_folder: str
+    gt_folder: str,
 ) -> str:
     """
     Ensures binary masks for videos are generated and validated.
@@ -379,7 +380,11 @@ def ensure_binary_mask_structure(
     Returns:
       Path to the binary masks folder.
     """
-    folder_type = "real" if is_real else os.path.join("generated", os.path.basename(os.path.normpath(input_folder)))
+    folder_type = (
+        "real"
+        if is_real
+        else os.path.join("generated", os.path.basename(os.path.normpath(input_folder)))
+    )
     binary_mask_folder = os.path.join(
         gt_folder, "video-masks", folder_type, f"{int(target_fps)}FPS"
     )
@@ -400,6 +405,7 @@ def ensure_binary_mask_structure(
         f"Binary masks for {'real' if is_real else 'generated'} videos are ready at {binary_mask_folder}."
     )
     return binary_mask_folder
+
 
 def process_directory(directory_path: str) -> None:
     """
@@ -431,16 +437,18 @@ def process_directory(directory_path: str) -> None:
         final_score_orig = round(values["final_score_orig"], 4) * 100
         final_score_verified = round(values["final_score_view"], 4) * 100
 
-
         print(f"Physics-IQ score (original) for {model_name}: {final_score_orig:.2f}")
-        print(f"Physics-IQ score (verified) for {model_name}: {final_score_verified:.2f}")
+        print(
+            f"Physics-IQ score (verified) for {model_name}: {final_score_verified:.2f}"
+        )
         print("-" * 50)
 
         model_scores_orig[model_name] = final_score_orig
         model_scores_verified[model_name] = final_score_verified
 
-
-    for score_name, model_scores in zip(score_names, [model_scores_orig, model_scores_verified]):     
+    for score_name, model_scores in zip(
+        score_names, [model_scores_orig, model_scores_verified]
+    ):
         sorted_items = sorted(model_scores.items(), key=lambda x: x[1], reverse=True)
         model_names = [m[0] for m in sorted_items]
         values = [item[1] for item in sorted_items]
@@ -486,12 +494,16 @@ def process_directory(directory_path: str) -> None:
         plt.ylabel(f"{score_name} Physics-IQ score \n(higher=better)")
         ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f}%"))
         plt.tight_layout()
-        plt.savefig(os.path.join(directory_path, f"physics_IQ_score_{score_name}_barplot.pdf"))
+        plt.savefig(
+            os.path.join(directory_path, f"physics_IQ_score_{score_name}_barplot.pdf")
+        )
 
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Video Processing Script. During evaluation intermediate results (videos) are saved in the benchmark_base_folder.")
+    parser = argparse.ArgumentParser(
+        description="Video Processing Script. During evaluation intermediate results (videos) are saved in the benchmark_base_folder."
+    )
     parser.add_argument(
         "--input_folders",
         type=str,
@@ -532,9 +544,13 @@ if __name__ == "__main__":
         benchmark_name = "physics-IQ-benchmark-verified"
 
     benchmark_data_path = os.path.join(args.benchmark_base_folder, benchmark_name)
-    print("Using Data {} from: {}".format("verified" if not args.original_gt else "original", benchmark_data_path))
+    print(
+        "Using Data {} from: {}".format(
+            "verified" if not args.original_gt else "original", benchmark_data_path
+        )
+    )
 
-    csv_files_folder = os.path.join(args.output_folder, benchmark_name , "results")
+    csv_files_folder = os.path.join(args.output_folder, benchmark_name, "results")
     os.makedirs(csv_files_folder, exist_ok=True)
 
     for input_folder in args.input_folders:
@@ -566,7 +582,7 @@ if __name__ == "__main__":
             target_fps=fps,
             expected_files=expected_real_files,
             is_real=True,
-            gt_folder=benchmark_data_path
+            gt_folder=benchmark_data_path,
         )
 
         # Generate binary masks for generated videos
@@ -584,7 +600,7 @@ if __name__ == "__main__":
             target_fps=fps,
             expected_files=expected_generated_files,
             is_real=False,
-            gt_folder=benchmark_data_path
+            gt_folder=benchmark_data_path,
         )
 
         input_folder_name = os.path.basename(input_folder.rstrip("/"))

@@ -13,9 +13,10 @@
 # limitations under the License.
 # ==============================================================================
 
-import os
-import cv2
 import argparse
+import os
+
+import cv2
 
 
 def trim_videos(input_folder: str, output_folder: str) -> None:
@@ -68,7 +69,9 @@ def trim_videos(input_folder: str, output_folder: str) -> None:
 
             cap.release()
             out.release()
-            print(f"Saved trimmed video ({count} frames at {fps} FPS) to: {output_path}")
+            print(
+                f"Saved trimmed video ({count} frames at {fps} FPS) to: {output_path}"
+            )
 
         except Exception as e:
             print(f"Error processing {video_file}: {e}")

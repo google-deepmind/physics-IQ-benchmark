@@ -1,7 +1,9 @@
 import argparse
-import pandas as pd
 from pathlib import Path
-from dataset import Benchmark, DESCRIPTIONS_PATH
+
+import pandas as pd
+
+from dataset import DESCRIPTIONS_PATH, Benchmark
 from physiq.templater import REGISTRY
 
 
@@ -12,7 +14,7 @@ def main():
     parser.add_argument("templater", choices=list(REGISTRY), help="Templater to use")
     parser.add_argument(
         "--output-dir",
-        default=str(DESCRIPTIONS_PATH.parent/"model_specific"),
+        default=str(DESCRIPTIONS_PATH.parent / "model_specific"),
         help="Directory to write the output CSV (default: descriptions/model_specific)",
     )
     parser.add_argument(
@@ -25,16 +27,20 @@ def main():
     benchmark = Benchmark.from_yaml(DESCRIPTIONS_PATH)
     df = benchmark.to_dataframe()
 
-    templater = REGISTRY[args.templater](df, use_action_suffix=not args.no_action_suffix)
+    templater = REGISTRY[args.templater](
+        df, use_action_suffix=not args.no_action_suffix
+    )
 
     rows = []
     for _, row in df.iterrows():
-        rows.append({
-            "scenario": row["scenario"],
-            "description": templater.generate_prompt(row["scenario"]),
-            "category": row["category"],
-            "generated_video_name": row["generated_video_name"],
-        })
+        rows.append(
+            {
+                "scenario": row["scenario"],
+                "description": templater.generate_prompt(row["scenario"]),
+                "category": row["category"],
+                "generated_video_name": row["generated_video_name"],
+            }
+        )
 
     out = pd.DataFrame(rows)
     out_path = Path(args.output_dir) / f"descriptions_{args.templater}.csv"

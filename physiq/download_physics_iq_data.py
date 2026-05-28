@@ -13,10 +13,10 @@
 # limitations under the License.
 # ==============================================================================
 
+import argparse
+import multiprocessing
 import os
 import subprocess
-import multiprocessing
-import argparse
 
 from physiq.fps_changer import change_video_fps
 
@@ -31,16 +31,21 @@ def download_directory(remote_path: str, local_path: str):
       local_path: Local path.
     """
     print(f"Syncing {remote_path} → {local_path} using gcloud storage rsync...")
-    os.makedirs(local_path, exist_ok=True) 
+    os.makedirs(local_path, exist_ok=True)
     try:
-        subprocess.run(["gcloud", "storage", "rsync", "--recursive", remote_path, local_path], check=True)
+        subprocess.run(
+            ["gcloud", "storage", "rsync", "--recursive", remote_path, local_path],
+            check=True,
+        )
         print(f"Sync complete for {remote_path}.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to sync: {remote_path}. Error: {e}")
         raise
 
 
-def download_physics_iq_data(fps: list[int]| tuple[int,] , base_dir: str,verified: bool = True):
+def download_physics_iq_data(
+    fps: list[int] | tuple[int,], base_dir: str, verified: bool = True
+):
     """Download the Physics-IQ dataset based on the specified FPS.
 
     Args:
@@ -53,7 +58,7 @@ def download_physics_iq_data(fps: list[int]| tuple[int,] , base_dir: str,verifie
     download_fps = ["30"]
     # Additionally download pre-computed non-30 FPS data if available
     for f in fps:
-        assert 1 <= fps <= 30, f'FPS must be in [1, 30], got {f}'
+        assert 1 <= fps <= 30, f"FPS must be in [1, 30], got {f}"
         download_fps.append(fps)
 
     if not verified:
@@ -61,7 +66,9 @@ def download_physics_iq_data(fps: list[int]| tuple[int,] , base_dir: str,verifie
         base_url = "gs://physics-iq-benchmark"
     else:
         local_base_dir = os.path.join(base_dir, "physics-IQ-benchmark-verified")
-        raise NotImplementedError("Currently there is no download url available for the verified dataset.\nPlease Download from the Link provided in the README.md")
+        raise NotImplementedError(
+            "Currently there is no download url available for the verified dataset.\nPlease Download from the Link provided in the README.md"
+        )
         # TODO: add download link for physics iq dataset here
         base_url = "gs://physics-iq-benchmark"
 
@@ -97,15 +104,29 @@ def download_physics_iq_data(fps: list[int]| tuple[int,] , base_dir: str,verifie
                     continue
                 input_folder = os.path.join(local_base_dir, directory, "30FPS")
                 output_folder = os.path.join(local_base_dir, directory, f"{f}FPS")
-                change_video_fps(input_folder=input_folder, output_folder=output_folder, fps_new=f)
+                change_video_fps(
+                    input_folder=input_folder, output_folder=output_folder, fps_new=f
+                )
 
     print("Download process complete.")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Downloads Physics IQ Dataset or Physiqs IQ verified Dataset.")
-    parser.add_argument("--fps", nargs="+", default=(30),type=int, help="Select values in (8, 16, 24, 30) for download otherwise resample")
-    parser.add_argument("--original_gt", action="store_true", help="Whether to download verified (default) or orginal dataset")
+    parser = argparse.ArgumentParser(
+        description="Downloads Physics IQ Dataset or Physiqs IQ verified Dataset."
+    )
+    parser.add_argument(
+        "--fps",
+        nargs="+",
+        default=(30),
+        type=int,
+        help="Select values in (8, 16, 24, 30) for download otherwise resample",
+    )
+    parser.add_argument(
+        "--original_gt",
+        action="store_true",
+        help="Whether to download verified (default) or orginal dataset",
+    )
     parser.add_argument(
         "--benchmark_base_folder",
         type=str,
@@ -115,5 +136,6 @@ def main():
     args = parser.parse_args()
     download_physics_iq_data(args.fps, args.benchmark_base_folder, args.original_gt)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

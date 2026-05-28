@@ -9,13 +9,14 @@ ground-truth outcome itself varies across repeated real-world trials.
 and exposes the score computations needed for both point-estimate evaluation and
 bootstrap resampling.
 """
-import joblib
+
 from functools import cached_property
 
+import joblib
 import numpy as np
 import pandas as pd
 
-from physiq.calculate_iq_score import parse_list_of_floats, VIEWS
+from physiq.calculate_iq_score import VIEWS, parse_list_of_floats
 
 
 def clip(value, min_value=0.0, max_value=1.0):
@@ -199,7 +200,6 @@ class IQTable:
             self.df[variance_cols].to_numpy() + self.ratio_eps
         )
 
-
     def compute_metric_scores_scenario(self, metric_key) -> pd.Series:
         """Compute the metric score for a single metric key, returning a Series of shape (n_scenarios,)."""
         ratio = self.compute_metric_ratio(metric_key)
@@ -229,7 +229,7 @@ class IQTable:
             1 / (clip(df[cols].to_numpy() + cls.ratio_eps))
         ).sum(axis=1)
 
-    def compute_metric_scores_scenario_by_view(self, metric_key)-> np.ndarray:
+    def compute_metric_scores_scenario_by_view(self, metric_key) -> np.ndarray:
         """Compute the metric score for a single metric key by view, returning an array of shape (n_scenarios, n_views)."""
         ratio_by_view = self.compute_metric_ratio_by_view(metric_key)
         if metric_key == self.mse_key:
@@ -237,7 +237,7 @@ class IQTable:
         else:
             return ratio_by_view  # for IOU metrics, higher is already better
 
-    def compute_scores_scenario_by_view(self)-> pd.DataFrame:
+    def compute_scores_scenario_by_view(self) -> pd.DataFrame:
         """Compute the metric scores for all metric keys by view, returning a DataFrame of shape (n_scenarios * n_views, n_metrics)."""
         out = pd.DataFrame()
         metric_score_keys = [metric_key + "_score" for metric_key in self.metric_keys]
@@ -367,7 +367,7 @@ class IQTable:
         )
         return final_score_stable
 
-    def get_output_dict(self)-> dict[str, float]:
+    def get_output_dict(self) -> dict[str, float]:
         """
         Return a dict of all relevant scores and metadata for this table.
         The original score is final_score_orig, but we advise to use final_score_stable for a more robust evaluation.

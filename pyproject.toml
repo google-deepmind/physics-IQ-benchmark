@@ -24,6 +24,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "isort>=8.0.1",
     "pytest>=9.0.3",
     "black",
     "jupyter",
@@ -42,6 +43,7 @@ Repository = "https://github.com/google-deepmind/physics-IQ-benchmark"
 
 [dependency-groups]
 dev = [
+    "isort>=8.0.1",
     "pytest>=9.0.3",
     "black>=26.3.1",
     "jupyter",

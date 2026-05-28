@@ -25,15 +25,14 @@ abs=1e-10  — floating-point equality; same formula computed via two different 
 import numpy as np
 import pytest
 
-from calculate_iq_score import calculate_iq_score, parse_list_of_floats, VIEWS
+from calculate_iq_score import VIEWS, calculate_iq_score, parse_list_of_floats
 from calculate_iq_score_stable import IQTable
-
 from tests.conftest import make_csv
-
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _old(path):
     """Return (score_0_100, physical_variance) from the old implementation."""
@@ -48,6 +47,7 @@ def _new_orig(path):
 # ---------------------------------------------------------------------------
 # 1. Main equivalence: default fixture
 # ---------------------------------------------------------------------------
+
 
 def test_final_score_orig_matches_default(default_csv):
     old_score, _ = _old(default_csv)
@@ -67,6 +67,7 @@ def test_final_score_orig_matches_default(default_csv):
 # clipped to [0, 1] → 1.0; scaled: 100.0
 # ---------------------------------------------------------------------------
 
+
 def test_final_score_is_manual_computation(default_csv):
     raw = ((0.4 / 0.3 + 0.5 / 0.25 + 0.6 / 0.5) / 3) - (0.1 - 0.05)
     expected_01 = float(np.clip(raw, 0.0, 1.0))
@@ -83,6 +84,7 @@ def test_final_score_is_manual_computation(default_csv):
 # 3. Physical variance return value
 # ---------------------------------------------------------------------------
 
+
 def test_physical_variance_matches(default_csv):
     _, old_var = _old(default_csv)
     tab = IQTable.from_csv(str(default_csv))
@@ -98,6 +100,7 @@ def test_physical_variance_matches(default_csv):
 # ---------------------------------------------------------------------------
 # 4. Component metric means match
 # ---------------------------------------------------------------------------
+
 
 def test_component_metric_means_match(default_csv):
     import pandas as pd
@@ -117,10 +120,14 @@ def test_component_metric_means_match(default_csv):
 
     # Spatiotemporal IOU cross-view mean
     old_st = df.apply(
-        lambda row: np.mean(np.concatenate([row[f"spatiotemporal_iou_v1_{v}"] for v in VIEWS])),
+        lambda row: np.mean(
+            np.concatenate([row[f"spatiotemporal_iou_v1_{v}"] for v in VIEWS])
+        ),
         axis=1,
     ).mean()
-    assert old_st == pytest.approx(tab.get_metric_mean("spatiotemporal_iou_v1"), abs=1e-10)
+    assert old_st == pytest.approx(
+        tab.get_metric_mean("spatiotemporal_iou_v1"), abs=1e-10
+    )
 
     # Spatial IOU cross-view mean (scalar)
     old_sp = df[[f"spatial_iou_v1_{v}" for v in VIEWS]].mean().mean()
@@ -128,12 +135,15 @@ def test_component_metric_means_match(default_csv):
 
     # Weighted spatial IOU cross-view mean (scalar)
     old_wsp = df[[f"weighted_spatial_iou_v1_{v}" for v in VIEWS]].mean().mean()
-    assert old_wsp == pytest.approx(tab.get_metric_mean("weighted_spatial_iou_v1"), abs=1e-10)
+    assert old_wsp == pytest.approx(
+        tab.get_metric_mean("weighted_spatial_iou_v1"), abs=1e-10
+    )
 
 
 # ---------------------------------------------------------------------------
 # 5. Score clipped to 0 when raw < 0
 # ---------------------------------------------------------------------------
+
 
 def test_clipping_at_zero(tmp_path):
     # Very small IOU metrics relative to large variances, and large MSE → raw score << 0
@@ -158,6 +168,7 @@ def test_clipping_at_zero(tmp_path):
 # 6. Score clipped to 100 / 1.0 when raw > 1
 # ---------------------------------------------------------------------------
 
+
 def test_clipping_at_max(tmp_path):
     # IOU metrics >> variances, near-zero MSE → raw score >> 1
     path = make_csv(
@@ -180,6 +191,7 @@ def test_clipping_at_max(tmp_path):
 # ---------------------------------------------------------------------------
 # 7. Multi-scenario aggregation: scenarios with different per-scenario values
 # ---------------------------------------------------------------------------
+
 
 def test_multi_scenario_aggregation(tmp_path):
     per_scenario = [

@@ -15,14 +15,14 @@
 
 """Calculate metrics and plot results from physics-IQ benchmark videos."""
 
-from multiprocessing import pool
+import gc
 import os
+from multiprocessing import pool
 
 import cv2
 import numpy as np
 import pandas as pd
 import tqdm
-import gc
 
 
 def get_video_frame_count(filepath):
