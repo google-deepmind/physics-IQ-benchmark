@@ -6,7 +6,7 @@
 
 # Physics-IQ and Physics-IQ Verified: Benchmarking physical understanding in generative video models
 
-The original Physics-IQ benchmark was a landmark contribution that has attracted more than 100 citations since its release, establishing a way to measure whether video generative models understand the physical world. Building on this strong foundation, we conducted a systematic audit that identified three opportunities to improve prompt quality, ground-truth quality, and score computation. Physics-IQ Verified lifts the benchmark to the next level by refining 57.6% of all samples and over 37.9% of prompts, and introducing a fairer sample-level scoring system.
+The original Physics-IQ benchmark was a landmark contribution that has attracted more than 100 citations since its release, establishing a way to measure whether video generative models understand the physical world. Building on this strong foundation, we conducted a systematic audit that identified three opportunities to improve prompt quality, ground-truth quality, and score computation. Physics-IQ Verified lifts the benchmark to the next level by refining 57.6% of all samples and over 34.8% of prompts, and introducing a fairer sample-level scoring system.
 
 This repository contains the workflow for Physics-IQ Verified, the recommended benchmark variant.
 It also retains support for the original Physics-IQ benchmark for comparison with earlier published results.
