@@ -36,13 +36,14 @@ def get_video_frame_count(filepath):
 
 
 def process_videos(
-    real_folders,
-    generated_folders,
-    binary_real_folders,
-    binary_generated_folders,
-    csv_file_path,
-    fps,
+    real_folder : str,
+    generated_folder : str,
+    binary_real_folder : str,
+    binary_generated_folder : str,
+    csv_file_path :str,
+    fps : int,
     video_time_selection="first",
+    n_processes: int = 1,
 ):
     """Goes through the videos and masks, and calculates metrics.
 
@@ -51,13 +52,13 @@ def process_videos(
     IOU, and others, and saves the results to a specified CSV file.
 
     Args:
-        real_folders (list of str): A list of paths to folders containing real
+        real_folders (str): A path to folder containing real
           videos.
-        generated_folders (list of str): A list of paths to folders containing
+        generated_folders (str): A paths to folder containing
           generated videos.
-        binary_real_folders (list of str): A list of paths to folders containing
+        binary_real_folders (str): A path to folder containing
           binary masks for real videos.
-        binary_generated_folders (list of str): A list of paths to folders
+        binary_generated_folder (str): A path to folders
           containing binary masks for generated videos.
         csv_file_path (str): The file path where the results will be saved as a
           CSV file.
@@ -178,7 +179,7 @@ def process_videos(
     scenario_data = []
     processed_scenarios = set()
     gen_video_duration_frames = get_video_frame_count(
-        os.path.join(generated_folders, sorted(os.listdir(generated_folders))[0])
+        os.path.join(generated_folder, sorted(os.listdir(generated_folder))[0])
     )
 
     consider_frames = fps * 5
@@ -192,16 +193,20 @@ def process_videos(
 
     progress_bar = tqdm.tqdm(
         total=len(
-            set("_".join(f.split("_")[:-2]) for f in sorted(os.listdir(real_folders)))
+            set("_".join(f.split("_")[:-2]) for f in sorted(os.listdir(real_folder)))
         )
         // 6,
         desc="Processing scenarios",
     )
-    if not os.path.exists(real_folders):
-        print(f"Folder not found: {real_folders}")
+    if not os.path.exists(real_folder):
+        print(f"Folder not found: {real_folder}")
         return
 
-    def process_view(scenario_name, view, scenario_ID_take_1, scenario_ID_take_2, fps):
+    def process_view(scenario_name: str, 
+                     view: str, 
+                     scenario_ID_take_1: str, 
+                     scenario_ID_take_2: str,
+                     fps: str|int):
         """Process a single view of a scenario.
 
         Args:
@@ -214,26 +219,26 @@ def process_videos(
 
         print("-- Processing scenario: ", scenario_name + " -- view: " + view)
         real_path_v1 = os.path.join(
-            real_folders,
+            real_folder,
             f"{scenario_ID_take_1}_testing-videos_{fps}FPS_{view}_take-1_{scenario_name}",
         )
         generated_path = os.path.join(
-            generated_folders, f"{scenario_ID_take_1}_{view}_{scenario_name}"
+            generated_folder, f"{scenario_ID_take_1}_{view}_{scenario_name}"
         )
         real_path_v2 = os.path.join(
-            real_folders,
+            real_folder,
             f"{scenario_ID_take_2}_testing-videos_{fps}FPS_{view}_take-2_{scenario_name}",
         )
         binary_path_v1 = os.path.join(
-            binary_real_folders,
+            binary_real_folder,
             f"{scenario_ID_take_1}_video-masks_{fps}FPS_{view}_take-1_{scenario_name}",
         )
         binary_path_v2 = os.path.join(
-            binary_real_folders,
+            binary_real_folder,
             f"{scenario_ID_take_2}_video-masks_{fps}FPS_{view}_take-2_{scenario_name}",
         )
         binary_generated_path = os.path.join(
-            binary_generated_folders,
+            binary_generated_folder,
             f"{scenario_ID_take_1}_video-masks_{fps}FPS_{view}_take-1_{scenario_name}",
         )
 
@@ -382,7 +387,7 @@ def process_videos(
     scenario_data = []
 
     # First pass: Populate scenario_info with both take-1 and take-2 IDs per view
-    for real_file in sorted(os.listdir(real_folders)):
+    for real_file in sorted(os.listdir(real_folder)):
         if real_file.endswith(".mp4"):
             parts = real_file.split("_")
             if len(parts) < 6:
@@ -426,7 +431,7 @@ def process_videos(
         scenario_result = {"scenario": scenario_name}
 
         # Process each view in parallel
-        with pool.ThreadPool(processes=1) as executor:
+        with pool.ThreadPool(processes=n_processes) as executor:
             futures = [
                 executor.apply_async(
                     process_view,

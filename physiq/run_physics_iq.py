@@ -621,10 +621,10 @@ if __name__ == "__main__":
             )
         else:
             process_videos(
-                real_folders=real_video_folder,
-                generated_folders=input_folder,
-                binary_real_folders=binary_mask_real_folder,
-                binary_generated_folders=binary_mask_generated_folder,
+                real_folder=real_video_folder,
+                generated_folder=input_folder,
+                binary_real_folder=binary_mask_real_folder,
+                binary_generated_folder=binary_mask_generated_folder,
                 csv_file_path=csv_file_path,
                 fps=fps,
                 video_time_selection="first",

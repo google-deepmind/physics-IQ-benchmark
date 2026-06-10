@@ -1,3 +1,18 @@
+# Copyright 2026 DeepMind Technologies Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -59,8 +74,28 @@ class Benchmark(BaseModel):
         )
 
     @staticmethod
+    def _infer_gt_fn_video(
+        id_: int, perspective: str, take: int, scene_name: str, fps: str|int
+    ):
+        return (
+            f"{id_:04}_testing-videos_{fps}FPS_perspective-{perspective}_take-{take}_trimmed-{scene_name}.mp4"
+        )
+    
+    @staticmethod
+    def _infer_fn_mask(
+        id_: int, perspective: str, take: int, scene_name: str, fps: str|int
+    ):
+        return (
+            f"{id_:04}_video-masks_{fps}FPS_perspective-{perspective}_take-{take}_trimmed-{scene_name}.mp4"
+        )
+
+    @staticmethod
     def _infer_generated(id_: int, perspective: str, scene_name: str) -> str:
         return f"{id_:04}_perspective-{perspective}_trimmed-{scene_name}.mp4"
+    
+    def model_post_init(self, context):
+        self.df = self.to_dataframe()
+        return super().model_post_init(context)
 
     def to_dataframe(self) -> pd.DataFrame:
         rows = []
@@ -94,12 +129,16 @@ class Benchmark(BaseModel):
                         }
                     )
         df = pd.DataFrame(rows)
-        return df.sort_values(by="id").reset_index(drop=False)
+        return df.sort_values(by="id").reset_index(drop=True)
 
     def build_original_descriptions(self) -> pd.DataFrame:
         cols = ["scenario", "description", "category", "generated_video_name"]
         return self.to_dataframe()[cols]
 
+
+def get_benchmark()->Benchmark:
+    return Benchmark.from_yaml(DESCRIPTIONS_PATH)
+    
 
 if __name__ == "__main__":
     benchmark = Benchmark.from_yaml(DESCRIPTIONS_PATH)
@@ -126,3 +165,4 @@ if __name__ == "__main__":
     print(csv_gen_diff)
     print("CSV Orig Diff")
     print(csv_diff)
+    import IPython; IPython.embed()
