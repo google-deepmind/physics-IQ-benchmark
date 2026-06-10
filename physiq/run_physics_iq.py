@@ -524,7 +524,7 @@ if __name__ == "__main__":
         help="Path to the descriptions CSV file (master file).",
     )
     parser.add_argument(
-        "--original_gt",
+        "--original_physics_iq",
         action="store_true",
         help="Switch from verified GT (default) to original GT.",
     )
@@ -538,7 +538,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Setting which Ground truth is being used for evaluation.
-    if args.original_gt:
+    if args.original_physics_iq:
         benchmark_name = "physics-IQ-benchmark"
     else:
         benchmark_name = "physics-IQ-benchmark-verified"
@@ -546,7 +546,7 @@ if __name__ == "__main__":
     benchmark_data_path = os.path.join(args.benchmark_base_folder, benchmark_name)
     print(
         "Using Data {} from: {}".format(
-            "verified" if not args.original_gt else "original", benchmark_data_path
+            "verified" if not args.original_physics_iq else "original", benchmark_data_path
         )
     )
 

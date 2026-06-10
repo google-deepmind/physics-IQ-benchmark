@@ -123,7 +123,7 @@ def main():
         help="Select values in (8, 16, 24, 30) for download otherwise resample",
     )
     parser.add_argument(
-        "--original_gt",
+        "--original_physics_iq",
         action="store_true",
         help="Whether to download verified (default) or orginal dataset",
     )
@@ -134,7 +134,7 @@ def main():
         help="Path to the folder within which physics-IQ-benchmark & physics-IQ-benchmark-verifed data are or will be located after download.",
     )
     args = parser.parse_args()
-    download_physics_iq_data(args.fps, args.benchmark_base_folder, args.original_gt)
+    download_physics_iq_data(args.fps, args.benchmark_base_folder, args.original_physics_iq)
 
 
 if __name__ == "__main__":

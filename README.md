@@ -6,7 +6,9 @@
 
 # Physics-IQ and Physics-IQ Verified: Benchmarking physical understanding in generative video models
 
-The original Physics-IQ benchmark was a landmark contribution that has attracted more than 100 citations since its release, establishing a way to measure whether video generative models understand the physical world. Building on this strong foundation, we conducted a systematic audit that identified three opportunities to improve prompt quality, ground-truth quality, and score computation. Physics-IQ Verified lifts the benchmark to the next level by refining 57.6% of all samples and over 34.8% of prompts, and introducing a fairer sample-level scoring system.
+Physics-IQ is a high-quality, realistic, and comprehensive benchmark dataset for evaluating physical understanding in generative video models.
+Building on this foundation, Physics-IQ Verified improves upon the original benchmark along three dimensions based on a systematic audit: 1) prompt quality, 2) ground truth and 3) single sample scores weighing each sample identically.
+
 
 This repository contains the workflow for Physics-IQ Verified, the recommended benchmark variant.
 It also retains support for the original Physics-IQ benchmark for comparison with earlier published results.
@@ -44,9 +46,6 @@ For details on the Physics-IQ Verified metrics, see the [metric definitions](doc
 
 > **Note:** We are still figuring out the reporting settings. Inclusion means that the authors get access to the API including relevant credits to reproduce the results by generating videos themselves. Videos should be made available to the authors at minimum. This will be updated to make results as reproducible as possible.
 
-#### Model-specific benchmark prompts (`bpp`)
-
-`bpp` uses a custom templater for the specific model.
 
 | # | Model | input type | Phys-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|---|---|---|---|
@@ -56,20 +55,10 @@ For details on the Physics-IQ Verified metrics, see the [metric definitions](doc
 | 4 | Sora 2 | i2v | 26.5 <small>± 0.8</small> | 37.3 <small>± 0.6</small> | 27.0 <small>± 2.2</small> | 26.9 <small>± 0.7</small> | 14.8 <small>± 0.6</small> | 2026-05-22 |
 | 5 | P-Video | i2v | 25.3 <small>± 1.8</small> | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-05-22 |
 
-#### Original benchmark prompts (`op`)
+The reported scores use best-practice-prompts (`bpp`) based on a custom templater for each specific model.
 
-`op` uses the original benchmark prompts from `descriptions/descriptions.csv`.
 
-| # | Model | input type | Phys-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
-|---|---|---|---|---|---|---|---|---|
-| 1 🥇 | Wan 2.2 | i2v | 34.8 <small>± 0.7</small> | 54.3 <small>± 0.9</small> | 21.2 <small>± 1.1</small> | 31.8 <small>± 0.7</small> | 31.9 <small>± 0.2</small> | 2026-05-22 |
-| 2 🥈 | Grok Imagine Video | i2v | 32.7 <small>± 0.4</small> | 49.8 <small>± 0.7</small> | 18.8 <small>± 0.6</small> | 34.0 <small>± 0.2</small> | 28.2 <small>± 0.4</small> | 2026-05-22 |
-| 3 🥉 | Hunyuan Video 1.5 | i2v | 31.7 <small>± 0.9</small> | 43.5 <small>± 1.1</small> | 25.4 <small>± 1.0</small> | 27.4 <small>± 1.1</small> | 30.4 <small>± 0.6</small> | 2026-05-22 |
-| 4 | P-Video | i2v | 23.8 <small>± 1.7</small> | 35.5 <small>± 1.6</small> | 16.2 <small>± 2.9</small> | 21.4 <small>± 1.3</small> | 22.2 <small>± 2.0</small> | 2026-05-22 |
-| 5 | Sora 2 | i2v | 15.7 <small>± 0.7</small> | 23.6 <small>± 1.0</small> | 16.5 <small>± 1.0</small> | 15.4 <small>± 0.5</small> | 7.4 <small>± 0.6</small> | 2026-05-22 |
-
-<details>
-<summary><strong><big>Physics-IQ Original Leaderboard</big></strong></summary>
+### Physics-IQ Original Leaderboard
 
 If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
@@ -113,7 +102,7 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 Choose one benchmark:
 
 - [**Physics-IQ Verified Workflow**](#physics-iq-verified-workflow): recommended benchmark with improved prompts, masks, and scoring. This is the default when running `physiq/run_physics_iq.py`.
-- [**Physics-IQ Original Workflow**](#physics-iq-original-workflow): legacy benchmark for comparison with older published results. Use `--original_gt` when evaluating.
+- [**Physics-IQ Original Workflow**](#physics-iq-original-workflow): legacy benchmark for comparison with older published results. Use `--original_physics_iq` when evaluating.
 
 ## Physics-IQ Verified Workflow
 
@@ -309,46 +298,8 @@ Save generated videos in one directory per model run. For leaderboard-style repo
 <model_name>-<prompt_setting>-run_<run_number>
 ```
 
-The prompt setting should be `bpp` for model-specific benchmark prompts or `op` for original prompts. The run number should use `run_01` through `run_04` for the standard four-run benchmark setup. Filenames may vary, but each video must keep the unique ID prefix from the benchmark (`0001_`, ..., `0198_`). Using descriptive benchmark-style names is recommended. You can use the repo-local `generated_videos/` folder or pass external generated-video folders directly to the evaluator.
+The prompt setting should be `bpp` for model-specific benchmark prompts or `op` for original prompts. The run number should use `run_01` through `run_04` for the standard four-run benchmark setup. Filenames may vary, but each video must keep the unique ID prefix from the benchmark (`0001_`, ..., `0198_`). Using descriptive benchmark-style names is recommended.
 
-**D3. Save generated videos.**
-
-Example generated video folder:
-
-```plaintext
-generated_videos/
-├── <model_name>-bpp-run_01/
-│   ├── 0001_perspective-left_trimmed-ball-and-block-fall.mp4
-│   ├── 0002_perspective-center_trimmed-ball-and-block-fall.mp4
-│   └── ...
-├── <model_name>-bpp-run_02/
-│   └── ...
-├── <model_name>-bpp-run_03/
-│   └── ...
-└── <model_name>-bpp-run_04/
-    └── ...
-```
-
-**D4. Original-prompt (`op`) example.**
-
-<details>
-  <summary>Original-prompt (`op`) run folder example</summary>
-
-```plaintext
-generated_videos/
-├── <model_name>-op-run_01/
-│   ├── 0001_perspective-left_trimmed-ball-and-block-fall.mp4
-│   ├── 0002_perspective-center_trimmed-ball-and-block-fall.mp4
-│   └── ...
-├── <model_name>-op-run_02/
-│   └── ...
-├── <model_name>-op-run_03/
-│   └── ...
-└── <model_name>-op-run_04/
-    └── ...
-```
-
-</details>
 
 ### E. Trim Videos
 
@@ -448,6 +399,7 @@ The verified score printed by the evaluator is stored as `final_score_view` in e
 
 Step F reports per-run original and verified score variants. To report a Physics-IQ Verified leaderboard score, use the verified score from each run and compute the mean and standard deviation across the standard four runs. Report this as `score ± std` in the leaderboard table.
 
+## Physics-IQ Original Workflow
 <details>
 <a id="physics-iq-original-workflow"></a>
 <summary><strong><big>Physics-IQ Original Workflow</big></strong></summary>
@@ -458,7 +410,7 @@ Download the original benchmark from the [Physics-IQ Google Cloud Storage link](
 
 ```bash
 uv run physiq/download_physics_iq_data.py \
-  --fps 30 \
+  --fps 30 --original_physics_iq\
   --benchmark_base_folder <download_parent>
 ```
 
@@ -511,7 +463,7 @@ Trim generated videos to exactly 5 seconds before evaluation.
 
 ### F. Run Evaluation
 
-Add `--original_gt` to evaluate against the original benchmark:
+Add `--original_physics_iq` to evaluate against the original benchmark:
 
 ```bash
 uv run physiq/run_physics_iq.py \
@@ -523,7 +475,7 @@ uv run physiq/run_physics_iq.py \
   --output_folder <output_dir> \
   --descriptions_file descriptions/descriptions.csv \
   --benchmark_base_folder <folder_containing_physics-IQ-benchmark> \
-  --original_gt
+  --original_physics_iq
 ```
 
 ### G. Aggregate Leaderboard Scores
@@ -541,19 +493,19 @@ If you think this project is helpful, please feel free to leave a star ⭐️
 Please cite both papers if you use this benchmark.
 <!-- TODO: finalize our publication here. -->
 ```latex
-@article{raedsch2026physics,
-  title={Physics-IQ Verified},
-  author={}
-  journal={arXiv preprint},
-  year=2026
-}
-
 @article{motamed2026physics,
   title={Do generative video models understand physical principles?},
   author={Saman Motamed and Laura Culp and Kevin Swersky and Priyank Jaini and Robert Geirhos},
   booktitle={Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision},
   pages={948--958},
   year={2026}
+}
+
+@article{raedsch2026physics,
+  title={Physics-IQ Verified},
+  author={}
+  journal={arXiv preprint},
+  year=2026
 }
 ```
 
@@ -580,22 +532,3 @@ either express or implied. See the licenses for the specific language governing
 permissions and limitations under those licenses.
 
 This is not an official Google product.
-
-### Physics-IQ Verified
-
-Copyright 2026 Anates Labs
-
-All software is licensed under the Apache License, Version 2.0 (Apache 2.0);
-you may not use this file except in compliance with the Apache 2.0 license.
-You may obtain a copy of the Apache 2.0 license at:
-https://www.apache.org/licenses/LICENSE-2.0
-
-All other materials are licensed under the Creative Commons Attribution 4.0
-International License (CC-BY). You may obtain a copy of the CC-BY license at:
-https://creativecommons.org/licenses/by/4.0/legalcode
-
-Unless required by applicable law or agreed to in writing, all software and
-materials distributed here under the Apache 2.0 or CC-BY licenses are
-distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-either express or implied. See the licenses for the specific language governing
-permissions and limitations under those licenses.
