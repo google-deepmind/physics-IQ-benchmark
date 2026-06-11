@@ -538,8 +538,8 @@ if __name__ == "__main__":
         "--n_process",
         type=int,
         default=0,
-        help="Number of processes used for computation of scores based on images." \
-        "Be cerafule here, one process can easily take up 9GB."
+        help="Number of processes used for computation of scores based on images."
+        "Be cerafule here, one process can easily take up 9GB.",
     )
 
     args = parser.parse_args()
@@ -553,7 +553,8 @@ if __name__ == "__main__":
     benchmark_data_path = os.path.join(args.benchmark_base_folder, benchmark_name)
     print(
         "Using Data {} from: {}".format(
-            "verified" if not args.original_physics_iq else "original", benchmark_data_path
+            "verified" if not args.original_physics_iq else "original",
+            benchmark_data_path,
         )
     )
 
@@ -635,7 +636,7 @@ if __name__ == "__main__":
                 csv_file_path=csv_file_path,
                 fps=fps,
                 video_time_selection="first",
-                n_process=args.n_process
+                n_process=args.n_process,
             )
 
     process_directory(csv_files_folder)

@@ -134,7 +134,9 @@ def main():
         help="Path to the folder within which physics-IQ-benchmark & physics-IQ-benchmark-verifed data are or will be located after download.",
     )
     args = parser.parse_args()
-    download_physics_iq_data(args.fps, args.benchmark_base_folder, args.original_physics_iq)
+    download_physics_iq_data(
+        args.fps, args.benchmark_base_folder, args.original_physics_iq
+    )
 
 
 if __name__ == "__main__":

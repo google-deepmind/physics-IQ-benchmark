@@ -75,19 +75,15 @@ class Benchmark(BaseModel):
 
     @staticmethod
     def _infer_gt_fn_video(
-        id_: int, perspective: str, take: int, scene_name: str, fps: str|int
+        id_: int, perspective: str, take: int, scene_name: str, fps: str | int
     ):
-        return (
-            f"{id_:04}_testing-videos_{fps}FPS_perspective-{perspective}_take-{take}_trimmed-{scene_name}.mp4"
-        )
-    
+        return f"{id_:04}_testing-videos_{fps}FPS_perspective-{perspective}_take-{take}_trimmed-{scene_name}.mp4"
+
     @staticmethod
     def _infer_fn_mask(
-        id_: int, perspective: str, take: int, scene_name: str, fps: str|int
+        id_: int, perspective: str, take: int, scene_name: str, fps: str | int
     ):
-        return (
-            f"{id_:04}_video-masks_{fps}FPS_perspective-{perspective}_take-{take}_trimmed-{scene_name}.mp4"
-        )
+        return f"{id_:04}_video-masks_{fps}FPS_perspective-{perspective}_take-{take}_trimmed-{scene_name}.mp4"
 
     @staticmethod
     def _infer_generated(id_: int, perspective: str, scene_name: str) -> str:
@@ -132,9 +128,9 @@ class Benchmark(BaseModel):
         return self.to_dataframe()[cols]
 
 
-def get_benchmark()->Benchmark:
+def get_benchmark() -> Benchmark:
     return Benchmark.from_yaml(DESCRIPTIONS_PATH)
-    
+
 
 if __name__ == "__main__":
     benchmark = Benchmark.from_yaml(DESCRIPTIONS_PATH)
@@ -161,4 +157,6 @@ if __name__ == "__main__":
     print(csv_gen_diff)
     print("CSV Orig Diff")
     print(csv_diff)
-    import IPython; IPython.embed()
+    import IPython
+
+    IPython.embed()

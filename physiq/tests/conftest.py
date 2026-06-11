@@ -86,10 +86,7 @@ def default_csv(tmp_path):
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--run-e2e",
-        action="store_true",
-        default=False,
-        help="Run end-to-end tests"
+        "--run-e2e", action="store_true", default=False, help="Run end-to-end tests"
     )
 
 
