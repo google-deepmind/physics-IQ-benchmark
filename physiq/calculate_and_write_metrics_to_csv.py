@@ -15,9 +15,11 @@
 
 """Calculate metrics and plot results from physics-IQ benchmark videos."""
 
+import concurrent.futures
 import gc
 import os
-from multiprocessing import pool
+from collections import defaultdict
+from dataclasses import dataclass
 
 import cv2
 import numpy as np
@@ -35,15 +37,227 @@ def get_video_frame_count(filepath):
     return total_frames
 
 
+@dataclass
+class ViewPaths:
+    """Resolved file paths for one (scenario, view) combination."""
+
+    real_v1: str
+    real_v2: str
+    generated: str
+    mask_v1: str
+    mask_v2: str
+    mask_generated: str
+
+
+@dataclass
+class ViewFrames:
+    """Loaded frames for one (scenario, view) combination.
+
+    Each field is a numpy array of shape (n_frames, h, w, c).
+    RGB arrays are float64 in [0, 1]; mask arrays are bool.
+    """
+
+    real_v1: np.ndarray # float in [0,1] shape (n_frames, h, w, c)
+    real_v2: np.ndarray # float in [0,1] shape (n_frames, h, w, c)
+    generated: np.ndarray # float in [0,1] shape (n_frames, h, w, c)
+    mask_v1: np.ndarray # bool in [0,1] shape (n_frames, h, w)
+    mask_v2: np.ndarray # bool in [0,1] shape (n_frames, h, w)
+    mask_generated: np.ndarray # bool in [0,1] shape (n_frames, h, w)
+
+
+def load_and_resize_video(filepath, start_frame, end_frame, target_size=None, normalize=True)->np.ndarray:
+    """Load and resize a video.
+
+    Args:
+        filepath: Path to the video file.
+        start_frame: Index of the first frame to load.
+        end_frame: Index of the last frame to load.
+        target_size: Desired size of the frames (width, height).
+        normalize: Whether to normalize the pixel values to the range [0, 1].
+
+    Returns:
+        Array of shape: F (frames) x target_size[1] (height) x target_size[0] (width) x 3
+    """
+    assert os.path.exists(filepath), f"File not found: {filepath}"
+
+    cap = cv2.VideoCapture(filepath)
+    frames = []
+    frame_idx = 0
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+        if start_frame <= frame_idx < end_frame:
+            if target_size:
+                frame = cv2.resize(frame, target_size)
+            if normalize:
+                frame = frame / 255.0
+            frames.append(frame)
+        frame_idx += 1
+    cap.release()
+    return np.stack(frames)
+
+
+def spatial_binary_masks(mask_frames: np.ndarray) -> np.ndarray:
+    """Collapse the time dimension: True where any frame has a mask pixel."""
+    if mask_frames.shape[0] == 0:
+        print("Warning: Received empty mask_frames for spatial binary mask calculation.")
+        return np.zeros((1, 1), dtype=bool)
+    return mask_frames.any(axis=0)
+
+
+def weighted_spatial_mask(mask_frames: np.ndarray) -> np.ndarray:
+    """Return per-pixel fraction of frames that have a mask pixel."""
+    return np.sum(mask_frames, axis=0, dtype=np.uint16)/len(mask_frames)
+
+
+def mse_per_frame(video1: np.ndarray, video2: np.ndarray) -> list[float]:
+    """Calculate MSE per frame for two (n_frames, h, w, c) video arrays."""
+    if video1.shape != video2.shape:
+        raise ValueError("Videos must have the same shape.")
+    diff = video1.astype(np.float32) - video2.astype(np.float32)
+    return (diff ** 2).mean(axis=(1, 2, 3)).tolist()
+
+
+def spatiotemporal_iou_per_frame(mask1: np.ndarray, mask2: np.ndarray) -> list[float]:
+    """Calculate IOU per frame for two (n_frames, h, w) bool mask arrays."""
+    spatial_axes = tuple(range(1, mask1.ndim))
+    intersection = np.logical_and(mask1, mask2).sum(axis=spatial_axes)
+    union = np.logical_or(mask1, mask2).sum(axis=spatial_axes)
+    # have minimum union value of 1 to ensure that no divide by zero errors start
+    iou = np.where(union == 0, 1.0, intersection / np.maximum(union, 1))
+    return iou.tolist()
+
+
+def compute_weighted_spatial_iou(weighted_spatial_1, weighted_spatial_2):
+    """Compute IOU between two weighted spatial masks."""
+    intersection = np.minimum(weighted_spatial_1, weighted_spatial_2)
+    union = np.maximum(weighted_spatial_1, weighted_spatial_2)
+    valid_pixels = union > 0
+    if np.sum(valid_pixels) == 0:
+        return 1.0
+    return np.sum(intersection[valid_pixels]) / np.sum(union[valid_pixels])
+
+
+def load_view(
+    paths: ViewPaths, start_frame: int, end_frame: int, consider_frames: int
+) -> ViewFrames | None:
+    """Load and prepare all frames for one view from disk.
+
+    Returns None if real_v1 has no frames (signals a missing video).
+    Raises ValueError if any other required video is empty.
+    """
+    real_v1_sample = load_and_resize_video(paths.real_v1, 0, 1, normalize=False)
+    if  len(real_v1_sample)==0:
+        return None
+    target_size = (real_v1_sample[0].shape[1] // 4, real_v1_sample[0].shape[0] // 4)
+
+    real_v1 = load_and_resize_video(paths.real_v1, 0, consider_frames, target_size)
+    real_v2 = load_and_resize_video(paths.real_v2, 0, consider_frames, target_size)
+    generated = load_and_resize_video(paths.generated, start_frame, end_frame, target_size)
+    mask_v1 = load_and_resize_video(paths.mask_v1, 0, consider_frames, target_size, normalize=False)[:,:,:,0] > 127
+    mask_v2 = load_and_resize_video(paths.mask_v2, 0, consider_frames, target_size, normalize=False)[:,:,:,0] > 127
+    mask_generated = load_and_resize_video(paths.mask_generated, 0, consider_frames, target_size, normalize=False)[:,:,:,0] > 127
+
+    vid_shape = real_v1.shape 
+    mask_shape = mask_v1.shape
+    if vid_shape!= real_v2.shape or vid_shape!= generated.shape or mask_shape != mask_v2.shape or mask_shape !=mask_generated.shape:
+        raise ValueError(f"Frames are or shapes are inconistent across generated videos")
+
+    return ViewFrames(
+        real_v1=real_v1,
+        real_v2=real_v2,
+        generated=generated,
+        mask_v1=mask_v1,
+        mask_v2=mask_v2,
+        mask_generated=mask_generated,
+    )
+
+
+def compute_view_metrics(frames: ViewFrames) -> dict:
+    """Compute all metrics for one view from loaded frames.
+
+    Returns a dict with neutral keys (no view suffix).
+    """
+    spatiotemporal_iou_v1 = spatiotemporal_iou_per_frame(frames.mask_v1, frames.mask_generated)
+    spatiotemporal_iou_v2 = spatiotemporal_iou_per_frame(frames.mask_v2, frames.mask_generated)
+    variance_spatiotemporal_iou = spatiotemporal_iou_per_frame(frames.mask_v1, frames.mask_v2)
+
+    spatial_v1 = spatial_binary_masks(frames.mask_v1)
+    spatial_v2 = spatial_binary_masks(frames.mask_v2)
+    spatial_generated = spatial_binary_masks(frames.mask_generated)
+
+    iou_v1_spatial = spatiotemporal_iou_per_frame(spatial_v1[np.newaxis], spatial_generated[np.newaxis])[0]
+    iou_v2_spatial = spatiotemporal_iou_per_frame(spatial_v2[np.newaxis], spatial_generated[np.newaxis])[0]
+    variance_spatial = spatiotemporal_iou_per_frame(spatial_v1[np.newaxis], spatial_v2[np.newaxis])[0]
+
+    weighted_spatial_v1 = weighted_spatial_mask(frames.mask_v1)
+    weighted_spatial_v2 = weighted_spatial_mask(frames.mask_v2)
+    weighted_spatial_generated = weighted_spatial_mask(frames.mask_generated)
+
+    iou_v1_weighted_spatial = compute_weighted_spatial_iou(weighted_spatial_v1, weighted_spatial_generated)
+    iou_v2_weighted_spatial = compute_weighted_spatial_iou(weighted_spatial_v2, weighted_spatial_generated)
+    variance_weighted_spatial = compute_weighted_spatial_iou(weighted_spatial_v1, weighted_spatial_v2)
+
+    return {
+        "spatiotemporal_iou_v1": spatiotemporal_iou_v1,
+        "spatiotemporal_iou_v2": spatiotemporal_iou_v2,
+        "spatial_iou_v1": iou_v1_spatial,
+        "spatial_iou_v2": iou_v2_spatial,
+        "weighted_spatial_iou_v1": iou_v1_weighted_spatial,
+        "weighted_spatial_iou_v2": iou_v2_weighted_spatial,
+        "v1_mse": mse_per_frame(frames.real_v1, frames.generated),
+        "v2_mse": mse_per_frame(frames.real_v2, frames.generated),
+        "variance_spatial": variance_spatial,
+        "variance_weighted_spatial": variance_weighted_spatial,
+        "variance_spatiotemporal_iou": variance_spatiotemporal_iou,
+        "variance_mse": mse_per_frame(frames.real_v1, frames.real_v2),
+    }
+
+
+def process_view(
+    paths: ViewPaths, view: str, start_frame: int, end_frame: int, consider_frames: int
+) -> dict | None:
+    """Load frames and compute metrics for one view; keys are suffixed with the view name."""
+    frames = load_view(paths, start_frame, end_frame, consider_frames)
+    if frames is None:
+        return None
+    metrics = compute_view_metrics(frames)
+    del frames
+    gc.collect()
+    return {f"{k}_{view}": v for k, v in metrics.items()}
+
+
+def _build_view_paths(
+    scenario_name: str,
+    view: str,
+    id_take1: str,
+    id_take2: str,
+    fps: int,
+    real_folder: str,
+    generated_folder: str,
+    binary_real_folder: str,
+    binary_generated_folder: str,
+) -> ViewPaths:
+    return ViewPaths(
+        real_v1=os.path.join(real_folder, f"{id_take1}_testing-videos_{fps}FPS_{view}_take-1_{scenario_name}"),
+        real_v2=os.path.join(real_folder, f"{id_take2}_testing-videos_{fps}FPS_{view}_take-2_{scenario_name}"),
+        generated=os.path.join(generated_folder, f"{id_take1}_{view}_{scenario_name}"),
+        mask_v1=os.path.join(binary_real_folder, f"{id_take1}_video-masks_{fps}FPS_{view}_take-1_{scenario_name}"),
+        mask_v2=os.path.join(binary_real_folder, f"{id_take2}_video-masks_{fps}FPS_{view}_take-2_{scenario_name}"),
+        mask_generated=os.path.join(binary_generated_folder, f"{id_take1}_video-masks_{fps}FPS_{view}_take-1_{scenario_name}"),
+    )
+
+
 def process_videos(
-    real_folder : str,
-    generated_folder : str,
-    binary_real_folder : str,
-    binary_generated_folder : str,
-    csv_file_path :str,
-    fps : int,
+    real_folder: str,
+    generated_folder: str,
+    binary_real_folder: str,
+    binary_generated_folder: str,
+    csv_file_path: str,
+    fps: int,
     video_time_selection="first",
-    n_processes: int = 1,
+    n_processes: int = 2,
 ):
     """Goes through the videos and masks, and calculates metrics.
 
@@ -66,400 +280,110 @@ def process_videos(
           video.
         video_time_selection (str): Specifies which part of the video to process
           (e.g., 'first', 'last').
+        n_processes (int): Number of worker processes. 0 runs everything
+          serially in the main process (useful for debugging).
 
     Returns:
         None: This function does not return any value but saves the results to a
         CSV file.
     """
+    if not os.path.exists(real_folder):
+        print(f"Folder not found: {real_folder}")
+        return
 
-    def spatial_binary_masks(mask_frames):
-        """Collapse the time dimension of binary masks into a single frame."""
-
-        if not mask_frames:
-            print(
-                "Warning: Received empty mask_frames for spatial binary mask "
-                "calculation."
-            )
-            return np.zeros(
-                (1, 1), dtype=np.uint8
-            )  # Return an empty mask to prevent errors
-        spatial_mask = np.max(mask_frames, axis=0)
-        return (spatial_mask > 0).astype(np.uint8) * 255
-
-    def weighted_spatial_mask(mask_frames):
-        """return weighted spatial masks"""
-
-        # normalize the values to [0,1]
-        weighted_spatial_mask = np.sum(mask_frames, axis=0, dtype=np.uint16) / len(
-            mask_frames
-        )
-        return weighted_spatial_mask
-
-    def mse_per_frame(video1, video2):
-        """Calculate MSE per frame for two videos."""
-
-        # Ensure both videos have the same number of frames and frame dimensions
-        if len(video1) != len(video2):
-            raise ValueError("Videos must have the same number of frames.")
-
-        frame_mses = []
-        for frame1, frame2 in zip(video1, video2):
-            if frame1.shape != frame2.shape:
-                raise ValueError("Frames must have the same dimensions.")
-
-            # Calculate MSE for this frame
-            mse = np.mean((frame1.astype(np.float32) - frame2.astype(np.float32)) ** 2)
-            frame_mses.append(mse)
-
-        return frame_mses
-
-    def load_and_resize_video(
-        filepath, start_frame, end_frame, target_size=None, normalize=True
-    ):
-        """Load and resize a video.
-
-        Args:
-            filepath: Path to the video file.
-            start_frame: Index of the first frame to load.
-            end_frame: Index of the last frame to load.
-            target_size: Desired size of the frames (width, height).
-            normalize: Whether to normalize the pixel values to the range [0, 1].
-
-        Returns:
-            A list of frames from the video.
-        """
-        assert os.path.exists(filepath), f"File not found: {filepath}"
-
-        cap = cv2.VideoCapture(filepath)
-        frames = []
-        frame_idx = 0
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                break
-            if start_frame <= frame_idx < end_frame:
-                if target_size:
-                    frame = cv2.resize(frame, target_size)
-                if normalize:
-                    frame = frame / 255.0
-                frames.append(frame)
-            frame_idx += 1
-        cap.release()
-        return frames
-
-    def compute_weighted_spatial_iou(weighted_spatial_1, weighted_spatial_2):
-        """Compute iou between two weighted spatial masks."""
-
-        # Compute intersection and union
-        intersection = np.minimum(weighted_spatial_1, weighted_spatial_2)
-        union = np.maximum(weighted_spatial_1, weighted_spatial_2)
-
-        # Pixels where motion exists in at least one
-        valid_pixels = union > 0
-
-        # If no valid pixels, return IOU of 1.0 (perfect match)
-        if np.sum(valid_pixels) == 0:
-            return 1.0
-        # Compute the IOU only for valid pixels
-        return np.sum(intersection[valid_pixels]) / np.sum(union[valid_pixels])
-
-    def spatiotemporal_iou_per_frame(mask1, mask2):
-        """Calculate Intersection over Union (spatiotemporal_iou) per frame for two binary masks."""
-        spatiotemporal_iou_values = []
-        for m1, m2 in zip(mask1, mask2):
-            intersection = np.logical_and(m1, m2).sum()
-            union = np.logical_or(m1, m2).sum()
-            if union == 0:
-                spatiotemporal_iou = 1.0  # Both masks are empty
-            else:
-                spatiotemporal_iou = intersection / union
-            spatiotemporal_iou_values.append(spatiotemporal_iou)
-        return spatiotemporal_iou_values
-
-    scenario_data = []
-    processed_scenarios = set()
     gen_video_duration_frames = get_video_frame_count(
         os.path.join(generated_folder, sorted(os.listdir(generated_folder))[0])
     )
 
     consider_frames = fps * 5
     if video_time_selection == "first":
-        start_frame, end_frame = (0, consider_frames)
+        start_frame, end_frame = 0, consider_frames
     else:
-        start_frame, end_frame = (
-            gen_video_duration_frames - (5 * fps),
-            gen_video_duration_frames,
-        )
+        start_frame, end_frame = gen_video_duration_frames - (5 * fps), gen_video_duration_frames
 
-    progress_bar = tqdm.tqdm(
-        total=len(
-            set("_".join(f.split("_")[:-2]) for f in sorted(os.listdir(real_folder)))
-        )
-        // 6,
-        desc="Processing scenarios",
-    )
-    if not os.path.exists(real_folder):
-        print(f"Folder not found: {real_folder}")
-        return
-
-    def process_view(scenario_name: str, 
-                     view: str, 
-                     scenario_ID_take_1: str, 
-                     scenario_ID_take_2: str,
-                     fps: str|int):
-        """Process a single view of a scenario.
-
-        Args:
-          scenario_name: Name of the scenario.
-          view: View identifier.
-
-        Returns:
-          A dictionary of calculated metrics.
-        """
-
-        print("-- Processing scenario: ", scenario_name + " -- view: " + view)
-        real_path_v1 = os.path.join(
-            real_folder,
-            f"{scenario_ID_take_1}_testing-videos_{fps}FPS_{view}_take-1_{scenario_name}",
-        )
-        generated_path = os.path.join(
-            generated_folder, f"{scenario_ID_take_1}_{view}_{scenario_name}"
-        )
-        real_path_v2 = os.path.join(
-            real_folder,
-            f"{scenario_ID_take_2}_testing-videos_{fps}FPS_{view}_take-2_{scenario_name}",
-        )
-        binary_path_v1 = os.path.join(
-            binary_real_folder,
-            f"{scenario_ID_take_1}_video-masks_{fps}FPS_{view}_take-1_{scenario_name}",
-        )
-        binary_path_v2 = os.path.join(
-            binary_real_folder,
-            f"{scenario_ID_take_2}_video-masks_{fps}FPS_{view}_take-2_{scenario_name}",
-        )
-        binary_generated_path = os.path.join(
-            binary_generated_folder,
-            f"{scenario_ID_take_1}_video-masks_{fps}FPS_{view}_take-1_{scenario_name}",
-        )
-
-        # Load the first frame to determine the original target size
-        real_v1_sample = load_and_resize_video(real_path_v1, 0, 1, normalize=False)
-        if not real_v1_sample:
-            return None  # Early exit if no frames are loaded
-        target_size = (
-            real_v1_sample[0].shape[1] // 4,
-            real_v1_sample[0].shape[0] // 4,
-        )
-
-        real_v1_frames = load_and_resize_video(
-            real_path_v1,
-            0,
-            consider_frames,
-            target_size,
-        )
-        generated_frames = load_and_resize_video(
-            generated_path, start_frame, end_frame, target_size
-        )
-        real_v2_frames = load_and_resize_video(
-            real_path_v2,
-            0,
-            consider_frames,
-            target_size,
-        )
-        binary_v1_frames = load_and_resize_video(
-            binary_path_v1,
-            0,
-            consider_frames,
-            target_size,
-            normalize=False,
-        )
-        binary_v2_frames = load_and_resize_video(
-            binary_path_v2,
-            0,
-            consider_frames,
-            target_size,
-            normalize=False,
-        )
-        binary_generated_frames = load_and_resize_video(
-            binary_generated_path,
-            0,
-            consider_frames,
-            target_size,
-            normalize=False,
-        )
-        # Ensure masks are binary (0 or 1 pixel values)
-        binary_v1_frames = [(mask > 127).astype(np.uint8) for mask in binary_v1_frames]
-        binary_v2_frames = [(mask > 127).astype(np.uint8) for mask in binary_v2_frames]
-        binary_generated_frames = [
-            (mask > 127).astype(np.uint8) for mask in binary_generated_frames
-        ]
-
-        # Check if frames are loaded properly
-        if (
-            not generated_frames
-            or not real_v2_frames
-            or not real_v1_frames
-            or not binary_v1_frames
-            or not binary_v2_frames
-        ):
-            raise ValueError(f"Scenario {scenario_name}_{view} has missing frames.")
-
-        # Calculate spatiotemporal_iou for v1 and v2 masks
-        spatiotemporal_iou_v1 = spatiotemporal_iou_per_frame(
-            binary_v1_frames, binary_generated_frames
-        )
-        spatiotemporal_iou_v2 = spatiotemporal_iou_per_frame(
-            binary_v2_frames, binary_generated_frames
-        )
-
-        # Collapse binary masks over time to calculate spatial iou
-        spatial_v1 = spatial_binary_masks(binary_v1_frames)
-        spatial_v2 = spatial_binary_masks(binary_v2_frames)
-
-        # Calculate spatial_iou for v1 and v2
-        spatial_generated = spatial_binary_masks(binary_generated_frames)
-        iou_v1_spatial = spatiotemporal_iou_per_frame(
-            [spatial_v1], [spatial_generated]
-        )[0]
-        iou_v2_spatial = spatiotemporal_iou_per_frame(
-            [spatial_v2], [spatial_generated]
-        )[0]
-
-        # Calculate the weighted spatial iou masks
-        weighted_spatial_v1 = weighted_spatial_mask(binary_v1_frames)
-        weighted_spatial_v2 = weighted_spatial_mask(binary_v2_frames)
-        weighted_spatial_generated = weighted_spatial_mask(binary_generated_frames)
-
-        # Compute weighted spatial iou for v1 and v2
-        iou_v1_weighted_spatial = compute_weighted_spatial_iou(
-            weighted_spatial_v1, weighted_spatial_generated
-        )
-        iou_v2_weighted_spatial = compute_weighted_spatial_iou(
-            weighted_spatial_v2, weighted_spatial_generated
-        )
-
-        # Compute weighted_spatial variance
-        intersection = np.minimum(weighted_spatial_v1, weighted_spatial_v2)
-        union = np.maximum(weighted_spatial_v1, weighted_spatial_v2)
-
-        # If both masks are empty, variance should also be 1
-        if np.sum(union) == 0:
-            variance_weighted_spatial = 1.0
-        else:
-            variance_weighted_spatial = np.sum(intersection) / np.sum(union)
-
-        variance_spatial = spatiotemporal_iou_per_frame([spatial_v1], [spatial_v2])
-        # Calculate physical variance of spatiotemporal iou
-        variance_spatiotemporal_iou = spatiotemporal_iou_per_frame(
-            binary_v1_frames, binary_v2_frames
-        )  # Calculate per-frame spatiotemporal iou between v1 and v2 masks
-
-        # Calculate physical variance MSE
-        variance_mse = mse_per_frame(
-            real_v1_frames, real_v2_frames
-        )  # Calculate MSE between v1 and v2 frames
-
-        # Return the result for this view
-        out = {
-            f"v1_mse_{view}": mse_per_frame(real_v1_frames, generated_frames),
-            f"v2_mse_{view}": mse_per_frame(real_v2_frames, generated_frames),
-            f"variance_spatial_{view}": np.mean(
-                variance_spatial
-            ),  # Variance for spatial iou per view
-            f"variance_weighted_spatial_{view}": variance_weighted_spatial,  # Variance for weighted_spatial iou per view
-            f"variance_spatiotemporal_iou_{view}": variance_spatiotemporal_iou,  # Variance spatiotemporal_iou metric per view
-            f"variance_mse_{view}": variance_mse,  # Variance MSE metric per view
-            f"spatiotemporal_iou_v1_{view}": spatiotemporal_iou_v1,  # spatiotemporal_iou for v1 per view
-            f"spatiotemporal_iou_v2_{view}": spatiotemporal_iou_v2,  # spatiotemporal_iou for v2 per view
-            f"spatial_iou_v1_{view}": iou_v1_spatial,  # Spatial iou for v1 per view
-            f"spatial_iou_v2_{view}": iou_v2_spatial,  # Spatial iou for v2 per view
-            f"weighted_spatial_iou_v1_{view}": iou_v1_weighted_spatial,  # weighted_spatial for v1 per view
-            f"weighted_spatial_iou_v2_{view}": iou_v2_weighted_spatial,  # weighted_spatial for v2 per view
-        }
-
-        del real_v1_frames, real_v2_frames, generated_frames
-        gc.collect()
-        return out
-
-    # Iterate over all scenarios
+    # First pass: collect IDs for each (scenario, view, take) from real filenames
     scenario_info = {}
-    processed_scenarios = set()
-    scenario_data = []
-
-    # First pass: Populate scenario_info with both take-1 and take-2 IDs per view
     for real_file in sorted(os.listdir(real_folder)):
-        if real_file.endswith(".mp4"):
-            parts = real_file.split("_")
-            if len(parts) < 6:
-                print(f"Unexpected filename format: {real_file}")
-                continue
+        if not real_file.endswith(".mp4"):
+            continue
+        parts = real_file.split("_")
+        if len(parts) < 6:
+            print(f"Unexpected filename format: {real_file}")
+            continue
 
-            # Extract attributes
-            scenario_name = parts[5]
-            file_id = parts[0]
-            view = parts[3]  # e.g., perspective-left
-            version = parts[4]  # e.g., 30FPS
+        scenario_name = parts[5]
+        file_id = parts[0]
+        view = parts[3]
 
-            # Initialize scenario entry with views if not present
-            if scenario_name not in scenario_info:
-                scenario_info[scenario_name] = {"take-1": {}, "take-2": {}}
+        if scenario_name not in scenario_info:
+            scenario_info[scenario_name] = {"take-1": {}, "take-2": {}}
 
-            # Update the IDs for the specific view
-            if "take-1" in real_file:
-                scenario_info[scenario_name]["take-1"][view] = file_id
-            elif "take-2" in real_file:
-                scenario_info[scenario_name]["take-2"][view] = file_id
-            else:
-                raise ValueError("File must contain either take-1 or take-2")
+        if "take-1" in real_file:
+            scenario_info[scenario_name]["take-1"][view] = file_id
+        elif "take-2" in real_file:
+            scenario_info[scenario_name]["take-2"][view] = file_id
+        else:
+            raise ValueError("File must contain either take-1 or take-2")
 
-    # Second pass: Process each scenario
+    progress_bar = tqdm.tqdm(total=len(scenario_info), desc="Processing scenarios")
+
+    # Second pass: build flat task list (validates IDs and resolves paths)
+    tasks = []
     for scenario_name, ids in scenario_info.items():
-        take_1_views = ids["take-1"]  # Dictionary of views and IDs for take-1
-        take_2_views = ids["take-2"]  # Dictionary of views and IDs for take-2
-
-        # Ensure all views have both take-1 and take-2 IDs
+        take_1_views = ids["take-1"]
+        take_2_views = ids["take-2"]
         for view in ["perspective-left", "perspective-center", "perspective-right"]:
             if view not in take_1_views or view not in take_2_views:
                 raise ValueError(
                     f"Missing IDs for scenario {scenario_name}, view {view}: "
                     f"take-1={take_1_views.get(view)}, take-2={take_2_views.get(view)}"
                 )
+            tasks.append((
+                scenario_name,
+                view,
+                _build_view_paths(
+                    scenario_name, view,
+                    take_1_views[view], take_2_views[view],
+                    int(fps),
+                    real_folder, generated_folder,
+                    binary_real_folder, binary_generated_folder,
+                ),
+            ))
 
-        processed_scenarios.add(scenario_name)
-        progress_bar.update(1)
 
-        scenario_result = {"scenario": scenario_name}
+    
 
-        # Process each view in parallel
-        with pool.ThreadPool(processes=n_processes) as executor:
-            futures = [
-                executor.apply_async(
-                    process_view,
-                    (
-                        scenario_name,
-                        view,
-                        take_1_views[view],
-                        take_2_views[view],
-                        int(fps),
-                    ),
+    # Shared result store
+    view_results_by_scenario = defaultdict(dict)
+    completed_views = defaultdict(int)
+
+    def _store(scenario_name, view_result):
+        if view_result:
+            for key, value in view_result.items():
+                view_results_by_scenario[scenario_name][key] = (
+                    [float(v) for v in value] if isinstance(value, list) else value
                 )
-                for view in [
-                    "perspective-left",
-                    "perspective-center",
-                    "perspective-right",
-                ]
-            ]
-            for future in futures:
-                view_result = future.get()
-                if view_result:
-                    for key, value in view_result.items():
-                        if isinstance(value, list):
-                            scenario_result[key] = [float(v) for v in value]
-                        else:
-                            scenario_result[key] = value
-        scenario_data.append(scenario_result)
+        completed_views[scenario_name] += 1
+        if completed_views[scenario_name] == 3:
+            progress_bar.update(1)
 
-    # Convert list to DataFrame and write to CSV
+    # Third pass: execute — serially or in parallel
+    scenario_data = []
+    if n_processes == 0:
+        for scenario_name, view, paths in tasks:
+            _store(scenario_name, process_view(paths, view, start_frame, end_frame, consider_frames))
+    else:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=n_processes) as executor:
+            future_to_scenario = {
+                executor.submit(process_view, paths, view, start_frame, end_frame, consider_frames): scenario_name
+                for scenario_name, view, paths in tasks
+            }
+            for future in concurrent.futures.as_completed(future_to_scenario):
+                _store(future_to_scenario[future], future.result())
+
+    for scenario_name in scenario_info:
+        scenario_data.append({"scenario": scenario_name, **view_results_by_scenario[scenario_name]})
+
     if scenario_data:
         df = pd.DataFrame(scenario_data)
         df.to_csv(csv_file_path, index=False)

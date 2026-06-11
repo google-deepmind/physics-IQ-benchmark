@@ -92,10 +92,6 @@ class Benchmark(BaseModel):
     @staticmethod
     def _infer_generated(id_: int, perspective: str, scene_name: str) -> str:
         return f"{id_:04}_perspective-{perspective}_trimmed-{scene_name}.mp4"
-    
-    def model_post_init(self, context):
-        self.df = self.to_dataframe()
-        return super().model_post_init(context)
 
     def to_dataframe(self) -> pd.DataFrame:
         rows = []

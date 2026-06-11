@@ -534,6 +534,13 @@ if __name__ == "__main__":
         default=".",
         help="Path to the folder within which physics-IQ-benchmark & physics-IQ-benchmark-verifed data are located.",
     )
+    parser.add_argument(
+        "--n_process",
+        type=int,
+        default=0,
+        help="Number of processes used for computation of scores based on images." \
+        "Be cerafule here, one process can easily take up 9GB."
+    )
 
     args = parser.parse_args()
 
@@ -628,6 +635,7 @@ if __name__ == "__main__":
                 csv_file_path=csv_file_path,
                 fps=fps,
                 video_time_selection="first",
+                n_process=args.n_process
             )
 
     process_directory(csv_files_folder)
