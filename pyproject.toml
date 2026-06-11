@@ -61,3 +61,6 @@ packages = ["physiq"]
 testpaths = ["physiq/tests"]
 pythonpath = ["physiq"]
 addopts = "--import-mode=importlib"
+markers = [
+    "e2e: end-to-end tests that require benchmark data on disk (pass --run-e2e to run)",
+]
