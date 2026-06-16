@@ -636,7 +636,7 @@ if __name__ == "__main__":
                 csv_file_path=csv_file_path,
                 fps=fps,
                 video_time_selection="first",
-                n_process=args.n_process,
+                n_processes=args.n_process,
             )
 
     process_directory(csv_files_folder)
