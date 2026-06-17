@@ -95,7 +95,7 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 Choose one benchmark:
 
 - [**Physics-IQ Verified Workflow**](#physics-iq-verified-workflow): recommended benchmark with improved prompts, masks, and scoring. This is the default when running `physiq/run_physics_iq.py`.
-- [**Physics-IQ Original Workflow**](#physics-iq-original-workflow): legacy benchmark for comparison with older published results. Use `--original_physics_iq` when evaluating.
+- [**Physics-IQ Original Workflow**](#physics-iq-original-workflow): original Physics-IQ benchmark. Use `--original_physics_iq` when evaluating.
 
 ## Physics-IQ Verified Workflow
 
