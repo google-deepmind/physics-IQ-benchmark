@@ -17,7 +17,7 @@ import pandas as pd
 
 from dataset import DESCRIPTIONS_PATH, Benchmark
 
-_DESCRIPTIONS_CSV = DESCRIPTIONS_PATH.parent / "descriptions.csv"
+_DESCRIPTIONS_CSV = DESCRIPTIONS_PATH.parent / "descriptions_original.csv"
 
 
 def test_yaml_generates_matching_descriptions_csv():

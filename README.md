@@ -206,11 +206,11 @@ Prompting conventions differ across video models. To evaluate models fairly, use
 
 Physics-IQ Verified uses two prompt settings:
 - `bpp` uses a model-specific benchmark prompt produced by a templater.
-- `op` uses the original `descriptions/descriptions.csv` prompts.
+- `op` uses the original `descriptions/descriptions_original.csv` prompts.
 
 **C3. Existing templates.**
 
-The base descriptions are in `descriptions/descriptions.csv`. For models with specific prompting guidelines, model-optimised descriptions are available in `descriptions/model_specific/`:
+The base descriptions are in `descriptions/descriptions_original.csv`. For models with specific prompting guidelines, model-optimised descriptions are available in `descriptions/model_specific/`:
 
 | File | Optimised for |
 |---|---|
@@ -469,7 +469,7 @@ Use the same environment setup as the verified workflow.
 
 ### C. Use Original Prompts
 
-Use `descriptions/descriptions.csv` for original Physics-IQ prompts.
+Use `descriptions/descriptions_original.csv` for original Physics-IQ prompts.
 
 ### D. Generate Videos
 
@@ -491,7 +491,7 @@ uv run physiq/run_physics_iq.py \
     generated_videos_5s/<model_name>-op-run_03 \
     generated_videos_5s/<model_name>-op-run_04 \
   --output_folder <output_dir> \
-  --descriptions_file descriptions/descriptions.csv \
+  --descriptions_file descriptions/descriptions_original.csv \
   --benchmark_base_folder <folder_containing_physics-IQ-benchmark> \
   --original_physics_iq
 ```

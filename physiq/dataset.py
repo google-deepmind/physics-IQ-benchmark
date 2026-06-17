@@ -22,7 +22,7 @@ import yaml
 from pydantic import BaseModel, Field, model_validator
 
 DESCRIPTIONS_PATH = (
-    Path(__file__).resolve().parent.parent / "descriptions" / "descriptions.yaml"
+    Path(__file__).resolve().parent.parent / "descriptions" / "data.yaml"
 )
 
 
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     benchmark = Benchmark.from_yaml(DESCRIPTIONS_PATH)
 
     csv_gen = benchmark.build_original_descriptions()
-    csv = pd.read_csv(DESCRIPTIONS_PATH.parent / "descriptions.csv")
+    csv = pd.read_csv(DESCRIPTIONS_PATH.parent / "descriptions_original.csv")
 
     import joblib
     import numpy as np
