@@ -55,11 +55,13 @@ def download_physics_iq_data(
     """
 
     # Always download 30FPS data
-    download_fps = ["30"]
+    download_fps = [30]
     # Additionally download pre-computed non-30 FPS data if available
     for f in fps:
-        assert 1 <= fps <= 30, f"FPS must be in [1, 30], got {f}"
-        download_fps.append(fps)
+        assert 1 <= f <= 30, f"FPS must be in [1, 30], got {f}"
+        if f in download_fps:
+            continue
+        download_fps.append(f)
 
     if not verified:
         local_base_dir = os.path.join(base_dir, "physics-IQ-benchmark")
@@ -69,7 +71,7 @@ def download_physics_iq_data(
         raise NotImplementedError(
             "Currently there is no download url available for the verified dataset.\nPlease Download from the Link provided in the README.md"
         )
-        # TODO: add download link for physics iq dataset here
+        # TODO: add download link for physics iq Verified dataset here
         base_url = "gs://physics-iq-benchmark"
 
     directories = {
@@ -135,7 +137,7 @@ def main():
     )
     args = parser.parse_args()
     download_physics_iq_data(
-        args.fps, args.benchmark_base_folder, args.original_physics_iq
+        args.fps, args.benchmark_base_folder, not args.original_physics_iq
     )
 
 

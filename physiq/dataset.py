@@ -157,6 +157,3 @@ if __name__ == "__main__":
     print(csv_gen_diff)
     print("CSV Orig Diff")
     print(csv_diff)
-    import IPython
-
-    IPython.embed()

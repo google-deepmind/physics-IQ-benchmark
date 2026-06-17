@@ -38,7 +38,7 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 ### Physics-IQ Verified Leaderboard
 If you test your model on Physics-IQ Verified and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
-For details on the Physics-IQ Verified metrics, see the [metric definitions](docs/metric_definition_phys_iq_verified.pdf) and the [arXiv report](https://arxiv.org/abs/2606.18943).
+For details on the Physics-IQ Verified metrics, see the [arXiv report](https://arxiv.org/abs/2606.18943).
 
 | # | Model | input type | Physics-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|---|---|---|---|
@@ -210,7 +210,7 @@ Physics-IQ Verified uses two prompt settings:
 
 **C3. Existing templates.**
 
-The base descriptions are in `descriptions/descriptions_original.csv`. For models with specific prompting guidelines, model-optimised descriptions are available in `descriptions/model_specific/`:
+For the bpp settings, the base templated descriptions can be found in `descriptions/model_specific/descriptions_base`. For models with specific prompting guidelines, model-optimised descriptions can be generated using `uv run generate_descriptions.py {model_name}`:
 
 | File | Optimised for |
 |---|---|
