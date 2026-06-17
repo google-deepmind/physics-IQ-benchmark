@@ -98,6 +98,8 @@ Choose one benchmark:
 - [**Physics-IQ Original Workflow**](#physics-iq-original-workflow): original Physics-IQ benchmark. Use `--original_physics_iq` when evaluating.
 
 ## Physics-IQ Verified Workflow
+<details>
+<a id="physics-iq-verified-workflow"></a>
 
 ### A. Download Physics-IQ Verified
 
@@ -392,10 +394,12 @@ The verified score printed by the evaluator is stored as `final_score_view` in e
 
 Step F reports per-run original and verified score variants. To report a Physics-IQ Verified leaderboard score, use the verified score from each run and compute the mean and standard deviation across the standard four runs. Report this as `score ± std` in the leaderboard table.
 
+</details>
+
+
 ## Physics-IQ Original Workflow
 <details>
 <a id="physics-iq-original-workflow"></a>
-<summary><strong><big>Physics-IQ Original Workflow</big></strong></summary>
 
 ### A. Download Physics-IQ Original
 
