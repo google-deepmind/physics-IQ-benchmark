@@ -1,7 +1,0 @@
-argparse
-opencv_python
-matplotlib
-numpy
-pandas
-Pillow
-tqdm

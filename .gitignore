@@ -1,6 +1,18 @@
+.DS_Store
+.vscode/
 physics-IQ-benchmark/
+physics-IQ-benchmark-verified/
 csv_files/
 results/
+plots/
+plots_store/
+result_tables/
+result_tables_submission/
+output*/
+descriptions/model_specific/*
+test_generated/
+generated_videos/**/*.mp4
+generated_videos_5s/**/*.mp4
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
