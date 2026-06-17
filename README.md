@@ -7,7 +7,7 @@
 # Physics-IQ and Physics-IQ Verified: Benchmarking physical understanding in generative video models
 
 Physics-IQ is a high-quality, realistic, and comprehensive benchmark dataset for evaluating physical understanding in generative video models.
-Building on this foundation, Physics-IQ Verified improves upon the original benchmark along three dimensions based on a systematic audit: 1) prompt quality, 2) ground truth and 3) single sample scores weighing each sample identically.
+Building on this foundation, Physics-IQ Verified improves upon the original benchmark w.r.t. prompt quality and metric improvements.
 
 
 This repository contains the workflow for Physics-IQ Verified, the recommended benchmark variant.
