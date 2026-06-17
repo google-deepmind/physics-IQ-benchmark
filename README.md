@@ -487,8 +487,7 @@ Use the per-run scores from Step F and compute the mean and standard deviation a
 ## Citation
 If you think this project is helpful, please feel free to leave a star ⭐️
 
-Please cite both papers if you use this benchmark.
-<!-- TODO: finalize our publication here. -->
+Original Physics-IQ:
 ```latex
 @article{motamed2026physics,
   title={Do generative video models understand physical principles?},
@@ -497,7 +496,12 @@ Please cite both papers if you use this benchmark.
   pages={948--958},
   year={2026}
 }
+```
 
+<!-- TODO: finalize citation here. -->
+
+Physics-IQ Verified (which builds on the paper above):
+```latex
 @article{raedsch2026physics,
   title={Physics-IQ Verified},
   author={}
