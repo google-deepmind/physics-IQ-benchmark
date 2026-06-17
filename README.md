@@ -44,9 +44,6 @@ If you test your model on Physics-IQ and would like your score/paper/model to be
 
 For details on the Physics-IQ Verified metrics, see the [metric definitions](docs/metric_definition_phys_iq_verified.pdf). The full Physics-IQ Verified report will be published soon.
 
-> **Note:** We are still figuring out the reporting settings. Inclusion means that the authors get access to the API including relevant credits to reproduce the results by generating videos themselves. Videos should be made available to the authors at minimum. This will be updated to make results as reproducible as possible.
-
-
 | # | Model | input type | Phys-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|---|---|---|---|
 | 1 🥇 | Grok Imagine Video | i2v | 34.8 <small>± 0.6</small> | 52.7 <small>± 0.9</small> | 21.4 <small>± 0.6</small> | 35.7 <small>± 1.0</small> | 29.6 <small>± 0.4</small> | 2026-05-22 |
