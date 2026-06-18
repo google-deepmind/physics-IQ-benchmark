@@ -12,7 +12,7 @@ Building on this foundation, Physics-IQ Verified contains improvements w.r.t. pr
 This repository contains the workflow for both Physics-IQ Verified (recommended benchmark variant) and the original Physics-IQ benchmark.
 
 Original Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)<br>
-Physics-IQ Verified: [arXiv](https://arxiv.org/abs/2606.18943)
+Physics-IQ Verified website: [mariana.anates.com](https://mariana.anates.com)
 
 ### Key Features:
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
@@ -38,7 +38,7 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 ### Physics-IQ Verified Leaderboard
 If you test your model on Physics-IQ Verified and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
-For details on the Physics-IQ Verified metrics, see the [arXiv report](https://arxiv.org/abs/2606.18943).
+The leaderboard is also hosted at: [mariana.anates.com](https://mariana.anates.com)
 
 | # | Model | input type | Physics-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|---|---|---|---|
@@ -47,6 +47,8 @@ For details on the Physics-IQ Verified metrics, see the [arXiv report](https://a
 | 3 | Wan 2.2 | i2v | **32.2** <small>± 0.6</small> <br> 🥉 i2v | 51.1 <small>± 1.0</small> | 20.5 <small>± 0.7</small> | 28.5 <small>± 0.7</small> | 28.9 <small>± 0.4</small> | 2026-06-17 |
 | 4 | Sora 2 | i2v | 26.5 <small>± 0.8</small> | 37.3 <small>± 0.6</small> | 27.0 <small>± 2.2</small> | 26.9 <small>± 0.7</small> | 14.8 <small>± 0.6</small> | 2026-06-17 |
 | 5 | P-Video | i2v | 25.3 <small>± 1.8</small> | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-06-17 |
+
+For details on the Physics-IQ Verified metrics, see the [arXiv report](https://arxiv.org/abs/2606.18943).
 
 The reported scores use best-practice-prompts (`bpp`) based on a custom templater for each specific model.
 > Rules: 
