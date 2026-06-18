@@ -18,6 +18,7 @@ import json
 import math
 import os
 import subprocess
+import warnings
 
 import cv2
 import matplotlib.pyplot as plt
@@ -407,17 +408,29 @@ def ensure_binary_mask_structure(
     return binary_mask_folder
 
 
-def process_directory(directory_path: str) -> None:
+def process_directory(directory_path: str, lazy_integrity: bool = False) -> None:
     """
     Process all CSV files in a directory to compute Physics IQ scores
     and generate a bar plot.
 
     Args:
       directory_path: Path to the directory containing CSV files.
+      lazy_integrity: Skip the DataFrame mutation guard on IQTable. Disables
+        the check that detects accidental post-construction mutations; only use
+        this when the integrity check is known to produce false positives (e.g.
+        on pandas versions < 2.0).
 
     Returns:
       None
     """
+    if lazy_integrity:
+        warnings.warn(
+            "lazy_integrity=True: the IQTable mutation guard is disabled. "
+            "Cached scores will not be validated against the underlying DataFrame. "
+            "Upgrade to pandas>=2.0 to avoid needing this flag.",
+            UserWarning,
+            stacklevel=2,
+        )
 
     score_names = ["Original", "Verified"]
     model_scores_orig = {}
@@ -429,7 +442,7 @@ def process_directory(directory_path: str) -> None:
         print(f"Processing {csv_file}...")
 
         model_name = os.path.splitext(csv_file)[0]
-        iqtable = IQTable.from_csv(file_path)
+        iqtable = IQTable.from_csv(file_path, lazy_integrity=lazy_integrity)
         values = iqtable.get_output_dict()
         values["final_score_origround"] = calculate_iq_score(file_path)[0]
         with open(os.path.join(directory_path, f"{model_name}_metrics.json"), "w") as f:
@@ -541,6 +554,15 @@ if __name__ == "__main__":
         help="Number of processes used for computation of scores based on images."
         "Be cerafule here, one process can easily take up 9GB.",
     )
+    parser.add_argument(
+        "--lazy_integrity",
+        action="store_true",
+        help=(
+            "Disable the IQTable DataFrame mutation guard. "
+            "Only use this if the integrity check raises a false positive on your pandas version. "
+            "Upgrading to pandas>=2.0 is the recommended fix or use uv for handling your python version."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -639,7 +661,7 @@ if __name__ == "__main__":
                 n_processes=args.n_process,
             )
 
-    process_directory(csv_files_folder)
+    process_directory(csv_files_folder, lazy_integrity=args.lazy_integrity)
     print(f"\nCheck out {csv_files_folder} for saved plots and metrics.")
 
     print("Thank you for using the Physics-IQ benchmark!")
