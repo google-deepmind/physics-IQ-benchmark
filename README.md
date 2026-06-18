@@ -109,8 +109,23 @@ Choose one benchmark:
 
 ### A. Download Physics-IQ Verified
 
-Download the verified benchmark from the [Physics-IQ Verified Google Cloud Storage link](https://drive.google.com/file/d/1K7sRbks4VNqmpejyB9K7nIl4XcNpNWzk/view).
-<!-- TODO: Add our Download link here.-->
+Download the verified benchmark from the [Physics-IQ Verified Hugging Face dataset](https://huggingface.co/datasets/Anates-Labs-Research/Physics-IQ-Verified).
+
+Note: Access requests are approved automatically.
+
+Install the Hugging Face CLI if it is not already present:
+
+```bash
+pip install -U huggingface_hub
+```
+
+Download Physics-IQ Verified into the desired destination folder:
+
+```bash
+hf download Anates-Labs-Research/Physics-IQ-Verified \
+  --repo-type dataset \
+  --local-dir physics-IQ-benchmark-verified
+```
 
 Ensure you have downloaded and placed the `physics-IQ-benchmark-verified` dataset in your working directory. This dataset must include 30FPS videos and can optionally include your desired FPS. If you downloaded the dataset from the link above, it should contain all provided FPS variants (30FPS, 24FPS, 16FPS, 8FPS). If your desired FPS does not exist in the dataset already, it will be automatically generated. The folder should have the following structure:
 
