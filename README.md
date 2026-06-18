@@ -415,7 +415,21 @@ The verified score printed by the evaluator is stored as `final_score_view` in e
 
 ### G. Aggregate Leaderboard Scores
 
-Step F reports per-run original and verified score variants. To report a Physics-IQ Verified leaderboard score, use the verified score from each run and compute the mean and standard deviation across the standard four runs. Report this as `score ± std` in the leaderboard table.
+Step F reports per-run original and verified score variants. 
+To report a Physics-IQ Verified leaderboard score, use the verified score from each run and compute the mean and standard deviation across the standard four runs.
+Report this as `score ± std` in the leaderboard table.
+
+To do this use `aggregate_runs.py` which
+```bash
+uv run aggregate_runs_from_csvs \
+  <path>/<model_name>-bpp-run_01.csv \
+  <path>/<model_name>-bpp-run_02.csv \
+  <path>/<model_name>-bpp-run_03.csv \
+  <path>/<model_name>-bpp-run_04.csv \
+  --score-type verified
+```
+
+We also accept single run results, but we do recommend using 4 runs.
 
 </details>
 
