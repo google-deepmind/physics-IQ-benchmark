@@ -12,7 +12,7 @@ Building on this foundation, Physics-IQ Verified contains improvements w.r.t. pr
 This repository contains the workflow for both Physics-IQ Verified (recommended benchmark variant) and the original Physics-IQ benchmark.
 
 Original Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)<br>
-Physics-IQ Verified website: [mariana.anates.ai](https://mariana.anates.ai)
+Physics-IQ Verified website: [physics-iq-verified.anates.ai](https://physics-iq-verified.anates.ai)
 
 ### Key Features:
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
@@ -38,7 +38,7 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 ### Physics-IQ Verified Leaderboard
 If you test your model on Physics-IQ Verified and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
-The leaderboard is also hosted at: [mariana.anates.ai](https://mariana.anates.ai)
+The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physics-iq-verified.anates.ai)
 
 | # | Model | input type | Physics-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|---|---|---|---|
