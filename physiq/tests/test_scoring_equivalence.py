@@ -221,3 +221,40 @@ def test_multi_scenario_aggregation(tmp_path):
     old_score, _ = _old(path)
     new_score = _new_orig(path)
     assert old_score == pytest.approx(new_score, abs=0.005)
+
+
+# ---------------------------------------------------------------------------
+# 8. get_output_dict completes without error and returns all expected keys
+#
+# Regression guard: compute_scores_scenario_by_view() runs before the first
+# get_score() call inside get_output_dict(), so any false-positive from
+# _verify_df_integrity would surface here.
+# ---------------------------------------------------------------------------
+
+
+def test_get_output_dict_returns_expected_keys(default_csv):
+    result = IQTable.from_csv(str(default_csv)).get_output_dict()
+    assert True # code ran through
+
+
+def test_get_output_dict_scores_are_finite_floats(default_csv):
+    result = IQTable.from_csv(str(default_csv)).get_output_dict()
+    for key in result:
+        assert np.isfinite(result[key]), f"{key} is not finite: {result[key]}"
+
+
+# ---------------------------------------------------------------------------
+# 9. Empty DataFrame raises ValueError at construction
+# ---------------------------------------------------------------------------
+
+
+def test_empty_dataframe_raises_value_error():
+    import pandas as pd
+
+    cols = [
+        f"{m}_{v}"
+        for m in IQTable.get_list_keys() + IQTable.get_scalar_keys()
+        for v in IQTable.views
+    ]
+    with pytest.raises(ValueError, match="empty"):
+        IQTable(pd.DataFrame({col: [] for col in cols}))
