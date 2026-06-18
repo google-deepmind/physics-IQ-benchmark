@@ -205,12 +205,12 @@ Prompting conventions differ across video models. To evaluate models fairly, use
 **C2. Prompt settings.**
 
 Physics-IQ Verified uses two prompt settings:
-- `bpp` uses a model-specific benchmark prompt produced by a templater.
+- `bpp` uses a model-specific prompt (or the base version) produced by a templater stored inside `descriptions/model_specific`.
 - `op` uses the original `descriptions/descriptions_original.csv` prompts.
 
 **C3. Existing templates.**
 
-For the bpp settings, the base templated descriptions can be found in `descriptions/model_specific/descriptions_base`. For models with specific prompting guidelines, model-optimised descriptions can be generated using `uv run generate_descriptions.py {model_name}`:
+For the bpp settings, the base templated descriptions can be found in `descriptions/model_specific/descriptions_base.csv`. For models with specific prompting guidelines, model-optimised descriptions can be generated using `uv run generate_descriptions.py {model_name}`:
 
 | File | Optimised for |
 |---|---|
@@ -405,8 +405,8 @@ The evaluator writes one result CSV and one metrics JSON per input folder, using
         ├── <model_name>-bpp-run_03_metrics.json
         ├── <model_name>-bpp-run_04.csv
         ├── <model_name>-bpp-run_04_metrics.json
-        ├── physics_IQ_score_Original_barplot.pdf
-        └── physics_IQ_score_Verified_barplot.pdf
+        ├── physics_IQ_score_Original_barplot.pdf # return the original score
+        └── physics_IQ_score_Verified_barplot.pdf # returns the verified score for the verified leaderboard. 
 ```
 
 The verified score printed by the evaluator is stored as `final_score_view` in each `_metrics.json` file.
@@ -486,20 +486,26 @@ Add `--original_physics_iq` to evaluate against the original benchmark:
 ```bash
 uv run physiq/run_physics_iq.py \
   --input_folders \
-    generated_videos_5s/<model_name>-op-run_01 \
-    generated_videos_5s/<model_name>-op-run_02 \
-    generated_videos_5s/<model_name>-op-run_03 \
-    generated_videos_5s/<model_name>-op-run_04 \
+    generated_videos_5s/<model_name>
   --output_folder <output_dir> \
   --descriptions_file descriptions/descriptions_original.csv \
   --benchmark_base_folder <folder_containing_physics-IQ-benchmark> \
   --original_physics_iq
 ```
 
-### G. Aggregate Leaderboard Scores
+The evaluator writes one result CSV and one metrics JSON per input folder, using the input folder name as the file stem:
 
-Use the per-run scores from Step F and compute the mean and standard deviation across the standard four runs.
+```plaintext
+<output_dir>/
+└── physics-IQ-benchmark-verified/
+    └── results/
+        ├── <model_name>.csv
+        ├── <model_name>.json
+        ├── physics_IQ_score_Original_barplot.pdf # score for the original leaderboard
+        └── physics_IQ_score_Verified_barplot.pdf # verified score on original data 
+```
 
+The original Physigs-IQ score is then plotted in `physics_IQ_score_Original_barplot.pdf` and stored inside a json file under: `final_score_origround`
 </details>
 
 ---
