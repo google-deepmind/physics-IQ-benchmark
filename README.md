@@ -12,7 +12,7 @@ Building on this foundation, Physics-IQ Verified contains improvements w.r.t. pr
 This repository contains the workflow for both Physics-IQ Verified (recommended benchmark variant) and the original Physics-IQ benchmark.
 
 Original Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)<br>
-Physics-IQ Verified website: [mariana.anates.com](https://mariana.anates.com)
+Physics-IQ Verified website: [mariana.anates.ai](https://mariana.anates.ai)
 
 ### Key Features:
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
@@ -38,7 +38,7 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 ### Physics-IQ Verified Leaderboard
 If you test your model on Physics-IQ Verified and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
-The leaderboard is also hosted at: [mariana.anates.com](https://mariana.anates.com)
+The leaderboard is also hosted at: [mariana.anates.ai](https://mariana.anates.ai)
 
 | # | Model | input type | Physics-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|---|---|---|---|
@@ -214,7 +214,7 @@ Physics-IQ Verified uses two prompt settings:
 
 **C3. Existing templates.**
 
-For the bpp settings, the base templated descriptions can be found in `descriptions/model_specific/descriptions_base.csv`. For models with specific prompting guidelines, model-optimised descriptions can be generated using `uv run generate_descriptions.py {model_name}`:
+For the bpp settings, the base templated descriptions can be found in `descriptions/model_specific/descriptions_base.csv`. For models with specific prompting guidelines, model-optimised descriptions can be generated using `uv run physiq/generate_descriptions.py {model_name}`:
 
 | File | Optimised for |
 |---|---|
@@ -421,9 +421,9 @@ Step F reports per-run original and verified score variants.
 To report a Physics-IQ Verified leaderboard score, use the verified score from each run and compute the mean and standard deviation across the standard four runs.
 Report this as `score ± std` in the leaderboard table.
 
-To do this use `aggregate_runs.py` which
+To do this, use `aggregate_runs_from_csvs.py` can be used as follows:
 ```bash
-uv run aggregate_runs_from_csvs \
+uv run physiq/aggregate_runs_from_csvs.py \
   <path>/<model_name>-bpp-run_01.csv \
   <path>/<model_name>-bpp-run_02.csv \
   <path>/<model_name>-bpp-run_03.csv \
@@ -523,7 +523,7 @@ The evaluator writes one result CSV and one metrics JSON per input folder, using
         └── physics_IQ_score_Verified_barplot.pdf # verified score on original data 
 ```
 
-The original Physigs-IQ score is then plotted in `physics_IQ_score_Original_barplot.pdf` and stored inside a json file under: `final_score_origround`
+The original Physics-IQ score is then plotted in `physics_IQ_score_Original_barplot.pdf` and stored inside a correspondingly named json file under: `final_score_origround`
 </details>
 
 ---
