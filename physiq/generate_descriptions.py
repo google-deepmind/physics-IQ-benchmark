@@ -29,8 +29,8 @@ def main():
     parser.add_argument("templater", choices=list(REGISTRY), help="Templater to use")
     parser.add_argument(
         "--output-dir",
-        default=str(DESCRIPTIONS_PATH.parent / "model_specific"),
-        help="Directory to write the output CSV (default: descriptions/model_specific)",
+        default=str(DESCRIPTIONS_PATH.parent / "best_practice"),
+        help="Directory to write the output CSV (default: descriptions/best_practice)",
     )
     parser.add_argument(
         "--no-action-suffix",

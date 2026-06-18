@@ -209,12 +209,12 @@ Prompting conventions differ across video models. To evaluate models fairly, use
 **C2. Prompt settings.**
 
 Physics-IQ Verified uses two prompt settings:
-- `bpp` uses a model-specific prompt (or the base version) produced by a templater stored inside `descriptions/model_specific`.
+- `bpp` uses a model-specific prompt (or the base version) produced by a templater stored inside `descriptions/best_practice`.
 - `op` uses the original `descriptions/descriptions_original.csv` prompts.
 
 **C3. Existing templates.**
 
-For the bpp settings, the base templated descriptions can be found in `descriptions/model_specific/descriptions_base.csv`. For models with specific prompting guidelines, model-optimised descriptions can be generated using `uv run physiq/generate_descriptions.py {model_name}`:
+For the bpp settings, the base templated descriptions can be found in `descriptions/best_practice/descriptions_base.csv`. For models with specific prompting guidelines, model-optimised descriptions can be generated using `uv run physiq/generate_descriptions.py {model_name}`:
 
 | File | Optimised for |
 |---|---|
@@ -245,7 +245,7 @@ class MyModelTemplater(BaseTemplater):
 
 ```bash
 uv run physiq/generate_descriptions.py mymodel
-# writes descriptions/model_specific/descriptions_mymodel.csv
+# writes descriptions/best_practice/descriptions_mymodel.csv
 ```
 
 Available helper methods on `BaseTemplater`:
@@ -267,7 +267,7 @@ uv run physiq/generate_descriptions.py sora2   # or pvideo, base
 This writes a model-specific descriptions CSV, for example:
 
 ```plaintext
-descriptions/model_specific/descriptions_sora2.csv
+descriptions/best_practice/descriptions_sora2.csv
 ```
 
 with the same evaluation columns as the base descriptions file:
