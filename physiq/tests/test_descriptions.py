@@ -14,7 +14,6 @@
 # ==============================================================================
 
 import pandas as pd
-
 from dataset import DESCRIPTIONS_PATH, Benchmark
 
 _DESCRIPTIONS_CSV = DESCRIPTIONS_PATH.parent / "descriptions_original.csv"

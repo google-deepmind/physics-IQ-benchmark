@@ -17,8 +17,8 @@ import argparse
 from pathlib import Path
 
 import pandas as pd
-
 from dataset import DESCRIPTIONS_PATH, Benchmark
+
 from physiq.templater import REGISTRY
 
 

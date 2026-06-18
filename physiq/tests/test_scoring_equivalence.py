@@ -39,7 +39,6 @@ abs=1e-10  — floating-point equality; same formula computed via two different 
 
 import numpy as np
 import pytest
-
 from calculate_iq_score import VIEWS, calculate_iq_score, parse_list_of_floats
 from calculate_iq_score_stable import IQTable
 from tests.conftest import make_csv
@@ -234,7 +233,7 @@ def test_multi_scenario_aggregation(tmp_path):
 
 def test_get_output_dict_returns_expected_keys(default_csv):
     result = IQTable.from_csv(str(default_csv)).get_output_dict()
-    assert True # code ran through
+    assert True  # code ran through
 
 
 def test_get_output_dict_scores_are_finite_floats(default_csv):

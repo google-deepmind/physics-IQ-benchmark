@@ -12,6 +12,7 @@ from pathlib import Path
 from pprint import pprint
 
 import pandas as pd
+
 from physiq.calculate_iq_score_stable import (
     ORIG_SCORE_KEY,
     SCORES_LIST,
@@ -77,6 +78,7 @@ def main() -> pd.DataFrame:
     pivot = scores_df[score_cols].agg(["mean", "std"]) * 100
 
     pprint(pivot)
+
     def _fmt(col):
         m, s = pivot.loc["mean", col], pivot.loc["std", col]
         return f"${m:.1f}$" if pd.isna(s) else f"${m:.1f} \\pm {s:.1f}$"
@@ -87,7 +89,6 @@ def main() -> pd.DataFrame:
             "Mean ± Std": [_fmt(c) for c in score_cols],
         }
     ).set_index("Score")
-
 
     if args.save_latex:
         args.save_latex.parent.mkdir(parents=True, exist_ok=True)
