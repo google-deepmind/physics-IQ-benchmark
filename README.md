@@ -12,7 +12,7 @@ Building on this foundation, Physics-IQ Verified contains improvements w.r.t. pr
 This repository contains the workflow for both Physics-IQ Verified (recommended benchmark variant) and the original Physics-IQ benchmark.
 
 Original Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)<br>
-Physics-IQ Verified: [arXiv](https://arxiv.org/abs/2606.18943)
+Physics-IQ Verified website: [physics-iq-verified.anates.ai](https://physics-iq-verified.anates.ai)
 
 ### Key Features:
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
@@ -38,17 +38,23 @@ The best possible score on Physics-IQ is 100.0%, this score would be achieved by
 ### Physics-IQ Verified Leaderboard
 If you test your model on Physics-IQ Verified and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
-For details on the Physics-IQ Verified metrics, see the [metric definitions](docs/metric_definition_phys_iq_verified.pdf) and the [arXiv report](https://arxiv.org/abs/2606.18943).
+The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physics-iq-verified.anates.ai)
 
-| # | Model | input type | Physics-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
-|---|---|---|---|---|---|---|---|---|
-| 1 | Grok Imagine Video | i2v | **34.8** <small>± 0.6</small> <br> 🥇 i2v | 52.7 <small>± 0.9</small> | 21.4 <small>± 0.6</small> | 35.7 <small>± 1.0</small> | 29.6 <small>± 0.4</small> | 2026-06-17 |
-| 2 | Hunyuan Video 1.5 | i2v | **33.4** <small>± 0.8</small> <br> 🥈 i2v | 47.1 <small>± 1.2</small> | 26.9 <small>± 1.0</small> | 29.7 <small>± 0.6</small> | 30.0 <small>± 1.0</small> | 2026-06-17 |
-| 3 | Wan 2.2 | i2v | **32.2** <small>± 0.6</small> <br> 🥉 i2v | 51.1 <small>± 1.0</small> | 20.5 <small>± 0.7</small> | 28.5 <small>± 0.7</small> | 28.9 <small>± 0.4</small> | 2026-06-17 |
-| 4 | Sora 2 | i2v | 26.5 <small>± 0.8</small> | 37.3 <small>± 0.6</small> | 27.0 <small>± 2.2</small> | 26.9 <small>± 0.7</small> | 14.8 <small>± 0.6</small> | 2026-06-17 |
-| 5 | P-Video | i2v | 25.3 <small>± 1.8</small> | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-06-17 |
+| # | Model | input type | Physics-IQ verified | date added (YYYY-MM-DD) |
+|---|---|---|---|---|
+| 1 | Cosmos3-Super-Image2Video | i2v | **39.5** <small>± 0.8</small> <br> 🥇 i2v | 2026-06-18 |
+| 2 | Grok Imagine Video | i2v | **34.8** <small>± 0.6</small> <br> 🥈 i2v | 2026-06-17 |
+| 3 | Hunyuan Video 1.5 | i2v | **33.4** <small>± 0.8</small> <br> 🥉 i2v | 2026-06-17 |
+| 4 | Wan 2.2 | i2v | 32.2 <small>± 0.6</small> | 2026-06-17 |
+| 5 | Cosmos3-Nano | i2v | 30.3 <small>± 0.6</small> | 2026-06-18 |
+| 6 | Sora 2 | i2v | 26.5 <small>± 0.8</small> | 2026-06-17 |
+| 7 | P-Video | i2v | 25.3 <small>± 1.8</small> | 2026-06-17 |
+
+For details on the Physics-IQ Verified metrics, see the [arXiv report](https://arxiv.org/abs/2606.18943).
 
 The reported scores use best-practice-prompts (`bpp`) based on a custom templater for each specific model.
+> Rules: 
+>1. One run is sufficient to be included on the verified leaderboard. In general, we recommend to use 4 runs reporting mean and standard deviation. To claim State-of-the-Art performance we require 4 runs.
 
 
 ### Physics-IQ Original Leaderboard
@@ -205,12 +211,12 @@ Prompting conventions differ across video models. To evaluate models fairly, use
 **C2. Prompt settings.**
 
 Physics-IQ Verified uses two prompt settings:
-- `bpp` uses a model-specific benchmark prompt produced by a templater.
-- `op` uses the original `descriptions/descriptions.csv` prompts.
+- `bpp` uses a model-specific prompt (or the base version) produced by a templater stored inside `descriptions/best_practice`.
+- `op` uses the original `descriptions/descriptions_original.csv` prompts.
 
 **C3. Existing templates.**
 
-The base descriptions are in `descriptions/descriptions.csv`. For models with specific prompting guidelines, model-optimised descriptions are available in `descriptions/model_specific/`:
+For the bpp settings, the base templated descriptions can be found in `descriptions/best_practice/descriptions_base.csv`. For models with specific prompting guidelines, model-optimised descriptions can be generated using `uv run physiq/generate_descriptions.py {model_name}`:
 
 | File | Optimised for |
 |---|---|
@@ -241,7 +247,7 @@ class MyModelTemplater(BaseTemplater):
 
 ```bash
 uv run physiq/generate_descriptions.py mymodel
-# writes descriptions/model_specific/descriptions_mymodel.csv
+# writes descriptions/best_practice/descriptions_mymodel.csv
 ```
 
 Available helper methods on `BaseTemplater`:
@@ -263,7 +269,7 @@ uv run physiq/generate_descriptions.py sora2   # or pvideo, base
 This writes a model-specific descriptions CSV, for example:
 
 ```plaintext
-descriptions/model_specific/descriptions_sora2.csv
+descriptions/best_practice/descriptions_sora2.csv
 ```
 
 with the same evaluation columns as the base descriptions file:
@@ -405,15 +411,29 @@ The evaluator writes one result CSV and one metrics JSON per input folder, using
         ├── <model_name>-bpp-run_03_metrics.json
         ├── <model_name>-bpp-run_04.csv
         ├── <model_name>-bpp-run_04_metrics.json
-        ├── physics_IQ_score_Original_barplot.pdf
-        └── physics_IQ_score_Verified_barplot.pdf
+        ├── physics_IQ_score_Original_barplot.pdf # return the original score
+        └── physics_IQ_score_Verified_barplot.pdf # returns the verified score for the verified leaderboard. 
 ```
 
 The verified score printed by the evaluator is stored as `final_score_view` in each `_metrics.json` file.
 
 ### G. Aggregate Leaderboard Scores
 
-Step F reports per-run original and verified score variants. To report a Physics-IQ Verified leaderboard score, use the verified score from each run and compute the mean and standard deviation across the standard four runs. Report this as `score ± std` in the leaderboard table.
+Step F reports per-run original and verified score variants. 
+To report a Physics-IQ Verified leaderboard score, use the verified score from each run and compute the mean and standard deviation across the standard four runs.
+Report this as `score ± std` in the leaderboard table.
+
+To do this, use `aggregate_runs_from_csvs.py` can be used as follows:
+```bash
+uv run physiq/aggregate_runs_from_csvs.py \
+  <path>/<model_name>-bpp-run_01.csv \
+  <path>/<model_name>-bpp-run_02.csv \
+  <path>/<model_name>-bpp-run_03.csv \
+  <path>/<model_name>-bpp-run_04.csv \
+  --score-type verified
+```
+
+We also accept single run results, but we do recommend using 4 runs.
 
 </details>
 
@@ -469,11 +489,11 @@ Use the same environment setup as the verified workflow.
 
 ### C. Use Original Prompts
 
-Use `descriptions/descriptions.csv` for original Physics-IQ prompts.
+Use `descriptions/descriptions_original.csv` for original Physics-IQ prompts.
 
 ### D. Generate Videos
 
-Use the same generated-video folder and filename conventions as the verified workflow, but source frames and conditioning videos from `physics-IQ-benchmark/`.
+Use the same generated-video folder and filename conventions as the verified workflow, but source frames and conditioning videos from `physics-IQ-benchmark/` and use the original (op) descriptions from `descriptions/descriptions_original.csv`.
 
 ### E. Trim Videos
 
@@ -486,20 +506,26 @@ Add `--original_physics_iq` to evaluate against the original benchmark:
 ```bash
 uv run physiq/run_physics_iq.py \
   --input_folders \
-    generated_videos_5s/<model_name>-op-run_01 \
-    generated_videos_5s/<model_name>-op-run_02 \
-    generated_videos_5s/<model_name>-op-run_03 \
-    generated_videos_5s/<model_name>-op-run_04 \
+    generated_videos_5s/<model_name>
   --output_folder <output_dir> \
-  --descriptions_file descriptions/descriptions.csv \
+  --descriptions_file descriptions/descriptions_original.csv \
   --benchmark_base_folder <folder_containing_physics-IQ-benchmark> \
   --original_physics_iq
 ```
 
-### G. Aggregate Leaderboard Scores
+The evaluator writes one result CSV and one metrics JSON per input folder, using the input folder name as the file stem:
 
-Use the per-run scores from Step F and compute the mean and standard deviation across the standard four runs.
+```plaintext
+<output_dir>/
+└── physics-IQ-benchmark-verified/
+    └── results/
+        ├── <model_name>.csv
+        ├── <model_name>.json
+        ├── physics_IQ_score_Original_barplot.pdf # score for the original leaderboard
+        └── physics_IQ_score_Verified_barplot.pdf # verified score on original data 
+```
 
+The original Physics-IQ score is then plotted in `physics_IQ_score_Original_barplot.pdf` and stored inside a correspondingly named json file under: `final_score_origround`
 </details>
 
 ---

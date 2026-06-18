@@ -84,6 +84,10 @@ class IQTable:
     def __init__(
         self, df: pd.DataFrame, metadata: dict = None, lazy_integrity: bool = False
     ):
+        if len(df) == 0:
+            raise ValueError(
+                "IQTable requires at least one scenario row; the DataFrame is empty."
+            )
         self.df = df.copy()  # own our data so callers can't mutate it under us
         self.metadata = metadata or {}
 

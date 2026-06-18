@@ -69,10 +69,10 @@ _MODELS.append(
     )
 )
 _MODELS.append(Model(model_name="Sora", plotting_name="Sora (i2v)", color="#ff0606"))
-_MODELS.append(Model(model_name="wan-i2v", plotting_name="Wan", color="#4E79A7"))
+_MODELS.append(Model(model_name="wan-i2v", plotting_name="Wan2.2", color="#4E79A7"))
 _MODELS.append(Model(model_name="p-video", plotting_name="P-Video", color="#F28E2B"))
 _MODELS.append(
-    Model(model_name="hunyuan-video-v1", plotting_name="Hunyuan", color="#59A14F")
+    Model(model_name="hunyuan-video-v1", plotting_name="HunyuanV-1.5", color="#59A14F")
 )
 _MODELS.append(Model(model_name="sora-2", plotting_name="Sora 2", color="#E15759"))
 _MODELS.append(
@@ -80,6 +80,9 @@ _MODELS.append(
 )
 _MODELS.append(
     Model(model_name="grok-imagine-video", plotting_name="Grok Video", color="#76B7B2")
+)
+_MODELS.append(
+    Model(model_name="cosmos3-nano", plotting_name="Cosmos3-N", color="#DD31BA")
 )
 ####################################################################
 # END OF CUSTOMIZATION BLOCK, KEEP REST UNCHANGED

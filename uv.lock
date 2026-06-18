@@ -2232,6 +2232,7 @@ name = "physics-iq-benchmark"
 version = "1.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "joblib" },
     { name = "kaleido" },
     { name = "matplotlib" },
     { name = "moviepy" },
@@ -2275,13 +2276,14 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'" },
     { name = "ipywidgets", marker = "extra == 'dev'" },
     { name = "isort", marker = "extra == 'dev'", specifier = ">=8.0.1" },
+    { name = "joblib", specifier = ">=1.0" },
     { name = "jupyter", marker = "extra == 'dev'" },
     { name = "kaleido" },
     { name = "matplotlib" },
     { name = "moviepy" },
-    { name = "numpy" },
+    { name = "numpy", specifier = ">=1.21" },
     { name = "opencv-python" },
-    { name = "pandas" },
+    { name = "pandas", specifier = ">=2.0" },
     { name = "pillow" },
     { name = "plotly" },
     { name = "pydantic", specifier = ">=2.13.4" },
