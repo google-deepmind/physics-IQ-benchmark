@@ -49,6 +49,8 @@ For details on the Physics-IQ Verified metrics, see the [arXiv report](https://a
 | 5 | P-Video | i2v | 25.3 <small>± 1.8</small> | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-06-17 |
 
 The reported scores use best-practice-prompts (`bpp`) based on a custom templater for each specific model.
+> Rules: 
+>1. One run is sufficient to be included on the verified leaderboard. In general, we recommend to use 4 runs reporting mean and standard deviation. To claim State-of-the-Art performance we require 4 runs.
 
 
 ### Physics-IQ Original Leaderboard
@@ -473,7 +475,7 @@ Use `descriptions/descriptions_original.csv` for original Physics-IQ prompts.
 
 ### D. Generate Videos
 
-Use the same generated-video folder and filename conventions as the verified workflow, but source frames and conditioning videos from `physics-IQ-benchmark/`.
+Use the same generated-video folder and filename conventions as the verified workflow, but source frames and conditioning videos from `physics-IQ-benchmark/` and use the original (op) descriptions from `descriptions/descriptions_original.csv`.
 
 ### E. Trim Videos
 
