@@ -12,7 +12,7 @@ Building on this foundation, Physics-IQ Verified contains improvements w.r.t. pr
 This repository contains the workflow for both Physics-IQ Verified (recommended benchmark variant) and the original Physics-IQ benchmark.
 
 Original Physics-IQ website: [physics-iq.github.io](https://physics-iq.github.io/)<br>
-Physics-IQ Verified website: TBD
+Physics-IQ Verified: [arXiv](https://arxiv.org/abs/2606.18943)
 
 ### Key Features:
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
@@ -36,9 +36,9 @@ Physics-IQ Verified website: TBD
 ## Leaderboard
 The best possible score on Physics-IQ is 100.0%, this score would be achieved by physically realistic videos that differ only in physical randomness but adhere to all tested principles of physics.
 ### Physics-IQ Verified Leaderboard
-If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
+If you test your model on Physics-IQ Verified and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
-For details on the Physics-IQ Verified metrics, see the [metric definitions](docs/metric_definition_phys_iq_verified.pdf). The full Physics-IQ Verified report will be published soon.
+For details on the Physics-IQ Verified metrics, see the [metric definitions](docs/metric_definition_phys_iq_verified.pdf) and the [arXiv report](https://arxiv.org/abs/2606.18943).
 
 | # | Model | input type | Phys-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|---|---|---|---|
@@ -53,7 +53,7 @@ The reported scores use best-practice-prompts (`bpp`) based on a custom template
 
 ### Physics-IQ Original Leaderboard
 
-If you test your model on Physics-IQ and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
+If you test your model on Physics-IQ Original and would like your score/paper/model to be featured here in this table, feel free to open a pull request that adds a row to the table and we'll be happy to include it!
 
 | **#** | **Model** | **input type** | **Physics-IQ score** | **date added (YYYY-MM-DD)** |
 | -- | --- | --- | --- | --- |
