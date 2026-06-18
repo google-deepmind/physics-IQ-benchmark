@@ -40,11 +40,11 @@ If you test your model on Physics-IQ Verified and would like your score/paper/mo
 
 For details on the Physics-IQ Verified metrics, see the [metric definitions](docs/metric_definition_phys_iq_verified.pdf) and the [arXiv report](https://arxiv.org/abs/2606.18943).
 
-| # | Model | input type | Phys-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
+| # | Model | input type | Physics-IQ verified | SP verified | ST verified | WS verified | MSE verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|---|---|---|---|
-| 1 🥇 | Grok Imagine Video | i2v | 34.8 <small>± 0.6</small> | 52.7 <small>± 0.9</small> | 21.4 <small>± 0.6</small> | 35.7 <small>± 1.0</small> | 29.6 <small>± 0.4</small> | 2026-06-17 |
-| 2 🥈 | Hunyuan Video 1.5 | i2v | 33.4 <small>± 0.8</small> | 47.1 <small>± 1.2</small> | 26.9 <small>± 1.0</small> | 29.7 <small>± 0.6</small> | 30.0 <small>± 1.0</small> | 2026-06-17 |
-| 3 🥉 | Wan 2.2 | i2v | 32.2 <small>± 0.6</small> | 51.1 <small>± 1.0</small> | 20.5 <small>± 0.7</small> | 28.5 <small>± 0.7</small> | 28.9 <small>± 0.4</small> | 2026-06-17 |
+| 1 | Grok Imagine Video | i2v | **34.8** <small>± 0.6</small> <br> 🥇 i2v | 52.7 <small>± 0.9</small> | 21.4 <small>± 0.6</small> | 35.7 <small>± 1.0</small> | 29.6 <small>± 0.4</small> | 2026-06-17 |
+| 2 | Hunyuan Video 1.5 | i2v | **33.4** <small>± 0.8</small> <br> 🥈 i2v | 47.1 <small>± 1.2</small> | 26.9 <small>± 1.0</small> | 29.7 <small>± 0.6</small> | 30.0 <small>± 1.0</small> | 2026-06-17 |
+| 3 | Wan 2.2 | i2v | **32.2** <small>± 0.6</small> <br> 🥉 i2v | 51.1 <small>± 1.0</small> | 20.5 <small>± 0.7</small> | 28.5 <small>± 0.7</small> | 28.9 <small>± 0.4</small> | 2026-06-17 |
 | 4 | Sora 2 | i2v | 26.5 <small>± 0.8</small> | 37.3 <small>± 0.6</small> | 27.0 <small>± 2.2</small> | 26.9 <small>± 0.7</small> | 14.8 <small>± 0.6</small> | 2026-06-17 |
 | 5 | P-Video | i2v | 25.3 <small>± 1.8</small> | 38.6 <small>± 2.2</small> | 16.4 <small>± 2.4</small> | 22.9 <small>± 1.8</small> | 23.3 <small>± 1.1</small> | 2026-06-17 |
 
