@@ -120,7 +120,7 @@ def main():
     parser.add_argument(
         "--fps",
         nargs="+",
-        default=(30),
+        default=[30],
         type=int,
         help="Select values in (8, 16, 24, 30) for download otherwise resample",
     )
