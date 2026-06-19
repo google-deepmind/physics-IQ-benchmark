@@ -42,15 +42,15 @@ The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physi
 
 | # | Model | input type | Physics-IQ verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|
-| 1 | [Magi-1 24B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/)| multiframe (v2v) | **58.2** <small>± 1.8</small> <br> 🥇 v2v | 2026-06-19 |
-| 2 | Magi-1 24B | multiframe (v2v) | 48.4 <small>± 1.1</small> | 2026-06-19 |
+| 1 | [Magi-1 24B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> | multiframe (v2v) | **58.2** <br> 🥇 v2v | 2026-06-19 |
+| 2 | Magi-1 24B <small>(op)</small> | multiframe (v2v) | 48.4 <small>± 1.1</small> | 2026-06-19 |
 | 3 | Cosmos3-Super-Image2Video | i2v | **39.5** <small>± 0.8</small> <br> 🥇 i2v | 2026-06-18 |
 | 4 | Grok Imagine Video | i2v | **34.8** <small>± 0.6</small> <br> 🥈 i2v | 2026-06-17 |
-| 5 | [Magi-1 24B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) | i2v | **33.7** <small>± 1.4</small>  <br> 🥉 i2v| 2026-06-19 |
+| 5 | [Magi-1 24B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> | i2v | **33.7** <br> 🥉 i2v | 2026-06-19 |
 | 6 | Hunyuan Video 1.5 | i2v | **33.4** <small>± 0.8</small> | 2026-06-17 |
 | 7 | Wan 2.2 | i2v | 32.2 <small>± 0.6</small> | 2026-06-17 |
 | 8 | Cosmos3-Nano | i2v | 30.3 <small>± 0.6</small> | 2026-06-18 |
-| 9 | Magi-1 24B| i2v | 30.2 <small>± 1.1</small> | 2026-06-19 |
+| 9 | Magi-1 24B <small>(op)</small> | i2v | 30.2 <small>± 1.1</small> | 2026-06-19 |
 | 10 | Sora 2 | i2v | 26.5 <small>± 0.8</small> | 2026-06-17 |
 | 11 | P-Video | i2v | 25.3 <small>± 1.8</small> | 2026-06-17 |
 
