@@ -56,9 +56,9 @@ The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physi
 
 For details on the Physics-IQ Verified metrics, see the [arXiv report](https://arxiv.org/abs/2606.18943).
 
-The reported scores use best-practice-prompts (`bpp`) based on a custom templater for each specific model.
+Unless specified by `op` for original prompt in the entry, all reported scores use best-practice-prompts (`bpp`) based on a custom templater for each specific model.
 > Rules: 
->1. One run is sufficient to be included on the verified leaderboard. In general, we recommend to use 4 runs reporting mean and standard deviation. To claim State-of-the-Art performance we require 4 runs.
+>1. One run is sufficient to be included on the verified leaderboard. In general, we recommend to use 4 runs reporting mean and standard deviation. To claim SOTA, reporting standard deviation across 4 runs is required.
 
 
 ### Physics-IQ Original Leaderboard
