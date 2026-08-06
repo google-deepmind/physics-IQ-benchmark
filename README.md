@@ -42,18 +42,18 @@ The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physi
 
 | # | Model | input type | Physics-IQ verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|
-| 1 | [Magi-1 24B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> | multiframe (v2v) | **58.2** <small>± 1.8</small> <br> 🥇 v2v | 2026-06-19 |
-| 2 | Magi-1 24B <small>(op)</small> | multiframe (v2v) | **48.4** <small>± 1.1</small>  <br> 🥈 v2v| 2026-06-19 |
-| 3 | Cosmos3-Super-Image2Video | i2v | **39.5** <small>± 0.8</small> <br> 🥇 i2v | 2026-06-18 |
-| 4 | Grok Imagine Video | i2v | **34.8** <small>± 0.6</small> <br> 🥈 i2v | 2026-06-17 |
-| 5 | [Magi-1 24B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> | i2v | **33.7** <small>± 1.4</small> <br> 🥉 i2v | 2026-06-19 |
-| 6 | Hunyuan Video 1.5 | i2v | **33.4** <small>± 0.8</small> | 2026-06-17 |
-| 7 | Wan 2.2 | i2v | 32.2 <small>± 0.6</small> | 2026-06-17 |
-| 8 | [Kandinsky-WM 1.0](https://huggingface.co/kandinskylab/Kandinsky-WM-1.0-I2V-5s-PH) | i2v | 30.8 <small>± 0.9</small> | 2026-08-04 |
-| 9 | Cosmos3-Nano | i2v | 30.3 <small>± 0.6</small> | 2026-06-18 |
-| 10 | Magi-1 24B <small>(op)</small> | i2v | 30.2 <small>± 1.1</small> | 2026-06-19 |
-| 11 | Sora 2 | i2v | 26.5 <small>± 0.8</small> | 2026-06-17 |
-| 12 | P-Video | i2v | 25.3 <small>± 1.8</small> | 2026-06-17 |
+| 1 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **58.2** <small>± 1.8</small> <br> 🥇 v2v | 2026-06-19 |
+| 2 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **48.4** <small>± 1.1</small>  <br> 🥈 v2v| 2026-06-19 |
+| 3 | [Cosmos3-Super-Image2Video](https://arxiv.org/abs/2606.02800) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **39.5** <small>± 0.8</small> <br> 🥇 i2v | 2026-06-18 |
+| 4 | [Grok Imagine Video](https://x.ai/news/grok-imagine-api) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **34.8** <small>± 0.6</small> <br> 🥈 i2v | 2026-06-17 |
+| 5 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | **33.7** <small>± 1.4</small> <br> 🥉 i2v | 2026-06-19 |
+| 6 | [Hunyuan Video 1.5](https://arxiv.org/abs/2511.18870) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **33.4** <small>± 0.8</small> | 2026-06-17 |
+| 7 | [Wan 2.2](https://github.com/Wan-Video/Wan2.2) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 32.2 <small>± 0.6</small> | 2026-06-17 |
+| 8 | [Kandinsky-WM 1.0](https://huggingface.co/kandinskylab/Kandinsky-WM-1.0-I2V-5s-PH) reported [here](https://huggingface.co/datasets/Messimm/Kandinsky-WM-1.0-Physics-IQ-Verified) | i2v | 30.8 <small>± 0.9</small> | 2026-08-04 |
+| 9 | [Cosmos3-Nano](https://arxiv.org/abs/2606.02800) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 30.3 <small>± 0.6</small> | 2026-06-18 |
+| 10 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 30.2 <small>± 1.1</small> | 2026-06-19 |
+| 11 | [Sora 2](https://openai.com/index/sora-2/) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 26.5 <small>± 0.8</small> | 2026-06-17 |
+| 12 | [P-Video](https://www.pruna.ai/p-video) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 25.3 <small>± 1.8</small> | 2026-06-17 |
 
 For details on the Physics-IQ Verified metrics, see the [arXiv report](https://arxiv.org/abs/2606.18943).
 
