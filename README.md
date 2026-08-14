@@ -461,8 +461,8 @@ Each submission consists of three parts:
 
 **3. Run directories.** Each run directory must contain exactly **198 MP4s**, one per scenario: exactly 198 files, each exactly 5 seconds (±0.001s), zero-padded 4-digit prefixes (`0001_*.mp4` … `0198_*.mp4`), and a single consistent FPS matching the card's `fps` field.
 
-`submission/example/run_01/` is not committed to keep the repo free of binary fixtures — generate
-it on demand with:
+`submission/example/descriptions.csv` and `submission/example/run_01/` are not committed to keep
+the repo free of generated/binary fixtures — generate both on demand with:
 
 ```bash
 uv run physiq/generate_example_submission.py

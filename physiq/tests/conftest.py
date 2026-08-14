@@ -88,6 +88,10 @@ def pytest_addoption(parser):
     parser.addoption(
         "--run-e2e", action="store_true", default=False, help="Run end-to-end tests"
     )
+    parser.addoption(
+        "--run-ffmpeg", action="store_true", default=False,
+        help="Run tests that shell out to ffmpeg/ffprobe",
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -96,3 +100,8 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "e2e" in item.keywords:
                 item.add_marker(skip_e2e)
+    if not config.getoption("--run-ffmpeg"):
+        skip_ffmpeg = pytest.mark.skip(reason="Pass --run-ffmpeg to run")
+        for item in items:
+            if "ffmpeg" in item.keywords:
+                item.add_marker(skip_ffmpeg)

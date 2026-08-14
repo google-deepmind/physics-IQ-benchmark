@@ -13,12 +13,16 @@
 # limitations under the License.
 # ==============================================================================
 """
-Generate the placeholder run_01 videos for the submission/example/ walkthrough.
+Generate the descriptions.csv and placeholder run_01 videos for the
+submission/example/ walkthrough.
 
 submission/example/ is a self-contained example a submitter can run
 `physiq/submit.py --validate-only` against immediately. Rather than committing
-~200 binary MP4s to git, this script generates them on demand — one blank,
-correctly-specced video per row of submission/example/descriptions.csv, with
+a static descriptions.csv and ~200 binary MP4s to git, this script generates
+both on demand: descriptions.csv is derived from the first
+EXPECTED_VIDEO_COUNT rows of descriptions/descriptions_original.csv (with
+generated_video_name remapped to the synthetic filenames below), and the
+videos are one blank, correctly-specced clip per generated_video_name, with
 fps/resolution/duration read from submission/example/submission.yaml so the
 placeholders always match what that card declares.
 
@@ -33,8 +37,11 @@ from pathlib import Path
 
 import yaml
 
+from physiq.submit import EXPECTED_VIDEO_COUNT
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CARD = REPO_ROOT / "submission" / "example" / "submission.yaml"
+DEFAULT_ORIGINAL_DESCRIPTIONS = REPO_ROOT / "descriptions" / "descriptions_original.csv"
 DEFAULT_DESCRIPTIONS = REPO_ROOT / "submission" / "example" / "descriptions.csv"
 DEFAULT_OUTPUT = REPO_ROOT / "submission" / "example" / "run_01"
 
@@ -55,12 +62,46 @@ def _make_video(path: Path, *, fps: float, width: int, height: int) -> None:
     )
 
 
+def _write_descriptions(original: Path, dest: Path) -> list[str]:
+    """Write descriptions.csv covering EXPECTED_VIDEO_COUNT synthetic videos.
+
+    Reuses the real scenario/description text from descriptions_original.csv
+    so the example reads as realistic content, but points generated_video_name
+    at the synthetic placeholder filenames this script actually generates.
+    """
+    with original.open(newline="", encoding="utf-8") as f:
+        orig_rows = list(csv.DictReader(f))[:EXPECTED_VIDEO_COUNT]
+
+    names = []
+    out_rows = []
+    for i, row in enumerate(orig_rows, start=1):
+        name = f"{i:04d}_synthetic-example.mp4"
+        names.append(name)
+        out_rows.append({
+            "scenario": row["scenario"],
+            "description": row["description"],
+            "generated_video_name": name,
+        })
+
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with dest.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["scenario", "description", "generated_video_name"])
+        writer.writeheader()
+        writer.writerows(out_rows)
+
+    return names
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--card", type=Path, default=DEFAULT_CARD, help="Path to submission.yaml")
     parser.add_argument(
+        "--original-descriptions", type=Path, default=DEFAULT_ORIGINAL_DESCRIPTIONS,
+        help="Source descriptions_original.csv to derive scenario/description text from",
+    )
+    parser.add_argument(
         "--descriptions", type=Path, default=DEFAULT_DESCRIPTIONS,
-        help="Path to descriptions.csv (drives the output filenames)",
+        help="Path to write the generated descriptions.csv",
     )
     parser.add_argument(
         "--output", type=Path, default=DEFAULT_OUTPUT,
@@ -72,8 +113,8 @@ def main() -> None:
     fps = float(card_data["public_info"]["fps"])
     width, height = (int(x) for x in card_data["public_info"]["resolution"].split("x"))
 
-    with args.descriptions.open(newline="", encoding="utf-8") as f:
-        names = [row["generated_video_name"] for row in csv.DictReader(f)]
+    print(f"Writing {args.descriptions} ...")
+    names = _write_descriptions(args.original_descriptions, args.descriptions)
 
     args.output.mkdir(parents=True, exist_ok=True)
     print(f"Generating {len(names)} placeholder video(s) in {args.output}/ "

@@ -98,12 +98,14 @@ def wrong_dur_video(tmp_path_factory) -> Path:
 
 # ── tests ─────────────────────────────────────────────────────────────────────
 
+@pytest.mark.ffmpeg
 class TestValidRun:
     def test_passes_with_no_errors(self, tmp_path, correct_video):
         _populate_run(tmp_path, correct_video)
         assert _validate_run_dir(tmp_path, CARD_FPS, CARD_RES) == []
 
 
+@pytest.mark.ffmpeg
 class TestVideoCount:
     def test_too_few_videos(self, tmp_path, correct_video):
         for i in range(1, 3):  # 2 videos
@@ -127,6 +129,7 @@ class TestVideoCount:
         assert len(errors) == 1
 
 
+@pytest.mark.ffmpeg
 class TestNaming:
     def test_wrong_prefix_caught(self, tmp_path, correct_video):
         # 198 files but slot 5 has a bad prefix
@@ -142,6 +145,7 @@ class TestNaming:
         assert not any("must start with" in e for e in errors)
 
 
+@pytest.mark.ffmpeg
 class TestFPS:
     def test_all_wrong_fps_caught(self, tmp_path, wrong_fps_video):
         # all 198 videos at 30 fps, card says 24
@@ -157,6 +161,7 @@ class TestFPS:
         assert any("inconsistent" in e for e in errors)
 
 
+@pytest.mark.ffmpeg
 class TestResolution:
     def test_wrong_resolution_caught(self, tmp_path, correct_video, wrong_res_video):
         _populate_run(tmp_path, correct_video, overrides={1: wrong_res_video})
@@ -170,6 +175,7 @@ class TestResolution:
         assert any("0007_video.mp4" in e for e in errors)
 
 
+@pytest.mark.ffmpeg
 class TestDuration:
     def test_wrong_duration_caught(self, tmp_path, correct_video, wrong_dur_video):
         _populate_run(tmp_path, correct_video, overrides={1: wrong_dur_video})
@@ -389,6 +395,7 @@ def _make_descriptions_csv(
     return path
 
 
+@pytest.mark.ffmpeg
 class TestDescriptionsValidation:
     def test_valid_csv_passes(self, tmp_path, correct_video):
         run_dir = tmp_path / "run_01"
