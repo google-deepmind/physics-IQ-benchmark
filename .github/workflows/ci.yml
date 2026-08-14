@@ -15,6 +15,14 @@ jobs:
       - run: uv sync
       - run: uv run pytest physiq/tests/ -v
       - run: uv run physiq/generate_descriptions.py pvideo
+      - run: uv sync --extra submission
+      - run: uv run physiq/generate_example_submission.py
+      - run: >
+          uv run physiq/submit.py --run test__ci-smoke__2026-01-01
+          --card submission/example/submission.yaml
+          --descriptions submission/example/descriptions.csv
+          --runs submission/example/run_01
+          --validate-only
 
   test-pip:
     name: Tests (pip editable, Python ${{ matrix.python-version }})
@@ -30,6 +38,14 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: pytest physiq/tests/ -v
       - run: python physiq/generate_descriptions.py pvideo
+      - run: pip install -e ".[submission]"
+      - run: python physiq/generate_example_submission.py
+      - run: >
+          python physiq/submit.py --run test__ci-smoke__2026-01-01
+          --card submission/example/submission.yaml
+          --descriptions submission/example/descriptions.csv
+          --runs submission/example/run_01
+          --validate-only
 
   test-pip-noneditable:
     name: Tests (pip non-editable, Python 3.12)
@@ -42,3 +58,11 @@ jobs:
       - run: pip install ".[dev]"
       - run: pytest physiq/tests/ -v
       - run: python physiq/generate_descriptions.py pvideo
+      - run: pip install ".[submission]"
+      - run: python physiq/generate_example_submission.py
+      - run: >
+          python physiq/submit.py --run test__ci-smoke__2026-01-01
+          --card submission/example/submission.yaml
+          --descriptions submission/example/descriptions.csv
+          --runs submission/example/run_01
+          --validate-only
