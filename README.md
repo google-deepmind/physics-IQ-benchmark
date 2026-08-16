@@ -455,7 +455,7 @@ Please get in touch for both via GitHub Issues and/or Pull Requests.
 Each submission consists of three parts:
 
 **1. Submission card.** Copy `submission/submission.yaml` and fill in every field — `public_info:`
-(model/run metadata plus generation cost fields; `gpu`/`gen_time` are only required if you ran generation yourself rather than via API), `reported_scores:` (your self-reported benchmark scores), and the `terms:`/`warranties:` blocks (see `submission/submission_terms.md`). The upload is rejected if any required field is empty or terms/warranties aren't accepted. See `submission/example/submission.yaml` for a filled-in reference.
+(model/run metadata plus upsampling/generation cost fields; the GPU and time fields — `upsample_gpu`/`upsample_ngpu`/`upsample_time` and `generation_gpu`/`generation_ngpu`/`generation_time` — are only required if you ran upsampling/generation yourself rather than via API), `reported_scores:` (your self-reported benchmark scores), and the `terms:`/`warranties:` blocks (see `submission/submission_terms.md`). The upload is rejected if any required field is empty or terms/warranties aren't accepted. See `submission/example/submission.yaml` for a filled-in reference.
 
 **2. Descriptions file.** Provide the `descriptions.csv` actually used to generate your videos (columns: `scenario`, `description`, `generated_video_name`) — every video in your run directories must appear in `generated_video_name`, or the upload is rejected. See `submission/example/descriptions.csv`.
 
@@ -498,10 +498,11 @@ export AWS_SESSION_TOKEN=...
 Expires: 2026-06-30T18:00:00+00:00
 ```
 
-Each block is a **separate, isolated token** scoped exclusively to that one run's S3 prefix. It expires automatically (default 12 hours). No user can use tokens to read or overwrite another run's data.
+Each block is a **separate, isolated token** scoped exclusively to that one run's S3 prefix. It expires automatically. No user can use tokens to read or overwrite another run's data.
 
 run_id consists is built following `<org>__<descriptive-id>__<YYYY-MM-DD>` using only lowercase, digits, hyphens, and dots.
 Please provide organization and a descriptive-id directly to us when you get in touch with us.
+We will generate a run_id for you.
 
 #### Uploading directly to S3
 
@@ -513,10 +514,10 @@ uv sync --extra submission
 ```
 
 > **By uploading a submission, you agree to the current version of the
-> [Submission Terms](submission/submission_terms.md).** Acceptance is recorded per-submission via
+> [Submission Terms](https://docs.google.com/document/d/1uTDIuPDtMrELTg9YqNdQwxw5q82pDJnr9xAGurNHZ2M/edit?tab=t.0).** Acceptance is recorded per-submission via
 > the `terms:` block in `submission.yaml`.
 
-Paste the credentials the we sent, then run the upload script **in the same shell**:
+Paste the credentials the we sent to you as follows using the exports and then run the upload script **in the same shell**:
 
 ```bash
 export AWS_ACCESS_KEY_ID=...
@@ -542,14 +543,6 @@ uv run physiq/submit.py \
     --runs path/to/run_01 path/to/run_02 \
     --dest  openai__sora-2-op-bon1__2026-06-30
 ```
-
-#### run_id format
-
-```
-<org>__<descriptive-id>__<YYYY-MM-DD>
-```
-
-All lowercase, digits, hyphens, and dots — no spaces or uppercase; exactly two double-underscores separating the three parts (e.g. `openai__sora-2-op-bon1__2026-06-30`). The run_id is assigned by the us — do not modify it.
 
 > Pip users: replace `uv run` with `python` in all commands above, per the note in section B.
 

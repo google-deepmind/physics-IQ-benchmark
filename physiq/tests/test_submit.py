@@ -29,6 +29,9 @@ import pytest
 from submit import (
     CURRENT_TERMS_VERSION,
     EXPECTED_VIDEO_COUNT,
+    NON_API_REQUIRED_CARD_FIELDS,
+    NON_API_UPSAMPLING_REQUIRED_CARD_FIELDS,
+    UPSAMPLING_REQUIRED_CARD_FIELDS,
     _validate_card,
     _validate_descriptions,
     _validate_run_dir,
@@ -208,9 +211,13 @@ def _valid_card() -> dict:
             "model_source": "https://example.com",
             "date": "2026-07-02",
             "upsample_cost": 0.0,
+            "upsample_gpu": "H100",
+            "upsample_ngpu": 8,
+            "upsample_time": 5.0,
             "generation_cost": 0.45,
-            "gpu": "8x H100",
-            "gen_time": 42.5,
+            "generation_gpu": "100",
+            "generation_ngpu": 8,
+            "generation_time": 42.5,
         },
         "reported_scores": {
             "physiq_mean": 0.81,
@@ -280,23 +287,60 @@ class TestCardValidation:
         errors = _validate_card(card)
         assert any("public_info.generation_cost" in e for e in errors)
 
-    def test_gpu_and_gen_time_not_required_for_api_model(self):
+    def test_gpu_fields_not_required_for_api_model(self):
         card = _valid_card()
         assert card["public_info"]["availability"] == "api"
-        card["public_info"]["gpu"] = None
-        card["public_info"]["gen_time"] = None
+        for field in NON_API_REQUIRED_CARD_FIELDS:
+            card["public_info"][field] = None
         errors = _validate_card(card)
-        assert not any("public_info.gpu" in e for e in errors)
-        assert not any("public_info.gen_time" in e for e in errors)
+        for field in NON_API_REQUIRED_CARD_FIELDS:
+            assert not any(f"public_info.{field}" in e for e in errors)
 
-    def test_gpu_and_gen_time_required_for_non_api_model(self):
+    def test_gpu_fields_required_for_non_api_model(self):
         card = _valid_card()
         card["public_info"]["availability"] = "public"
-        card["public_info"]["gpu"] = None
-        card["public_info"]["gen_time"] = None
+        for field in NON_API_REQUIRED_CARD_FIELDS:
+            card["public_info"][field] = None
         errors = _validate_card(card)
-        assert any("public_info.gpu" in e for e in errors)
-        assert any("public_info.gen_time" in e for e in errors)
+        for field in NON_API_REQUIRED_CARD_FIELDS:
+            assert any(f"public_info.{field}" in e for e in errors)
+
+    def test_upsampling_fields_not_required_when_no_upsampling(self):
+        card = _valid_card()
+        card["public_info"]["prompt_upsampling"] = False
+        card["public_info"]["availability"] = "public"  # would otherwise require them
+        for field in UPSAMPLING_REQUIRED_CARD_FIELDS + NON_API_UPSAMPLING_REQUIRED_CARD_FIELDS:
+            card["public_info"][field] = None
+        errors = _validate_card(card)
+        for field in UPSAMPLING_REQUIRED_CARD_FIELDS + NON_API_UPSAMPLING_REQUIRED_CARD_FIELDS:
+            assert not any(f"public_info.{field}" in e for e in errors)
+
+    def test_upsample_cost_required_when_upsampling_performed(self):
+        card = _valid_card()
+        card["public_info"]["prompt_upsampling"] = True
+        card["public_info"]["upsample_cost"] = None
+        errors = _validate_card(card)
+        assert any("public_info.upsample_cost" in e for e in errors)
+
+    def test_upsampling_gpu_fields_not_required_for_api_model(self):
+        card = _valid_card()
+        card["public_info"]["prompt_upsampling"] = True
+        assert card["public_info"]["availability"] == "api"
+        for field in NON_API_UPSAMPLING_REQUIRED_CARD_FIELDS:
+            card["public_info"][field] = None
+        errors = _validate_card(card)
+        for field in NON_API_UPSAMPLING_REQUIRED_CARD_FIELDS:
+            assert not any(f"public_info.{field}" in e for e in errors)
+
+    def test_upsampling_gpu_fields_required_for_non_api_model(self):
+        card = _valid_card()
+        card["public_info"]["prompt_upsampling"] = True
+        card["public_info"]["availability"] = "public"
+        for field in NON_API_UPSAMPLING_REQUIRED_CARD_FIELDS:
+            card["public_info"][field] = None
+        errors = _validate_card(card)
+        for field in NON_API_UPSAMPLING_REQUIRED_CARD_FIELDS:
+            assert any(f"public_info.{field}" in e for e in errors)
 
     def test_terms_accepted_null_rejected(self):
         card = _valid_card()

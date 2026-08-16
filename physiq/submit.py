@@ -78,14 +78,26 @@ REQUIRED_CARD_FIELDS = [
     "availability",
     "model_source",
     "date",
-    "upsample_cost",
     "generation_cost",
+]
+
+# Only meaningful when prompt upsampling was actually performed (see submission.yaml comments).
+UPSAMPLING_REQUIRED_CARD_FIELDS = [
+    "upsample_cost",
 ]
 
 # Only meaningful when the submitter ran generation themselves (see submission.yaml comments).
 NON_API_REQUIRED_CARD_FIELDS = [
-    "gpu",
-    "gen_time",
+    "generation_gpu",
+    "generation_ngpu",
+    "generation_time",
+]
+
+# Only meaningful when prompt upsampling was performed AND the submitter ran it themselves.
+NON_API_UPSAMPLING_REQUIRED_CARD_FIELDS = [
+    "upsample_gpu",
+    "upsample_ngpu",
+    "upsample_time",
 ]
 
 REQUIRED_REPORTED_SCORE_FIELDS = [
@@ -118,6 +130,23 @@ def _validate_card(card_data: dict) -> list[str]:
     missing = [k for k in REQUIRED_CARD_FIELDS if public_info.get(k) in (None, "")]
     for k in missing:
         errors.append(f"required field 'public_info.{k}' is empty")
+
+    if public_info.get("prompt_upsampling") is True:
+        missing = [k for k in UPSAMPLING_REQUIRED_CARD_FIELDS if public_info.get(k) in (None, "")]
+        for k in missing:
+            errors.append(
+                f"required field 'public_info.{k}' is empty (required when prompt_upsampling is true)"
+            )
+
+        if public_info.get("availability") != "api":
+            missing = [
+                k for k in NON_API_UPSAMPLING_REQUIRED_CARD_FIELDS if public_info.get(k) in (None, "")
+            ]
+            for k in missing:
+                errors.append(
+                    f"required field 'public_info.{k}' is empty "
+                    "(required for non-API models with prompt upsampling)"
+                )
 
     if public_info.get("availability") != "api":
         missing = [k for k in NON_API_REQUIRED_CARD_FIELDS if public_info.get(k) in (None, "")]

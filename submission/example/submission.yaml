@@ -23,10 +23,14 @@ public_info:
   date: "2026-06-30"
   reported: null
   comments: null
-  upsample_cost: 0.0
+  upsample_cost: null   # not required — no prompt upsampling was performed
+  upsample_gpu: null   # not required — no prompt upsampling was performed
+  upsample_ngpu: null   # not required — no prompt upsampling was performed
+  upsample_time: null   # not required — no prompt upsampling was performed
   generation_cost: 0.45
-  gpu: null   # not required — accessed via API, no self-hosted GPU
-  gen_time: null   # not required — accessed via API, no self-hosted GPU
+  generation_gpu: null   # not required — accessed via API, no self-hosted GPU
+  generation_ngpu: null   # not required — accessed via API, no self-hosted GPU
+  generation_time: null   # not required — accessed via API, no self-hosted GPU
 
 reported_scores:
   physiq_mean: 0.812

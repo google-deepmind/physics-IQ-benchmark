@@ -82,14 +82,27 @@ public_info:
   # Any additional notes about this submission (optional)
   comments: null
 
-  # Cost of upsampling in $ (can be estimated using GPU-time) (if none is used on open-source model set to 0 if unknown, set NaN)
+  # Cost of prompt upsampling in $ (can be estimated using GPU-time)
+  # null if prompt_upsampling is false; if unknown (and upsampling was used), set NaN
   upsample_cost: null
-  # Cost of single video generation in $ (can be estimated using GPU and Generation Time)
+  # GPU model used for prompt upsampling
+  # null if prompt_upsampling is false, or if accessed via API
+  upsample_gpu: null
+  # Number of GPUs used for prompt upsampling
+  # null if prompt_upsampling is false, or if accessed via API
+  upsample_ngpu: null
+  # Prompt upsample time (time on GPU for a single generation x num_gpus)
+  # null if prompt_upsampling is false, or if accessed via API
+  upsample_time: null
+
+  # Cost of single video generation in $ (we will estimate using GPU and Generation Time)
   generation_cost: null
   # GPU model used for video generation (only for non-API model)
-  gpu: null
+  generation_gpu: null
+  # Number of GPUs used for generation (only for non-API model)
+  generation_ngpu: null
   # Video Generation time (time on GPU for a single generation x num_gpus) (only for non-API models)
-  gen_time: null
+  generation_time: null
 
 # all scores and subscores are the verified version on the verified GT
 reported_scores:
