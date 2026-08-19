@@ -461,8 +461,7 @@ Each submission consists of three parts:
 
 **3. Run directories.** Each run directory must contain exactly **198 MP4s**, one per scenario: exactly 198 files, each exactly 5 seconds (±0.001s), zero-padded 4-digit prefixes (`0001_*.mp4` … `0198_*.mp4`), and a single consistent FPS matching the card's `fps` field.
 
-`submission_verified/example/descriptions.csv` and `submission_verified/example/run_01/` are not committed to keep
-the repo free of generated/binary fixtures. To view a complete example consisting of 1 run execute:
+`submission_verified/example/descriptions.csv` and `submission_verified/example/run_01/` are not committed to keep the repo free of generated/binary fixtures. To view a complete example consisting of 1 run, execute:
 
 ```bash
 uv run physiq/generate_verified_example_submission.py
@@ -516,9 +515,10 @@ uv sync --extra submission
 > **By uploading a submission, you agree to the current version of the
 > [Physics-IQ Verified Submission Terms](https://docs.google.com/document/d/1uTDIuPDtMrELTg9YqNdQwxw5q82pDJnr9xAGurNHZ2M).** Acceptance is recorded per-submission via
 > the `terms:` block in `submission.yaml`.
-> Physics-IQ Verified is an independent third-party benchmark that is not endorsed or verified by Google DeepMind. Google DeepMind disclaims all responsibility, warranties (express or implied), and liability arising from the access, performance, accuracy, compliance, or use of Physics-IQ Verified. Google DeepMind does not assume any legal responsibility for the code, datasets, evaluation criteria, or results produced by this benchmark.
 
-Paste the credentials we sent to you using exports and then run the upload script **in the same shell**. For example as given below:
+> **Disclaimer**: Physics-IQ Verified is an independent third-party benchmark that is not endorsed or verified by Google DeepMind. Google DeepMind disclaims all responsibility, warranties (express or implied), and liability arising from the access, performance, accuracy, compliance, or use of Physics-IQ Verified. Google DeepMind does not assume any legal responsibility for the code, datasets, evaluation criteria, or results produced by this benchmark.
+
+Paste the credentials we sent to you using exports and then run the upload script **in the same shell**. For example, as given below:
 
 ```bash
 export AWS_ACCESS_KEY_ID=...
