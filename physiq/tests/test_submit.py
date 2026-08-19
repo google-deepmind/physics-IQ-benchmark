@@ -26,7 +26,7 @@ from pathlib import Path
 
 import pytest
 
-from submit import (
+from physiq.submit_verified import (
     CURRENT_TERMS_VERSION,
     EXPECTED_VIDEO_COUNT,
     NON_API_REQUIRED_CARD_FIELDS,

@@ -1,10 +1,10 @@
-# Physics-IQ submission metadata
+# Physics-IQ Verified submission metadata
 # Fill in every field and upload this file alongside your results folder.
 # The run_id in the filename / S3 prefix is the authoritative identifier;
 # the fields here provide richer context for analysis and the leaderboard.
 
 public_info:
-  # Organisation / company name
+  # Organisation / company name / research institute
   organization: ""
 
   # Model name as you want it displayed (e.g. "Sora 2", "Wan 2.1")
@@ -75,9 +75,9 @@ public_info:
   # Date of submission
   date: ""
 
-  # Link to the paper or publication where these results are reported (null if unpublished)
+  # Link to a technical report/paper/publication detailing how results are obtained (null if unpublished)
   # e.g. "https://arxiv.org/abs/..."
-  reported: null
+  tech_report: null
 
   # Any additional notes about this submission (optional)
   comments: null
@@ -129,7 +129,7 @@ reported_scores:
 terms:
   # Version of submission_terms.md you are accepting — must be "1.0"
   terms_version: ""
-  # Set to true to confirm you have read and accept the submission terms
+  # Set to true to confirm you have read and accept the Physics-IQ Verified Submission Terms
   terms_accepted: null
   # Full legal name of the submitting organization
   accepted_on_behalf_of: ""

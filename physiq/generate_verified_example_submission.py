@@ -14,20 +14,20 @@
 # ==============================================================================
 """
 Generate the descriptions.csv and placeholder run_01 videos for the
-submission/example/ walkthrough.
+submission_verified/example/ walkthrough.
 
-submission/example/ is a self-contained example a submitter can run
-`physiq/submit.py --validate-only` against immediately. Rather than committing
-a static descriptions.csv and ~200 binary MP4s to git, this script generates
+submission_verified/example/ is a self-contained example a submitter can run
+`physiq/submit_verified.py --validate-only` against immediately. Rather than committing
+a static descriptions.csv and 198 binary MP4s to git, this script generates
 both on demand: descriptions.csv is derived from the first
 EXPECTED_VIDEO_COUNT rows of descriptions/descriptions_original.csv (with
 generated_video_name remapped to the synthetic filenames below), and the
 videos are one blank, correctly-specced clip per generated_video_name, with
-fps/resolution/duration read from submission/example/submission.yaml so the
+fps/resolution/duration read from submission_verified/example/submission.yaml so the
 placeholders always match what that card declares.
 
 Usage:
-    uv run physiq/generate_example_submission.py
+    uv run physiq/generate_verified_example_submission.py
 """
 
 import argparse
@@ -37,13 +37,13 @@ from pathlib import Path
 
 import yaml
 
-from physiq.submit import EXPECTED_VIDEO_COUNT
+from physiq.submit_verified import EXPECTED_VIDEO_COUNT
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_CARD = REPO_ROOT / "submission" / "example" / "submission.yaml"
+DEFAULT_CARD = REPO_ROOT / "submission_verified" / "example" / "submission.yaml"
 DEFAULT_ORIGINAL_DESCRIPTIONS = REPO_ROOT / "descriptions" / "descriptions_original.csv"
-DEFAULT_DESCRIPTIONS = REPO_ROOT / "submission" / "example" / "descriptions.csv"
-DEFAULT_OUTPUT = REPO_ROOT / "submission" / "example" / "run_01"
+DEFAULT_DESCRIPTIONS = REPO_ROOT / "submission_verified" / "example" / "descriptions.csv"
+DEFAULT_OUTPUT = REPO_ROOT / "submission_verified" / "example" / "run_01"
 
 DURATION_S = 5.0
 

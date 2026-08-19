@@ -13,7 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 """
-Physics-IQ submission uploader.
+Physics-IQ Verified submission uploader.
 
 Requires the "submission" extra:
     uv sync --extra submission
@@ -23,14 +23,14 @@ S3 upload (default):
     export AWS_ACCESS_KEY_ID=...
     export AWS_SECRET_ACCESS_KEY=...
     export AWS_SESSION_TOKEN=...
-    uv run physiq/submit.py \
+    uv run physiq/submit_verified.py \
         --run  <run_id>           \
         --card <submission.yaml>  \
         --descriptions <descriptions.csv> \
         --runs <run_dir> [<run_dir> ...]
 
 Local package (--dest):
-    uv run physiq/submit.py \
+    uv run physiq/submit_verified.py \
         --run  <run_id>           \
         --card <submission.yaml>  \
         --descriptions <descriptions.csv> \
@@ -421,7 +421,7 @@ def main() -> None:
         sys.exit(
             "ERROR: submission card has errors:\n"
             + "\n".join(f"  {e}" for e in card_errors)
-            + "\n\n  Please read submission/submission_terms.md before filling in the terms: section."
+            + "\n\n  Please read the Physics-IQ Verifed Submission Terms before filling in the terms: section."
         )
 
     # ── validate descriptions CSV ────────────────────────────────────────────

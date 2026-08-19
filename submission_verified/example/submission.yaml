@@ -1,5 +1,5 @@
-# Physics-IQ submission metadata — filled-in example (Awesome Orga / Awesome VidGen)
-# Copy submission/submission.yaml and fill in your own values.
+# Physics-IQ Verified submission metadata — filled-in example (Awesome Orga / Awesome VidGen)
+# Copy submission_verified/submission.yaml and fill in your own values.
 
 public_info:
   organization: "Awesome Orga"
@@ -21,7 +21,7 @@ public_info:
   model_source: "https://awesomeorga.example.com/vidgen"
   provider: "Awesome Orga"
   date: "2026-06-30"
-  reported: null
+  tech_report: null
   comments: null
   upsample_cost: null   # not required — no prompt upsampling was performed
   upsample_gpu: null   # not required — no prompt upsampling was performed
