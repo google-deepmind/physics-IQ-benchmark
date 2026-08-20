@@ -43,17 +43,18 @@ The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physi
 | # | Model | input type | Physics-IQ verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|
 | 1 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **58.2** <small>± 1.8</small> <br> 🥇 v2v | 2026-06-19 |
-| 2 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **48.4** <small>± 1.1</small>  <br> 🥈 v2v| 2026-06-19 |
-| 3 | [Cosmos3-Super-Image2Video](https://arxiv.org/abs/2606.02800) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **39.5** <small>± 0.8</small> <br> 🥇 i2v | 2026-06-18 |
-| 4 | [Grok Imagine Video](https://x.ai/news/grok-imagine-api) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **34.8** <small>± 0.6</small> <br> 🥈 i2v | 2026-06-17 |
-| 5 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | **33.7** <small>± 1.4</small> <br> 🥉 i2v | 2026-06-19 |
-| 6 | [Hunyuan Video 1.5](https://arxiv.org/abs/2511.18870) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **33.4** <small>± 0.8</small> | 2026-06-17 |
-| 7 | [Wan 2.2](https://github.com/Wan-Video/Wan2.2) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 32.2 <small>± 0.6</small> | 2026-06-17 |
-| 8 | [Kandinsky-WM 1.0](https://huggingface.co/kandinskylab/Kandinsky-WM-1.0-I2V-5s-PH) reported [here](https://huggingface.co/datasets/Messimm/Kandinsky-WM-1.0-Physics-IQ-Verified) | i2v | 30.8 <small>± 0.9</small> | 2026-08-04 |
-| 9 | [Cosmos3-Nano](https://arxiv.org/abs/2606.02800) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 30.3 <small>± 0.6</small> | 2026-06-18 |
-| 10 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 30.2 <small>± 1.1</small> | 2026-06-19 |
-| 11 | [Sora 2](https://openai.com/index/sora-2/) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 26.5 <small>± 0.8</small> | 2026-06-17 |
-| 12 | [P-Video](https://www.pruna.ai/p-video) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 25.3 <small>± 1.8</small> | 2026-06-17 |
+| 2 | [Atom Harness (Seedance 2.5)](https://huggingface.co/datasets/ssaroya/Atom-Harness-Seedance-2.5-Physics-IQ-Verified) reported [here](https://huggingface.co/datasets/ssaroya/Atom-Harness-Seedance-2.5-Physics-IQ-Verified) | multiframe (v2v) | **56.6** <br> 🥈 v2v | 2026-08-20 |
+| 3 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **48.4** <small>± 1.1</small>  <br> 🥉 v2v| 2026-06-19 |
+| 4 | [Cosmos3-Super-Image2Video](https://arxiv.org/abs/2606.02800) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **39.5** <small>± 0.8</small> <br> 🥇 i2v | 2026-06-18 |
+| 5 | [Grok Imagine Video](https://x.ai/news/grok-imagine-api) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **34.8** <small>± 0.6</small> <br> 🥈 i2v | 2026-06-17 |
+| 6 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | **33.7** <small>± 1.4</small> <br> 🥉 i2v | 2026-06-19 |
+| 7 | [Hunyuan Video 1.5](https://arxiv.org/abs/2511.18870) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **33.4** <small>± 0.8</small> | 2026-06-17 |
+| 8 | [Wan 2.2](https://github.com/Wan-Video/Wan2.2) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 32.2 <small>± 0.6</small> | 2026-06-17 |
+| 9 | [Kandinsky-WM 1.0](https://huggingface.co/kandinskylab/Kandinsky-WM-1.0-I2V-5s-PH) reported [here](https://huggingface.co/datasets/Messimm/Kandinsky-WM-1.0-Physics-IQ-Verified) | i2v | 30.8 <small>± 0.9</small> | 2026-08-04 |
+| 10 | [Cosmos3-Nano](https://arxiv.org/abs/2606.02800) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 30.3 <small>± 0.6</small> | 2026-06-18 |
+| 11 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 30.2 <small>± 1.1</small> | 2026-06-19 |
+| 12 | [Sora 2](https://openai.com/index/sora-2/) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 26.5 <small>± 0.8</small> | 2026-06-17 |
+| 13 | [P-Video](https://www.pruna.ai/p-video) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 25.3 <small>± 1.8</small> | 2026-06-17 |
 
 For details on the Physics-IQ Verified metrics, see the [arXiv report](https://arxiv.org/abs/2606.18943).
 
@@ -71,34 +72,35 @@ If you test your model on Physics-IQ Original and would like your score/paper/mo
 | 1 | [Magi-1 + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **64.5 %** :1st_place_medal: v2v | 2026-06-17 |
 | 2 | [Cosmos3-Super + WMReward (BoN)](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | multiframe (v2v) | **63.4 %** :2nd_place_medal: v2v | 2026-05-26 |
 | 3 | [Magi-1 + WMReward (BoN)](https://arxiv.org/abs/2601.10553) reported [here](https://arxiv.org/abs/2601.10553) | multiframe (v2v) | **62.6 %** :3rd_place_medal: v2v | 2025-10-28 |
-| 4 | [Cosmos3-Super](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | multiframe (v2v) | 59.7 % | 2026-05-26 |
-| 5 | [Cosmos3-Nano + WMReward (BoN)](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | multiframe (v2v) | 57.7 % | 2026-05-26 |
-| 6 | [Magi-1](https://arxiv.org/abs/2505.13211) reported [here](https://arxiv.org/pdf/2505.13211) | multiframe (v2v) | 56.0 % | 2025-04-21 |
-| 7 | [Cosmos3-Nano](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | multiframe (v2v) | 50.2 % | 2026-05-26 |
-| 8 | [Cosmos3-Super + WMReward (BoN)](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | i2v | 48.9 % :1st_place_medal: i2v | 2026-05-26 |
-| 9 | [Sora2 + WMReward (BoN)](https://arxiv.org/abs/2601.10553) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 46.4 % :2nd_place_medal: i2v | 2026-04-01 |
-| 10 | [Wan2.2 + WMReward (BoN)](https://arxiv.org/abs/2601.10553) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 44.4 % :3rd_place_medal: i2v | 2026-04-01 |
-| 11 | [Cosmos3-Super](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | i2v | 43.8 % | 2026-05-26 |
-| 12 | [Cosmos3-Nano + WMReward (BoN)](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | i2v | 43.8 % | 2026-05-26 |
-| 13 | [Sora2](https://openai.com/index/sora-2/) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 42.3 % | 2026-04-01 |
-| 14 | [Cosmos3-Nano](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | i2v | 40.2 % | 2026-05-26 |
-| 15 | [Magi-1 + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 38.6 % | 2026-06-17 |
-| 16 | [Wan2.2](https://github.com/Wan-Video/Wan2.2) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 38.3 % | 2026-04-01 |
-| 17 | [Magi-1 + WMReward (BoN)](https://arxiv.org/abs/2601.10553) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 36.9 % | 2025-10-28 |
-| 18 | [Video-GPT](https://arxiv.org/abs/2505.12489) reported [here](https://arxiv.org/abs/2505.12489) | multiframe (v2v) | 35.0 % | 2025-05-22 |
-| 19 | [CogVideoX-5B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 34.1 % | 2026-06-17 |
-| 20 | [Wan2.1 14B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 34.0 % | 2026-06-17 |
-| 21 | [Magi-1 4.5B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 34.0 % | 2026-06-17 |
-| 22 | [CogVideoX-5b](https://github.com/ved015/CogVideoX-5b-Physics_iq_benchmarking) reported [here](https://github.com/ved015/CogVideoX-5b-Physics_iq_benchmarking) | i2v | 32.3 % | 2026-01-06 |
-| 23 | [Magi-1](https://arxiv.org/abs/2505.13211) reported [here](https://arxiv.org/pdf/2505.13211) | i2v | 30.2 % | 2025-04-21 |
-| 24 | [VideoPoet](https://arxiv.org/abs/2312.14125) reported [here](https://arxiv.org/abs/2501.09038) | multiframe (v2v) | 29.5 % | 2025-02-19 |
-| 25 | [Lumiere](https://arxiv.org/abs/2401.12945) reported [here](https://arxiv.org/abs/2501.09038) | multiframe (v2v) | 23.0 % | 2025-02-19 |
-| 26 | [Runway Gen 3](https://runwayml.com/research/introducing-gen-3-alpha) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 22.8 % | 2025-02-19 |
-| 27 | [VideoPoet](https://arxiv.org/abs/2312.14125) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 20.3 % | 2025-02-19 |
-| 28 | [Lumiere](https://arxiv.org/abs/2401.12945) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 19.0 % | 2025-02-19 |
-| 29 | [Stable Video Diffusion](https://arxiv.org/abs/2311.15127) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 14.8 % | 2025-02-19 |
-| 30 | [Pika](https://pika.art/) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 13.0 % | 2025-02-19 |
-| 31 | [Sora](https://openai.com/sora/) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 10.0 % | 2025-02-19 |
+| 4 | [Atom Harness (Seedance 2.5)](https://huggingface.co/datasets/ssaroya/Atom-Harness-Seedance-2.5-Physics-IQ-Verified) reported [here](https://huggingface.co/datasets/ssaroya/Atom-Harness-Seedance-2.5-Physics-IQ-Verified) | multiframe (v2v) | 62.6 % | 2026-08-20 |
+| 5 | [Cosmos3-Super](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | multiframe (v2v) | 59.7 % | 2026-05-26 |
+| 6 | [Cosmos3-Nano + WMReward (BoN)](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | multiframe (v2v) | 57.7 % | 2026-05-26 |
+| 7 | [Magi-1](https://arxiv.org/abs/2505.13211) reported [here](https://arxiv.org/pdf/2505.13211) | multiframe (v2v) | 56.0 % | 2025-04-21 |
+| 8 | [Cosmos3-Nano](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | multiframe (v2v) | 50.2 % | 2026-05-26 |
+| 9 | [Cosmos3-Super + WMReward (BoN)](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | i2v | 48.9 % :1st_place_medal: i2v | 2026-05-26 |
+| 10 | [Sora2 + WMReward (BoN)](https://arxiv.org/abs/2601.10553) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 46.4 % :2nd_place_medal: i2v | 2026-04-01 |
+| 11 | [Wan2.2 + WMReward (BoN)](https://arxiv.org/abs/2601.10553) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 44.4 % :3rd_place_medal: i2v | 2026-04-01 |
+| 12 | [Cosmos3-Super](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | i2v | 43.8 % | 2026-05-26 |
+| 13 | [Cosmos3-Nano + WMReward (BoN)](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | i2v | 43.8 % | 2026-05-26 |
+| 14 | [Sora2](https://openai.com/index/sora-2/) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 42.3 % | 2026-04-01 |
+| 15 | [Cosmos3-Nano](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) | i2v | 40.2 % | 2026-05-26 |
+| 16 | [Magi-1 + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 38.6 % | 2026-06-17 |
+| 17 | [Wan2.2](https://github.com/Wan-Video/Wan2.2) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 38.3 % | 2026-04-01 |
+| 18 | [Magi-1 + WMReward (BoN)](https://arxiv.org/abs/2601.10553) reported [here](https://arxiv.org/abs/2601.10553) | i2v | 36.9 % | 2025-10-28 |
+| 19 | [Video-GPT](https://arxiv.org/abs/2505.12489) reported [here](https://arxiv.org/abs/2505.12489) | multiframe (v2v) | 35.0 % | 2025-05-22 |
+| 20 | [CogVideoX-5B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 34.1 % | 2026-06-17 |
+| 21 | [Wan2.1 14B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 34.0 % | 2026-06-17 |
+| 22 | [Magi-1 4.5B + GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 34.0 % | 2026-06-17 |
+| 23 | [CogVideoX-5b](https://github.com/ved015/CogVideoX-5b-Physics_iq_benchmarking) reported [here](https://github.com/ved015/CogVideoX-5b-Physics_iq_benchmarking) | i2v | 32.3 % | 2026-01-06 |
+| 24 | [Magi-1](https://arxiv.org/abs/2505.13211) reported [here](https://arxiv.org/pdf/2505.13211) | i2v | 30.2 % | 2025-04-21 |
+| 25 | [VideoPoet](https://arxiv.org/abs/2312.14125) reported [here](https://arxiv.org/abs/2501.09038) | multiframe (v2v) | 29.5 % | 2025-02-19 |
+| 26 | [Lumiere](https://arxiv.org/abs/2401.12945) reported [here](https://arxiv.org/abs/2501.09038) | multiframe (v2v) | 23.0 % | 2025-02-19 |
+| 27 | [Runway Gen 3](https://runwayml.com/research/introducing-gen-3-alpha) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 22.8 % | 2025-02-19 |
+| 28 | [VideoPoet](https://arxiv.org/abs/2312.14125) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 20.3 % | 2025-02-19 |
+| 29 | [Lumiere](https://arxiv.org/abs/2401.12945) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 19.0 % | 2025-02-19 |
+| 30 | [Stable Video Diffusion](https://arxiv.org/abs/2311.15127) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 14.8 % | 2025-02-19 |
+| 31 | [Pika](https://pika.art/) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 13.0 % | 2025-02-19 |
+| 32 | [Sora](https://openai.com/sora/) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 10.0 % | 2025-02-19 |
  
 
 *Note to early adopters of the benchmark: results from the paper were finalized on February 19, 2025; if you used the toolbox before please re-run since we changed and improved a few aspects. Likewise, if you downloaded the dataset before that date, it is recommended to re-download it, ensuring the ground truth video masks have a duration of five seconds.*
