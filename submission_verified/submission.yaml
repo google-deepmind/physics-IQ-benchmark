@@ -1,0 +1,145 @@
+# Physics-IQ Verified submission metadata
+# Fill in every field and upload this file alongside your results folder.
+# The run_id in the filename / S3 prefix is the authoritative identifier;
+# the fields here provide richer context for analysis and the leaderboard.
+
+public_info:
+  # Organisation / company name / research institute
+  organization: ""
+
+  # Model name as you want it displayed (e.g. "Sora 2", "Wan 2.1")
+  model: ""
+
+  # Exact identifier used to call the model (API name, checkpoint name, etc.)
+  # e.g. "sora-2-2025-02", "Wan2.1-T2V-14B"
+  model_version: ""
+
+  # Input modality accepted by the model
+  # Allowed: t2v (text-to-video), i2v (image-to-video), v2v (video-to-video)
+  input_type: ""
+
+  # Number of parameters (use null if unknown or undisclosed)
+  # Examples: 7_000_000_000  |  "70B"  |  null
+  parameters: null
+
+  # Output frames per second used for this submission
+  fps: null
+
+  # Output resolution in pixels (width x height, e.g. 1280x720)
+  resolution: ""
+
+  # Best-of-N sampling: number of candidates generated per prompt before selection
+  # Set to 1 if no selection was performed
+  bon_sampling: 1
+
+  # Name of the reward model or scoring method used to select among BoN candidates
+  # e.g. "GeoPhys", "WMReward", "PickScore", "GPT-4o-as-judge" | null if not applicable
+  bon_sampling_method: null
+
+  # Link to paper or documentation for the BoN sampling method | null if not applicable
+  bon_sampling_source: null
+
+  # Whether the model or pipeline applied prompt upsampling / rewriting before generation
+  prompt_upsampling: false
+
+  # Tool or model used for prompt upsampling | null if not applicable
+  # e.g. "GPT-4o", "Claude 3.5 Sonnet"
+  prompt_upsampling_method: null
+
+  # Link to paper or tool used for prompt upsampling | null if not applicable
+  # e.g. "https://arxiv.org/abs/..."
+  prompt_upsampling_source: null
+
+  # Which prompt variant was used for generation
+  # op  = original prompts (descriptions_original.csv, unmodified)
+  # bpp = best-practice prompts (model-specific or base template from descriptions/best_practice/)
+  descriptions: ""
+
+  # Templater used to generate bpp descriptions (null if op or if using the base bpp template)
+  # Registered name from physiq/templater/physiq_verified.py, e.g. "sora2"
+  templater: null
+
+  # Model access tier at time of submission
+  # Allowed: public | api | research | private
+  availability: ""
+
+  # URL to the video model's paper or website
+  # e.g. "https://openai.com/sora" or "https://arxiv.org/abs/..."
+  model_source: ""
+
+  # If you accessed the model via a third-party API (e.g. Together AI, Replicate),
+  # enter that provider here. If you ran the model yourself (open source), leave null.
+  # Otherwise repeat the organization name.
+  provider: null
+
+  # Date of submission
+  date: ""
+
+  # Link to a technical report/paper/publication detailing how results are obtained (null if unpublished)
+  # e.g. "https://arxiv.org/abs/..."
+  tech_report: null
+
+  # Any additional notes about this submission (optional)
+  comments: null
+
+  # Cost of prompt upsampling in $ (can be estimated using GPU-time)
+  # null if prompt_upsampling is false; if unknown (and upsampling was used), set NaN
+  upsample_cost: null
+  # GPU model used for prompt upsampling
+  # null if prompt_upsampling is false, or if accessed via API
+  upsample_gpu: null
+  # Number of GPUs used for prompt upsampling
+  # null if prompt_upsampling is false, or if accessed via API
+  upsample_ngpu: null
+  # Prompt upsample time (time on GPU for a single generation x num_gpus)
+  # null if prompt_upsampling is false, or if accessed via API
+  upsample_time: null
+
+  # Cost of single video generation in $ (we will estimate using GPU and Generation Time)
+  generation_cost: null
+  # GPU model used for video generation (only for non-API model)
+  generation_gpu: null
+  # Number of GPUs used for generation (only for non-API model)
+  generation_ngpu: null
+  # Video Generation time (time on GPU for a single generation x num_gpus) (only for non-API models)
+  generation_time: null
+
+# all scores and subscores are the verified version on the verified GT
+reported_scores:
+  # Physics-IQ score (self-reported) (in % ranging from 0 to 100)
+  physiq_mean: null
+  physiq_std: null
+
+  # Spatial IoU score (self-reported) (in % ranging from 0 to 100)
+  spatial_iou_mean: null
+  spatial_iou_std: null
+
+  # Weighted spatial IoU score (self-reported) (in % ranging from 0 to 100)
+  weighted_spatial_iou_mean: null
+  weighted_spatial_iou_std: null
+
+  # Spatiotemporal IoU score (self-reported) (in % ranging from 0 to 100)
+  spatiotemporal_iou_mean: null
+  spatiotemporal_iou_std: null
+
+  # MSE score (self-reported) (in % ranging from 0 to 100)
+  mse_mean: null
+  mse_std: null
+
+terms:
+  # Version of submission_terms.md you are accepting — must be "1.0"
+  terms_version: ""
+  # Set to true to confirm you have read and accept the Physics-IQ Verified Submission Terms
+  terms_accepted: null
+  # Full legal name of the submitting organization
+  accepted_on_behalf_of: ""
+  # ISO 8601 timestamp of acceptance, e.g. "2026-07-02T14:00:00Z"
+  accepted_at: ""
+
+warranties:
+  # All five must be true — see submission_terms.md §6 for the full text
+  has_rights_to_submit: null         # §6(a)
+  no_ip_infringement: null           # §6(b)
+  permitted_by_provider_tos: null    # §6(c)
+  no_personal_data_in_content: null  # §6(d)
+  metadata_accurate: null            # §6(e)

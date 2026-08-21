@@ -12,6 +12,8 @@ output*/
 test_generated/
 generated_videos/**/*.mp4
 generated_videos_5s/**/*.mp4
+submission_verified/example/run_01/*.mp4
+submission_verified/example/descriptions.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,58 @@
+# Physics-IQ Verified submission metadata — filled-in example (Awesome Orga / Awesome VidGen)
+# Copy submission_verified/submission.yaml and fill in your own values.
+
+public_info:
+  organization: "Awesome Orga"
+  model: "Awesome VidGen"
+  model_version: "awesome-vidgen-2026-01"
+  input_type: "t2v"
+  parameters: null
+  fps: 24
+  resolution: "1280x720"
+  bon_sampling: 1
+  bon_sampling_method: null
+  bon_sampling_source: null
+  prompt_upsampling: false
+  prompt_upsampling_method: null
+  prompt_upsampling_source: null
+  descriptions: "op"
+  templater: null
+  availability: "api"
+  model_source: "https://awesomeorga.example.com/vidgen"
+  provider: "Awesome Orga"
+  date: "2026-06-30"
+  tech_report: null
+  comments: null
+  upsample_cost: null   # not required — no prompt upsampling was performed
+  upsample_gpu: null   # not required — no prompt upsampling was performed
+  upsample_ngpu: null   # not required — no prompt upsampling was performed
+  upsample_time: null   # not required — no prompt upsampling was performed
+  generation_cost: 0.45
+  generation_gpu: null   # not required — accessed via API, no self-hosted GPU
+  generation_ngpu: null   # not required — accessed via API, no self-hosted GPU
+  generation_time: null   # not required — accessed via API, no self-hosted GPU
+
+reported_scores:
+  physiq_mean: 0.812
+  physiq_std: 0.034
+  spatial_iou_mean: 0.764
+  spatial_iou_std: 0.041
+  weighted_spatial_iou_mean: 0.771
+  weighted_spatial_iou_std: 0.039
+  spatiotemporal_iou_mean: 0.702
+  spatiotemporal_iou_std: 0.045
+  mse_mean: 0.0183
+  mse_std: 0.0021
+
+terms:
+  terms_version: "1.0"
+  terms_accepted: true
+  accepted_on_behalf_of: "Awesome Orga"
+  accepted_at: "2026-06-30T12:00:00Z"
+
+warranties:
+  has_rights_to_submit: true
+  no_ip_infringement: true
+  permitted_by_provider_tos: true
+  no_personal_data_in_content: true
+  metadata_accurate: true

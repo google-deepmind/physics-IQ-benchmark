@@ -31,6 +31,9 @@ dev = [
     "jupyter",
     "ipywidgets",
 ]
+submission = [
+    "boto3>=1.34",
+]
 
 [project.urls]
 "Homepage Physics-IQ" = "https://physics-iq.github.io/"
@@ -64,4 +67,5 @@ pythonpath = ["physiq"]
 addopts = "--import-mode=importlib"
 markers = [
     "e2e: end-to-end tests that require benchmark data on disk (pass --run-e2e to run)",
+    "ffmpeg: tests that shell out to ffmpeg/ffprobe (pass --run-ffmpeg to run)",
 ]

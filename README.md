@@ -440,6 +440,113 @@ uv run physiq/aggregate_runs_from_csvs.py \
 
 We also accept single run results, but we do recommend using 4 runs.
 
+### H. Submit Your Results
+
+Once you have your generated videos, scores, and metadata ready, you can submit them to the Physics-IQ Verified benchmark for hosting and leaderboard consideration.
+
+You can upload them to Huggingface or another website publicly or upload them privately solely to keep the benchmark consistent.
+
+Please get in touch for both via GitHub Issues and/or Pull Requests.
+
+
+
+#### Preparing your submission
+
+Each submission consists of three parts:
+
+**1. Submission card.** Copy `submission_verified/submission.yaml` and fill in every field — `public_info:`
+(model/run metadata plus upsampling/generation cost fields; the GPU and time fields — `upsample_gpu`/`upsample_ngpu`/`upsample_time` and `generation_gpu`/`generation_ngpu`/`generation_time` — are only required if you ran upsampling/generation yourself rather than via API), `reported_scores:` (your self-reported benchmark scores), and the `terms:`/`warranties:` blocks (see [Physics-IQ Verifed Submission Terms](https://docs.google.com/document/d/1uTDIuPDtMrELTg9YqNdQwxw5q82pDJnr9xAGurNHZ2M)). The upload is rejected if any required field is empty or terms/warranties aren't accepted. See `submission_verified/example/submission.yaml` for a filled-in reference.
+
+**2. Descriptions file.** Provide the `descriptions.csv` actually used to generate your videos (columns: `scenario`, `description`, `generated_video_name`) — every video in your run directories must appear in `generated_video_name`, or the upload is rejected. See `submission_verified/example/descriptions.csv`.
+
+**3. Run directories.** Each run directory must contain exactly **198 MP4s**, one per scenario: exactly 198 files, each exactly 5 seconds (±0.001s), zero-padded 4-digit prefixes (`0001_*.mp4` … `0198_*.mp4`), and a single consistent FPS matching the card's `fps` field.
+
+`submission_verified/example/descriptions.csv` and `submission_verified/example/run_01/` are not committed to keep the repo free of generated/binary fixtures. To view a complete example consisting of 1 run, execute:
+
+```bash
+uv run physiq/generate_verified_example_submission.py
+```
+
+#### Validating before upload
+
+Run all checks locally without uploading or packaging anything (no AWS credentials needed):
+
+```bash
+uv run physiq/submit_verified.py \
+    --run  "openai__sora-2-op-bon1__2026-06-30" \
+    --card  path/to/submission.yaml \
+    --descriptions path/to/descriptions.csv \
+    --runs path/to/run_01 path/to/run_02 \
+    --validate-only
+```
+
+
+### What you receive from us
+
+For each model you are submitting, we will send you a block like this:
+
+
+
+```
+run_id:  openai__sora-2-op-bon1__2026-06-30
+
+export AWS_ACCESS_KEY_ID=ASIA...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_SESSION_TOKEN=...
+
+Expires: 2026-06-30T18:00:00+00:00
+```
+
+Each block is a **separate, isolated token** scoped exclusively to that one run's S3 prefix. It expires automatically. No user can use tokens to read or overwrite another run's data.
+
+run_id consists is built following `<org>__<descriptive-id>__<YYYY-MM-DD>` using only lowercase, digits, hyphens, and dots.
+Please provide organization and a descriptive-id directly to us when you get in touch with us.
+We will generate a run_id for you.
+
+#### Uploading directly to S3
+
+Install the `submission` extra first — it pulls in `boto3` (AWS SDK), which standard evaluation usage does not need:
+
+```bash
+uv sync --extra submission
+# or: pip install ".[submission]"
+```
+
+> **By uploading a submission, you agree to the current version of the
+> [Physics-IQ Verified Submission Terms](https://docs.google.com/document/d/1uTDIuPDtMrELTg9YqNdQwxw5q82pDJnr9xAGurNHZ2M).** Acceptance is recorded per-submission via
+> the `terms:` block in `submission.yaml`.
+
+> **Disclaimer**: Physics-IQ Verified is an independent third-party benchmark that is not endorsed or verified by Google DeepMind. Google DeepMind disclaims all responsibility, warranties (express or implied), and liability arising from the access, performance, accuracy, compliance, or use of Physics-IQ Verified. Google DeepMind does not assume any legal responsibility for the code, datasets, evaluation criteria, or results produced by this benchmark.
+
+Paste the credentials we sent to you using exports and then run the upload script **in the same shell**. For example, as given below:
+
+```bash
+export AWS_ACCESS_KEY_ID=...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_SESSION_TOKEN=...
+
+uv run physiq/submit_verified.py \
+    --run  "awesome__awesomemodel-op-bon1__2026-06-30" \
+    --card  path/to/submission.yaml \
+    --descriptions path/to/descriptions.csv \
+    --runs path/to/run_01 path/to/run_02
+```
+
+#### Packaging locally (alternative to S3)
+
+To transfer your submission via another service (Google Drive, Dropbox, WeTransfer, etc.), use `--dest` to assemble everything into a local folder instead — no AWS credentials or `boto3` needed:
+
+```bash
+uv run physiq/submit_verified.py \
+    --run  "openai__sora-2-op-bon1__2026-06-30" \
+    --card  path/to/submission.yaml \
+    --descriptions path/to/descriptions.csv \
+    --runs path/to/run_01 path/to/run_02 \
+    --dest  openai__sora-2-op-bon1__2026-06-30
+```
+
+> Pip users: replace `uv run` with `python` in all commands above, per the note in section B.
+
 </details>
 
 
