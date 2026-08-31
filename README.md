@@ -59,7 +59,8 @@ For details on the Physics-IQ Verified metrics, see the [arXiv report](https://a
 
 Unless specified by `op` for original prompt in the entry, all reported scores use best-practice-prompts (`bpp`) based on a custom templater for each specific model.
 > Rules: 
->1. One run is sufficient to be included on the verified leaderboard. In general, we recommend to use 4 runs reporting mean and standard deviation. To claim SOTA, reporting standard deviation across 4 runs is required.
+>1. One run is sufficient to be included on the verified leaderboard. In general, we recommend to use 4 runs reporting mean and standard deviation. To claim SOTA (on i2v and/or v2v), reporting standard deviation across 4 runs is required.
+>2. Leaderboard entries need to link a tech report / reproducible github repo or some other form of documentation that enables others to read and understand the methodological details of your approach.
 
 
 ### Physics-IQ Original Leaderboard
