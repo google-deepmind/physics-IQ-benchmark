@@ -44,7 +44,7 @@ The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physi
 |---|---|---|---|---|
 | 1 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **58.2** <small>± 1.8</small> <br> 🥇 v2v | 2026-06-19 |
 | 2 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **48.4** <small>± 1.1</small>  <br> 🥈 v2v| 2026-06-19 |
-| 3 | Atom 1 ([MiniMax-H3](https://huggingface.co/MiniMaxAI/MiniMax-H3) + Moving Atoms physics LoRA) reported [here](https://huggingface.co/datasets/ssaroya/atom-1-physics-iq-verified-run01) | i2v | **45.44** <small>± 3.14</small> <br> 🥇 i2v | 2026-08-28 |
+| 3 | Atom 1 ([MiniMax-H3](https://huggingface.co/MiniMaxAI/MiniMax-H3) + Moving Atoms physics LoRA) reported [here](https://huggingface.co/datasets/ssaroya/atom-1-physics-iq-verified-run01) | i2v | **47.06** <small>± 1.32</small> <br> 🥇 i2v | 2026-08-28 |
 | 4 | [Cosmos3-Super-Image2Video](https://arxiv.org/abs/2606.02800) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **39.5** <small>± 0.8</small> <br> 🥈 i2v | 2026-06-18 |
 | 5 | [Grok Imagine Video](https://x.ai/news/grok-imagine-api) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **34.8** <small>± 0.6</small> <br> 🥉 i2v | 2026-06-17 |
 | 6 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | **33.7** <small>± 1.4</small> | 2026-06-19 |
