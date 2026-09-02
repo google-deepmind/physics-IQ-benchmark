@@ -103,9 +103,6 @@ If you test your model on Physics-IQ Original and would like your score/paper/mo
 | 31 | [Pika](https://pika.art/) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 13.0 % | 2025-02-19 |
 | 32 | [Sora](https://openai.com/sora/) reported [here](https://arxiv.org/abs/2501.09038) | i2v | 10.0 % | 2025-02-19 |
  
-
-*Note to early adopters of the benchmark: results from the paper were finalized on February 19, 2025; if you used the toolbox before please re-run since we changed and improved a few aspects. Likewise, if you downloaded the dataset before that date, it is recommended to re-download it, ensuring the ground truth video masks have a duration of five seconds.*
-
 </details>
 
 ---
