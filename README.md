@@ -43,8 +43,8 @@ The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physi
 | # | Model | input type | Physics-IQ verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|
 | 1 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **58.2** <small>± 1.8</small> <br> 🥇 v2v | 2026-06-19 |
-| 2 | [Seedance 2.5 + Isoquant](https://isoquant.ai) reported [here](https://github.com/isoquant-ai/research/blob/419b9ea769a9138c18f733ab73ce3ca1f97e9c5d/physics-iq/README.md) | multiframe (v2v) | **57.1** <small>± 0.8</small> <br> 🥈 v2v | 2026-09-03 |
-| 3 | [Seedance 2.5 + Isoquant](https://isoquant.ai) reported [here](https://github.com/isoquant-ai/research/blob/419b9ea769a9138c18f733ab73ce3ca1f97e9c5d/physics-iq/README.md) | i2v | **53.7** <small>± 0.9</small> <br> 🥇 i2v | 2026-09-03 |
+| 2 | [Seedance 2.5 + Isoquant](https://isoquant.ai) reported [here](https://github.com/isoquant-ai/research/blob/main/physics-iq/README.md) | multiframe (v2v) | **57.1** <small>± 0.8</small> <br> 🥈 v2v | 2026-09-03 |
+| 3 | [Seedance 2.5 + Isoquant](https://isoquant.ai) reported [here](https://github.com/isoquant-ai/research/blob/main/physics-iq/README.md) | i2v | **53.7** <small>± 0.9</small> <br> 🥇 i2v | 2026-09-03 |
 | 4 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **48.4** <small>± 1.1</small>  <br> 🥉 v2v| 2026-06-19 |
 | 5 | [Cosmos3-Super-Image2Video](https://arxiv.org/abs/2606.02800) reported [here](https://arxiv.org/abs/2606.18943) | i2v | **39.5** <small>± 0.8</small> <br> 🥈 i2v | 2026-06-18 |
 | 6 | [Grok Imagine Video](https://x.ai/news/grok-imagine-api) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 34.8 <small>± 0.6</small> <br> 🥉 i2v | 2026-06-17 |
