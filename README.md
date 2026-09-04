@@ -62,6 +62,7 @@ Unless specified by `op` for original prompt in the entry, all reported scores u
 > Rules: 
 >1. One run is sufficient to be included on the verified leaderboard. In general, we recommend to use 4 runs reporting mean and standard deviation. To claim SOTA (on i2v and/or v2v), reporting standard deviation across 4 runs is required.
 >2. Leaderboard entries need to link a tech report / reproducible github repo or some other form of documentation that enables others to read and understand the methodological details of your approach.
+>3. Since Physics-IQ Original and Verified share scenarios, you must not use signal from one to improve scores on the other.
 
 
 ### Physics-IQ Original Leaderboard
