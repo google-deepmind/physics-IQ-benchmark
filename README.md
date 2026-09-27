@@ -279,7 +279,7 @@ For the bpp settings, the base templated descriptions can be found in `descripti
 1. Open `physiq/templater/physiq_verified.py` and add a class decorated with `@register("name")`:
 
 ```python
-from templater.base import BaseTemplater, register
+from physiq.templater.base import BaseTemplater, register
 
 @register("mymodel")
 class MyModelTemplater(BaseTemplater):
@@ -349,7 +349,7 @@ First choose the input mode used by your model.
 <details>
   <summary>Multiframe-to-video models (V2V)</summary>
 
-1. Use conditioning videos from `physics-IQ-benchmark-verified/split-videos/conditioning-videos`.
+1. Use conditioning videos from `physics-IQ-benchmark-verified/split-videos/conditioning/30FPS` (the dataset provides them at 30 FPS only).
 2. If your model also accepts text input, use the descriptions CSV selected or generated in Step C.
 3. Ensure the frame rate matches the benchmark FPS you will evaluate at.
 4. Save generated videos with the benchmark ID prefix:
@@ -616,12 +616,12 @@ physics-IQ-benchmark/
 │       └── 30FPS/
 │           └── ...
 ├── split-videos/
-│   ├── conditioning-videos/
+│   ├── conditioning/
 │   │   └── 30FPS/
 │   │       ├── 0001_conditioning-videos_30FPS_perspective-left_take-1_trimmed-ball-and-block-fall.mp4
 │   │       ├── 0002_conditioning-videos_30FPS_perspective-center_take-1_trimmed-ball-and-block-fall.mp4
 │   │       └── ...
-│   └── testing-videos/
+│   └── testing/
 │       └── 30FPS/
 │           ├── 0001_testing-videos_30FPS_perspective-left_take-1_trimmed-ball-and-block-fall.mp4
 │           ├── 0002_testing-videos_30FPS_perspective-center_take-1_trimmed-ball-and-block-fall.mp4
