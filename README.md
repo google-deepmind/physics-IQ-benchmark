@@ -46,28 +46,29 @@ The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physi
 | 2 | [Cosmos3-Super](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/82) | multiframe (v2v) | **50.8** <small>± 2.2</small> <br> 🥈 v2v | 2026-09-22 |
 | 3 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **48.4** <small>± 1.1</small>  <br> 🥉 v2v| 2026-06-19 |
 | 4 | [Physis-Lang (Cosmos3 Super)](https://github.com/Physis-Intelligence/Physis-Lang/blob/main/assets/Physis-Lang_arxiv.pdf) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/83) | i2v | 48.2 <small>± 1.4</small> <br> 🥇 i2v | 2026-09-28 |
-| 5 | [Physis-Lang (Cosmos3 Nano)](https://github.com/Physis-Intelligence/Physis-Lang/blob/main/assets/Physis-Lang_arxiv.pdf) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/83) | i2v | 43.3 <small>± 1.5</small> <br> 🥈 i2v | 2026-09-28 |
-| 6 | [Cosmos3-Nano](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/82) | multiframe (v2v) | 43.0 <small>± 2.0</small> | 2026-09-22 |
-| 7 | [Cosmos3-Super-Image2Video](https://huggingface.co/nvidia/Cosmos3-Super-Image2Video) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/issues/75) | i2v | 42.7 <small>± 0.8</small> <br> 🥉 i2v | 2026-09-04 |
-| 8 | [Seedance 2.5](https://seed.bytedance.com/en/seedance2_5) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 42.43 <small>± 0.76</small> | 2026-09-27 |
-| 9 | [MiniMax H3](https://huggingface.co/MiniMaxAI/MiniMax-H3) <small>(FL2VA)</small> reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/80) | i2v | 39.8 <small>± 0.4</small> | 2026-09-04 |
-| 10 | [Cosmos3-Nano](https://huggingface.co/nvidia/Cosmos3-Nano) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/issues/75) | i2v | 37.3 <small>± 0.9</small> | 2026-09-04 |
-| 11 | [MiniMax H3 Max](https://fal.ai/models/minimax/h3-max/image-to-video) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/80) | i2v | 36.2 <small>± 0.7</small> | 2026-09-04 |
-| 12 | [Gemini Omni 1.1 Flash](https://blog.google/innovation-and-ai/technology/developers-tools/build-with-gemini-omni-1-1-flash/) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 35.34 <small>± 0.44</small> | 2026-09-27 |
-| 13 | [Grok Imagine Video](https://x.ai/news/grok-imagine-api) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 34.8 <small>± 0.6</small> | 2026-06-17 |
-| 14 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 33.7 <small>± 1.4</small> | 2026-06-19 |
-| 15 | [Hunyuan Video 1.5](https://arxiv.org/abs/2511.18870) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 33.4 <small>± 0.8</small> | 2026-06-17 |
-| 16 | [Gemini Omni Flash Preview](https://deepmind.google/models/gemini-omni/) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 33.36 <small>± 0.19</small> | 2026-09-27 |
-| 17 | [Cosmos3-Edge](https://huggingface.co/nvidia/Cosmos3-Edge) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/issues/76) | i2v | 32.7 <small>± 1.1</small> | 2026-08-31 |
-| 18 | [Wan 2.2 14B](https://github.com/Wan-Video/Wan2.2) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 32.2 <small>± 0.6</small> | 2026-06-17 |
-| 19 | [Veo 3.1 Lite](https://deepmind.google/models/model-cards/veo-3-1-lite/) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 31.83 <small>± 0.32</small> | 2026-09-27 |
-| 20 | [CogVideoX-5B](https://huggingface.co/zai-org/CogVideoX-5b-I2V) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/80) | i2v | 31.8 <small>± 1.5</small> | 2026-09-04 |
-| 21 | [Kandinsky-WM 1.0](https://huggingface.co/kandinskylab/Kandinsky-WM-1.0-I2V-5s-PH) reported [here](https://huggingface.co/datasets/Messimm/Kandinsky-WM-1.0-Physics-IQ-Verified) | i2v | 30.8 <small>± 0.9</small> | 2026-08-04 |
-| 22 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 30.2 <small>± 1.1</small> | 2026-06-19 |
-| 23 | [Veo 3.1 Fast](https://deepmind.google/models/veo/) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 29.96 <small>± 0.53</small> | 2026-09-27 |
-| 24 | [Wan 2.2 5B](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/80) | i2v | 27.7 <small>± 0.9</small> | 2026-09-04 |
-| 25 | [Sora 2](https://openai.com/index/sora-2/) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 26.5 <small>± 0.8</small> | 2026-06-17 |
-| 26 | [P-Video](https://www.pruna.ai/p-video) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 25.3 <small>± 1.8</small> | 2026-06-17 |
+| 5 | [StrucPhysVideo-TI2V](https://arxiv.org/abs/2609.18430) reported [here](https://arxiv.org/abs/2609.18430) | i2v | 45.5 <small>± 0.4</small> <br> 🥈 i2v | 2026-10-01 |
+| 6 | [Physis-Lang (Cosmos3 Nano)](https://github.com/Physis-Intelligence/Physis-Lang/blob/main/assets/Physis-Lang_arxiv.pdf) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/83) | i2v | 43.3 <small>± 1.5</small> <br> 🥉 i2v | 2026-09-28 |
+| 7 | [Cosmos3-Nano](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/82) | multiframe (v2v) | 43.0 <small>± 2.0</small> | 2026-09-22 |
+| 8 | [Cosmos3-Super-Image2Video](https://huggingface.co/nvidia/Cosmos3-Super-Image2Video) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/issues/75) | i2v | 42.7 <small>± 0.8</small> | 2026-09-04 |
+| 9 | [Seedance 2.5](https://seed.bytedance.com/en/seedance2_5) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 42.43 <small>± 0.76</small> | 2026-09-27 |
+| 10 | [MiniMax H3](https://huggingface.co/MiniMaxAI/MiniMax-H3) <small>(FL2VA)</small> reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/80) | i2v | 39.8 <small>± 0.4</small> | 2026-09-04 |
+| 11 | [Cosmos3-Nano](https://huggingface.co/nvidia/Cosmos3-Nano) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/issues/75) | i2v | 37.3 <small>± 0.9</small> | 2026-09-04 |
+| 12 | [MiniMax H3 Max](https://fal.ai/models/minimax/h3-max/image-to-video) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/80) | i2v | 36.2 <small>± 0.7</small> | 2026-09-04 |
+| 13 | [Gemini Omni 1.1 Flash](https://blog.google/innovation-and-ai/technology/developers-tools/build-with-gemini-omni-1-1-flash/) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 35.34 <small>± 0.44</small> | 2026-09-27 |
+| 14 | [Grok Imagine Video](https://x.ai/news/grok-imagine-api) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 34.8 <small>± 0.6</small> | 2026-06-17 |
+| 15 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 33.7 <small>± 1.4</small> | 2026-06-19 |
+| 16 | [Hunyuan Video 1.5](https://arxiv.org/abs/2511.18870) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 33.4 <small>± 0.8</small> | 2026-06-17 |
+| 17 | [Gemini Omni Flash Preview](https://deepmind.google/models/gemini-omni/) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 33.36 <small>± 0.19</small> | 2026-09-27 |
+| 18 | [Cosmos3-Edge](https://huggingface.co/nvidia/Cosmos3-Edge) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/issues/76) | i2v | 32.7 <small>± 1.1</small> | 2026-08-31 |
+| 19 | [Wan 2.2 14B](https://github.com/Wan-Video/Wan2.2) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 32.2 <small>± 0.6</small> | 2026-06-17 |
+| 20 | [Veo 3.1 Lite](https://deepmind.google/models/model-cards/veo-3-1-lite/) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 31.83 <small>± 0.32</small> | 2026-09-27 |
+| 21 | [CogVideoX-5B](https://huggingface.co/zai-org/CogVideoX-5b-I2V) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/80) | i2v | 31.8 <small>± 1.5</small> | 2026-09-04 |
+| 22 | [Kandinsky-WM 1.0](https://huggingface.co/kandinskylab/Kandinsky-WM-1.0-I2V-5s-PH) reported [here](https://huggingface.co/datasets/Messimm/Kandinsky-WM-1.0-Physics-IQ-Verified) | i2v | 30.8 <small>± 0.9</small> | 2026-08-04 |
+| 23 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | i2v | 30.2 <small>± 1.1</small> | 2026-06-19 |
+| 24 | [Veo 3.1 Fast](https://deepmind.google/models/veo/) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/85) | i2v | 29.96 <small>± 0.53</small> | 2026-09-27 |
+| 25 | [Wan 2.2 5B](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/80) | i2v | 27.7 <small>± 0.9</small> | 2026-09-04 |
+| 26 | [Sora 2](https://openai.com/index/sora-2/) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 26.5 <small>± 0.8</small> | 2026-06-17 |
+| 27 | [P-Video](https://www.pruna.ai/p-video) reported [here](https://arxiv.org/abs/2606.18943) | i2v | 25.3 <small>± 1.8</small> | 2026-06-17 |
 
 For details on the Physics-IQ Verified metrics, see the [arXiv report](https://arxiv.org/abs/2606.18943).
 
