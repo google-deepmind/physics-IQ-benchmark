@@ -42,11 +42,11 @@ The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physi
 
 | # | Model | input type | Physics-IQ verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|
-| 1 | [Odyssey O3](https://odyssey.systems) + best-of-16 (wm-reward + MBR consensus, rank-sum) <small>(prompt-enhanced)</small> reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/90) | multiframe (v2v) | 63.4 <small>(1 run)</small> | 2026-10-05 |
+| 1 | [Odyssey O3](https://odyssey.systems) + best-of-8 (wm-reward + MBR consensus, rank-sum) <small>(prompt-enhanced)</small> reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/90) | multiframe (v2v) | 63.3 <small>(1 run)</small> | 2026-10-05 |
 | 2 | [Odyssey O3](https://odyssey.systems) <small>(prompt-enhanced)</small> reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/90) | multiframe (v2v) | **60.6** <small>± 1.1</small> <br> 🥇 v2v | 2026-10-05 |
 | 3 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) + [GeoPhys (BoN)](https://christianinterno.github.io/GeoPhys/) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | **58.2** <small>± 1.8</small> <br> 🥈 v2v | 2026-06-19 |
-| 4 | [Odyssey O3](https://odyssey.systems) + best-of-16 (wm-reward + MBR consensus, rank-sum) <small>(prompt-enhanced)</small> reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/90) | i2v | 54.6 <small>(1 run)</small> | 2026-10-05 |
-| 5 | [Odyssey O3](https://odyssey.systems) <small>(op)</small> reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/90) | multiframe (v2v) | **51.5** <small>± 0.5</small> <br> 🥉 v2v | 2026-10-05 |
+| 4 | [Odyssey O3](https://odyssey.systems) + best-of-8 (wm-reward + MBR consensus, rank-sum) <small>(prompt-enhanced)</small> reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/90) | i2v | 52.8 <small>(1 run)</small> | 2026-10-05 |
+| 5 | [Odyssey O3](https://odyssey.systems) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/90) | multiframe (v2v) | **51.8** <small>± 0.7</small> <br> 🥉 v2v | 2026-10-05 |
 | 6 | [Cosmos3-Super](https://research.nvidia.com/labs/cosmos-lab/cosmos3/technical-report.pdf) reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/82) | multiframe (v2v) | 50.8 <small>± 2.2</small> | 2026-09-22 |
 | 7 | [Odyssey O3](https://odyssey.systems) <small>(prompt-enhanced)</small> reported [here](https://github.com/google-deepmind/physics-IQ-benchmark/pull/90) | i2v | **48.8** <small>± 0.8</small> <br> 🥇 i2v | 2026-10-05 |
 | 8 | [Magi-1 24B](https://arxiv.org/abs/2505.13211) <small>(op)</small> reported [here](https://christianinterno.github.io/GeoPhys/) | multiframe (v2v) | 48.4 <small>± 1.1</small> | 2026-06-19 |
