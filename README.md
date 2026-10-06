@@ -40,7 +40,7 @@ If you test your model on Physics-IQ Verified and would like your score/paper/mo
 
 The leaderboard is also hosted at: [physics-iq-verified.anates.ai](https://physics-iq-verified.anates.ai)
 
-Note: the test data must under no circumstances be used to improve a submission score - not for BoN selection, and not by a prompt rewriter. E.g., we've seen frontier models independently download the test data when asked to optimize prompts. If using a frontier LLM prompt rewriter, disable internet access and make sure it doesn't have or gain access the test data.
+Note: the test data must under no circumstances be used to improve a submission score - not for BoN selection, and not by a prompt rewriter. E.g., we've seen frontier models independently download the test data when asked to optimize prompts. If using a frontier LLM prompt rewriter, disable internet access and make sure it doesn't have or gain access to the test data.
 
 | # | Model | input type | Physics-IQ verified | date added (YYYY-MM-DD) |
 |---|---|---|---|---|
