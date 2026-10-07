@@ -18,7 +18,7 @@ Physics-IQ Verified website: [physics-iq-verified.anates.ai](https://physics-iq-
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
 - **Diverse scenarios**: Covers a wide range of physical phenomena, including collisions, fluid dynamics, gravity, material properties, light, shadows, magnetism, and more.
 - **Multiple perspectives**: Each scenario is filmed from 3 different angles.
-- **Variations**: Each scenario is recorded twice to capture natural physical variations, with some intended exceptions (see [Reused take-2 recordings](#reused-take-2-recordings)).
+- **Variations**: Each scenario is recorded twice to capture natural physical variations, with some intended exceptions (see [here](https://github.com/google-deepmind/physics-IQ-benchmark/issues/84)).
 - **High resolution and frame rate**: Videos are recorded at 3840 × 2160 resolution and 30 frames per second.
 
 <p align="center">
@@ -655,24 +655,6 @@ The original Physics-IQ score is then plotted in `physics_IQ_score_Original_barp
 </details>
 
 ---
-
-## Reused take-2 recordings
-
-Scores are normalized against the physical variance between take 1 and take 2 of each scenario-view. For 40 of the 198 scenario-views, take 2 reuses the take-1 recording, and in the original release their take-2 test videos are byte-identical to take 1. This is intended ([#84](https://github.com/google-deepmind/physics-IQ-benchmark/issues/84)):
-
-| scenario | views | why take 1 is reused |
-|---|---|---|
-| duck-static, glass-stays-same, light-on-block, light-on-mug, light-on-mug-block, light-on-statue, magnet-domino, mirror-ball-rotate, mirror-teapot-rotate, smiley-ball-rotates, teapot-rotates | all three | static or rotating scenario: two takes from the exact same starting point do not vary |
-| match-blows-balloon | all three | separate takes varied a lot because of the balloon's movement |
-| ball-behind-rotating-paper | all three | separate takes showed too much unwanted variation |
-| duck-falls-in-box | center | separate takes showed too much unwanted variation |
-
-Where the take-to-take MSE is zero, the MSE component of the verified per-view score reduces to `clip(1e-8 / model_mse, 0, 1)` (see `physiq/calculate_iq_score_stable.py`). The evaluator rounds each per-frame MSE to four decimals, so a generated video whose per-frame MSE against take 1 is below 0.00005 in every frame gets a model MSE of zero and full credit on this component. For any other generated video this component is close to zero, so the per-view score, the mean of the three IoU components and the MSE component, is at most about 0.75. Keep this in mind when comparing per-scenario scores.
-
-In Physics-IQ Verified at 24 FPS, the take-to-take MSE is non-zero for magnet-domino (left) and the three match-blows-balloon views. The other 36 scenario-views listed above have zero take-to-take MSE at 24 FPS, after the evaluator rounds each per-frame value to four decimals.
-
----
-
 
 ## Citation
 If you think this project is helpful, please feel free to leave a star ⭐️
