@@ -18,7 +18,7 @@ Physics-IQ Verified website: [physics-iq-verified.anates.ai](https://physics-iq-
 - **Real-world videos**: All videos are captured with high-quality cameras, not rendered.
 - **Diverse scenarios**: Covers a wide range of physical phenomena, including collisions, fluid dynamics, gravity, material properties, light, shadows, magnetism, and more.
 - **Multiple perspectives**: Each scenario is filmed from 3 different angles.
-- **Variations**: Each scenario is recorded twice to capture natural physical variations.
+- **Variations**: Each scenario is recorded twice to capture natural physical variations, with some intended exceptions (see [here](https://github.com/google-deepmind/physics-IQ-benchmark/issues/84)).
 - **High resolution and frame rate**: Videos are recorded at 3840 × 2160 resolution and 30 frames per second.
 
 <p align="center">
@@ -666,7 +666,6 @@ The original Physics-IQ score is then plotted in `physics_IQ_score_Original_barp
 </details>
 
 ---
-
 
 ## Citation
 If you think this project is helpful, please feel free to leave a star ⭐️
