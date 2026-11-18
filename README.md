@@ -349,7 +349,7 @@ First choose the input mode used by your model.
 <details>
   <summary>Multiframe-to-video models (V2V)</summary>
 
-1. Use conditioning videos from `physics-IQ-benchmark-verified/split-videos/conditioning/30FPS` (or a different FPS as required).
+1. Use conditioning videos from `physics-IQ-benchmark-verified/split-videos/conditioning/`.
 2. If your model also accepts text input, use the descriptions CSV selected or generated in Step C.
 3. Ensure the frame rate matches the benchmark FPS you will evaluate at.
 4. Save generated videos with the benchmark ID prefix:
